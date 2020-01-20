@@ -1,0 +1,9 @@
+[submodule "osu-resources"]
+	path = osu-resources
+	url = https://github.com/ppy/osu-resources
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/glfw/glfw
+[submodule "libconfig"]
+	path = libconfig
+	url = https://github.com/hyperrealm/libconfig
