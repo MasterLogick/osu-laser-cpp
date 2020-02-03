@@ -1,0 +1,9 @@
+//
+// Created by user on 1/19/20.
+//
+#ifndef OSU_LASER_C_PLATFORM_DEPENDENT_DEFINES_H
+#define OSU_LASER_C_PLATFORM_DEPENDENT_DEFINES_H
+
+#define CONFIG_PATH "@CONFIG_PATH@"
+#define RESOURCE_ROOT "@RESOURCES@"
+#endif

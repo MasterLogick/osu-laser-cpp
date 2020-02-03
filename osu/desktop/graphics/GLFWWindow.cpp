@@ -4,6 +4,8 @@
 
 #include "GLFWWindow.h"
 #include "../interaction/Properties.h"
+#include <iostream>
+#include <glad/glad.h>
 
 namespace osu {
     void GLFWWindow::printPrimaryMonitorVideoModes() {
@@ -17,7 +19,7 @@ namespace osu {
 
     GLFWWindow::GLFWWindow() {
 #ifndef NDEBUG
-        printPrimaryMonitorVideoModes();
+        GLFWWindow::printPrimaryMonitorVideoModes();
 #endif
         if (Properties::VideoMode->exists("Width") && Properties::VideoMode->exists("Height") &&
             Properties::VideoMode->exists("RefreshRate") && Properties::VideoMode->exists("Type")) {
@@ -94,11 +96,12 @@ namespace osu {
             (*Properties::VideoMode)["RefreshRate"] = refreshRate;
             (*Properties::VideoMode)["Type"] = type;
         }
+
         //todo chech if window == nullptr
     }
 
     GLFWWindow::~GLFWWindow() {
-
+        //todo
     }
 
     void GLFWWindow::setCurrent() {
@@ -181,7 +184,7 @@ namespace osu {
     }
 
     void GLFWWindow::viewport() {
-        glfwGetFramebufferSize(window, &width, &height);
+//        glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height);
     }
 

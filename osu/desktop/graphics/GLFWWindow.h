@@ -1,10 +1,10 @@
 //
 // Created by user on 1/18/20.
 //
+#ifndef OSU_LASER_C_GLFWWINDOW_H
+#define  OSU_LASER_C_GLFWWINDOW_H
 
-
-#include <iostream>
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 #define TYPE_WINDOW 'W'
 #define TYPE_BORDERLESS 'B'
@@ -63,3 +63,4 @@ namespace osu {
         int height;
     };
 }
+#endif

@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="osu-laser-cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="osu-laser-cpp" TARGET_NAME="osu-laser-cpp" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="osu-laser-cpp" RUN_TARGET_NAME="osu-laser-cpp">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

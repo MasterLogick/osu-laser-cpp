@@ -2,9 +2,14 @@
 <project version="4">
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
+    <sourceRoots>
+      <file path="$PROJECT_DIR$/osu" />
+    </sourceRoots>
     <libraryRoots>
       <file path="$PROJECT_DIR$/glad" />
+      <file path="$PROJECT_DIR$/glew" />
       <file path="$PROJECT_DIR$/glfw" />
+      <file path="$PROJECT_DIR$/glm" />
       <file path="$PROJECT_DIR$/libconfig" />
     </libraryRoots>
   </component>

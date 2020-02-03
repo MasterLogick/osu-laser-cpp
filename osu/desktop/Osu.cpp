@@ -1,83 +1,36 @@
-#include "interaction/Properties.h"
+#include "Osu.h"
 #include "graphics/Graphics.h"
-/*
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+#include "interaction/Properties.h"
+#include "logic/Logic.h"
+#include "interaction/Interaction.h"
+#include <boost/dll/runtime_symbol_info.hpp>
+bool osu::shouldClose = false;
 
-void processInput(GLFWwindow *window);
-
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;*/
-namespace osu {
-    static bool shouldClose = false;
-    int main() {
-        Properties::initialise();
-        Graphics::initialise();
-/* // glfw: initialize and configure
-    // ------------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
-#endif
-
-    // glfw window creation
-    // --------------------
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
+int main(int argc, const char **argv, const char **envp) {
+    for (int i = 0; i < argc; i++) {
+        std::cout << argv[i] << std::endl;
     }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    // render loop
-    // -----------
-    while (!glfwWindowShouldClose(window)) {
-        // input
-        // -----
-        processInput(window);
-
-        // render
-        // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
-    glfwTerminate();
-    return 0;*/
-    }
-/*
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    std::cout << boost::dll::program_location() << std::endl;
+    osu::Osu::initialise();
+    osu::Osu::start();
+    return EXIT_SUCCESS;
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}*/
+namespace osu {
+    void Osu::initialise() {
+        srand(time(nullptr));
+        Properties::initialise();
+        Graphics::initialise();
+        Logic::initialise();
+        Interaction::initialise();
+    }
+
+    void Osu::start() {
+        Logic::start();
+        Interaction::start();
+        Graphics::start();
+        std::cout << "Join to drawingThread" << std::endl;
+//        while (true)std::this_thread::yield();
+        Graphics::drawingThread->join();
+    }
 }

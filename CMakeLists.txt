@@ -1,22 +1,68 @@
 cmake_minimum_required(VERSION 3.15)
-project(osu-laser-cpp)
+project(osu-laser-cpp VERSION 0.0.1 LANGUAGES C CXX)
 
+if (CMAKE_HOST_WIN32)
+    set(libname "libconfig")
+else ()
+    set(libname "config")
+endif ()
+#find opengl
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
+
+#find boost
+find_package(Boost 1.65.1 REQUIRED COMPONENTS system filesystem)
+
+#cpp default settings
 set(CMAKE_CXX_STANDARD 20)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-# Including GLFW
+set(RESOURCES ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources)
+set(CONFIG_PATH ${PROJECT_BINARY_DIR}/config.cfg)
+
+#code generation
+configure_file(osu/desktop/platformDependentDefines.h.in ${PROJECT_BINARY_DIR}/platformDependentDefines.h)
+
+# compiling GLFW
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
-include_directories(glfw/include)
 
-# Including GLAD
-include_directories(glad/include)
+#compilation defines
+add_compile_definitions(GLFW_INCLUDE_NONE GLM_FORCE_messageS)
 
-include_directories(libconfig)
+#compiling libconfig
+add_subdirectory(libconfig)
 
-#set(SOURCE_FILES osu/desktop/main.cpp glad/src/glad.c osu/desktop/graphics/GLFWWindow.h osu/desktop/interaction/Properties.h osu/desktop/interaction/Property.cpp osu/desktop/interaction/Property.h osu/desktop/graphics/GLFWWindow.cpp)
+#compiling glm
+add_subdirectory(glm/glm)
+add_library(glm::glm ALIAS glm)
+
+#adding sources
 file(GLOB_RECURSE SOURCE_FILES "osu/desktop/*")
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} glad/src/glad.c)#
 
-# Linking GLFW and OGL
+#include cmake generated headers
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR})
+
+#include boost
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
+#include glm
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC glm/glm)
+
+#including GLFW
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC glfw/include)
+
+#including libconfig
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC libconfig/lib)
+
+#including GLAD
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC glad/include)
+
+#link boost
+target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES})
+
+#link GLFW
 target_link_libraries(${CMAKE_PROJECT_NAME} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY})
+
+#link libconfig and pthread
+target_link_libraries(${CMAKE_PROJECT_NAME} pthread ${libname}++)

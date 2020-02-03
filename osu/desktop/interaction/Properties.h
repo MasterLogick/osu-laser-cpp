@@ -1,10 +1,13 @@
 //
 // Created by user on 1/18/20.
 //
+#ifndef OSU_LASER_C_PROPERTIES_H
+#define OSU_LASER_C_PROPERTIES_H
 
 #include <libconfig.h++>
 
 using namespace libconfig;
+
 namespace osu {
     class Properties {
     private:
@@ -17,5 +20,7 @@ namespace osu {
 
         static void initialise();
     };
+
 }
+#endif
 
