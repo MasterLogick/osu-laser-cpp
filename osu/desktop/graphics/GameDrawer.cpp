@@ -5,5 +5,5 @@
 #include "GameDrawer.h"
 
 namespace osu {
-    MSAASystem GameDrawer::msaaSystem = MSAASystem(MSAA_LEVEL);
+    PostProcessor GameDrawer::postProcessor = PostProcessor(MSAA_LEVEL);
 }

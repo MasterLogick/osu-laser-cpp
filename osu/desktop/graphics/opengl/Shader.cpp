@@ -14,6 +14,7 @@
 
 namespace osu {
     Shader *Shader::triangleShader = nullptr;
+    Shader *Shader::postProcessor = nullptr;
 
     osu::Shader::Shader(int id, std::map<std::string, int> *uniforms) {
         program = id;
@@ -38,6 +39,7 @@ namespace osu {
         c[0] = (char *) "x";
         c[1] = (char *) "y";
         triangleShader = ShaderLoader::loadShader((char *) "TrianglesBackground", c, 2);
+        postProcessor = ShaderLoader::loadShader((char *) "PostProcessor", nullptr, 0);
         triangleShader->
                 bindUniform(SCREEN_INFO_BINDING_POINT,
                             (char *) "Screen");
@@ -59,5 +61,9 @@ namespace osu {
 
     void Shader::uniform(const char *name, float val) {
         glUniform1f(uniforms->find(name)->second, val);
+    }
+
+    void Shader::uniform(const char *name, int val) {
+        glUniform1i(uniforms->find(name)->second, val);
     }
 }

@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 #include "opengl/Shader.h"
-#include "opengl/MSAASystem.h"
+#include "opengl/PostProcessor.h"
 #include "UI/UIManager.h"
 #include "Graphics.h"
 
@@ -14,10 +14,12 @@
 namespace osu {
     class GameDrawer {
     private:
-        static MSAASystem msaaSystem;
+        static PostProcessor postProcessor;
 
         static void preProcessing() {
-            msaaSystem.prepareForDraw();
+            postProcessor.preparePostProcessor();
+            glEnable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         }
@@ -32,7 +34,7 @@ namespace osu {
         }
 
         static void postProcessing() {
-
+            postProcessor.postProcess(0);// 0 is id of window framebuffer
         }
 
         static void render() {
@@ -42,8 +44,8 @@ namespace osu {
     public:
         static void initialise() {
             Shader::initialise();
+            postProcessor.initialise(Graphics::mainScreen->getWidth(), Graphics::mainScreen->getHeight());
             UIManager::initialise();
-            glEnable(GL_BLEND);
         }
 
         static void draw() {
@@ -57,6 +59,6 @@ namespace osu {
         }
     };
 
-//    MSAASystem GameDrawer::msaaSystem = MSAASystem(MSAA_LEVEL);
+//    PostProcessor GameDrawer::postProcessor = PostProcessor(MSAA_LEVEL);
 }
 #endif

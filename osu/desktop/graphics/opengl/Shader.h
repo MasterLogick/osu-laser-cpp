@@ -22,6 +22,7 @@ namespace osu {
 
     public:
         static Shader *triangleShader;
+        static Shader *postProcessor;
 
         Shader(int id, std::map<std::string, int> *uniforms);
 
@@ -30,6 +31,8 @@ namespace osu {
         GLuint getAttribLocation(const GLchar *name);
 
         void uniform(const char *name, float val);
+
+        void uniform(const char *name, int val);
 
         static void initialise();
     };
