@@ -1,14 +1,35 @@
 //
-// Created by user on 1/20/20.
+// Created by MasterLogick on 1/20/20.
 //
 #include "Callbacks.h"
 #include "Osu.h"
 #include <iostream>
 #include <glad/glad.h>
+#include "graphics/UI/BackgroundRootContainer.h"
+#include "graphics/Graphics.h"
 
 namespace osu {
     void errorCallback(int error_code, const char *description) {
         std::cout << "Error code: " << error_code << "\n" << description << std::endl;
+    }
+
+    void closeCallback(GLFWwindow *window) {
+        shouldClose = true;
+#ifndef NDEBUG
+        std::cout << "WindowClose event" << std::endl;
+#endif
+    }
+
+    void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_KP_ADD) {
+            ++BackgroundRootContainer::size;
+        }
+        if (key == GLFW_KEY_KP_SUBTRACT) {
+            --BackgroundRootContainer::size;
+        }
+        if (key == GLFW_KEY_ESCAPE) {
+            shouldClose = true;
+        }
     }
 
 #ifndef NDEBUG
@@ -90,53 +111,7 @@ namespace osu {
         }
         std::cout << std::endl;
         std::cout << std::endl;
-        /*std::string severityStr;
-        switch (severity) {
-            case GL_DEBUG_SEVERITY_HIGH :
-                severityStr = "HIGH SEVERITY";
-                break;
-            case GL_DEBUG_SEVERITY_LOW :
-                severityStr = "LOW SEVERITY";
-                break;
-            case GL_DEBUG_SEVERITY_MEDIUM :
-                severityStr = "MEDIUM SEVERITY";
-                break;
-            case GL_DEBUG_SEVERITY_NOTIFICATION:
-                severityStr = "INFO";
-                break;
-        }
-        std::string typeStr;
-        switch (type) {
-            case GL_DEBUG_TYPE_ERROR:
-                typeStr = "ERROR";
-                break;
-            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-                typeStr = "DEPRECATED BEHAVIOR";
-                break;
-            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-                typeStr = "UNDEFINED BEHAVIOR";
-                break;
-            case GL_DEBUG_TYPE_PORTABILITY:
-                typeStr = "TYPE PORTABILITY";
-                break;
-            case GL_DEBUG_TYPE_PERFORMANCE:
-                typeStr = "TYPE PERFORMANCE";
-                break;
-            case GL_DEBUG_TYPE_OTHER :
-                typeStr = "TYPE OTHER";
-                break;
-        }
-        fprintf(stderr, "GL CALLBACK: %s: %s: %s\n",
-                typeStr.c_str(), severityStr.c_str(), message);*/
-
     }
 
 #endif
-
-    void closeCallback(GLFWwindow *window) {
-        shouldClose = true;
-#ifndef NDEBUG
-        std::cout << "WindowClose event" << std::endl;
-#endif
-    }
 }

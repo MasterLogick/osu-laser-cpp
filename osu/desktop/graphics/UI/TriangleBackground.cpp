@@ -1,5 +1,5 @@
 //
-// Created by user on 1/25/20.
+// Created by MasterLogick on 1/25/20.
 //
 
 #include <cstdlib>
@@ -119,6 +119,7 @@ namespace osu {
         Shader::triangleShader->bind();
         Shader::triangleShader->uniform("x", (float) x);
         Shader::triangleShader->uniform("y", (float) y);
+        glBlendFunc(GL_ONE, GL_ZERO);
         glBindVertexArray(vao);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 3, amount);
     }

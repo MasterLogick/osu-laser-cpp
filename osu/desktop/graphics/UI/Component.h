@@ -1,5 +1,5 @@
 //
-// Created by user on 2/3/20.
+// Created by MasterLogick on 2/3/20.
 //
 
 #ifndef OSU_LASER_C_COMPONENT_H

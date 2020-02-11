@@ -1,5 +1,5 @@
 //
-// Created by user on 1/25/20.
+// Created by MasterLogick on 1/25/20.
 //
 
 #ifndef OSU_LASER_C_TRIANGLEBACKGROUND_H

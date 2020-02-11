@@ -1,5 +1,5 @@
 //
-// Created by user on 1/18/20.
+// Created by MasterLogick on 1/18/20.
 //
 #ifndef OSU_LASER_C_PROPERTIES_H
 #define OSU_LASER_C_PROPERTIES_H

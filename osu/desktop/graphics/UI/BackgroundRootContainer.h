@@ -1,5 +1,5 @@
 //
-// Created by user on 2/3/20.
+// Created by MasterLogick on 2/3/20.
 //
 
 #ifndef OSU_LASER_C_BACKGROUNDROOTCONTAINER_H
@@ -10,25 +10,22 @@
 
 #define TRIANGLES_AMOUNT 1000
 namespace osu {
+
     class BackgroundRootContainer : Component {
     private:
-        void draw(int x, int y) override {
-            triangleBackground.draw(0, 0);
-        }
+        void draw(int x, int y) override;
 
         TriangleBackground triangleBackground;
     public:
-        BackgroundRootContainer() : triangleBackground(1000) {
+        static int size;
+
+        BackgroundRootContainer() : triangleBackground(TRIANGLES_AMOUNT) {
 
         }
 
-        void draw() {
-            draw(0, 0);
-        }
+        void draw();
 
-        void initialise() {
-            triangleBackground.initialise();
-        }
+        void initialise();
     };
 }
 

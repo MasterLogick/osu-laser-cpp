@@ -4,21 +4,27 @@
 #include "logic/Logic.h"
 #include "interaction/Interaction.h"
 #include <boost/dll/runtime_symbol_info.hpp>
-bool osu::shouldClose = false;
+#include <locale>
+
+
 
 int main(int argc, const char **argv, const char **envp) {
+#ifndef NDEBUG
     for (int i = 0; i < argc; i++) {
         std::cout << argv[i] << std::endl;
     }
     std::cout << boost::dll::program_location() << std::endl;
+#endif
     osu::Osu::initialise();
     osu::Osu::start();
     return EXIT_SUCCESS;
 }
 
 namespace osu {
+    bool shouldClose = false;
     void Osu::initialise() {
         srand(time(nullptr));
+        std::locale::global(std::locale("en_US.UTF-8"));
         Properties::initialise();
         Graphics::initialise();
         Logic::initialise();
@@ -29,7 +35,9 @@ namespace osu {
         Logic::start();
         Interaction::start();
         Graphics::start();
+#ifndef NDEBUG
         std::cout << "Join to drawingThread" << std::endl;
+#endif
 //        while (true)std::this_thread::yield();
         Graphics::drawingThread->join();
     }

@@ -1,5 +1,5 @@
 //
-// Created by user on 1/19/20.
+// Created by MasterLogick on 1/19/20.
 //
 
 #include <iostream>
@@ -9,7 +9,7 @@
 
 namespace osu {
 
-    Config Properties::cfg = Config();
+    Config Properties::cfg{};
     Setting *Properties::VideoMode = nullptr;
     Setting *Properties::Title = nullptr;
     Setting *Properties::MSAALevel = nullptr;

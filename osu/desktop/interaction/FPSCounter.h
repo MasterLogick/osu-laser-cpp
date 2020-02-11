@@ -1,5 +1,5 @@
 //
-// Created by user on 1/25/20.
+// Created by MasterLogick on 1/25/20.
 //
 
 #ifndef OSU_LASER_C_FPSCOUNTER_H
@@ -11,7 +11,7 @@
 using namespace std::chrono;
 namespace osu {
 
-    class FPSCounter : duration<double, std::milli> {
+    class FPSCounter {
     private:
         time_point<system_clock, duration<double, std::milli>> past;
         time_point<system_clock, duration<double, std::milli>> future;
@@ -19,54 +19,17 @@ namespace osu {
         int now;
         double *durations;
     public:
-        explicit FPSCounter(int range) {
-            _range = range;
-            now = 0;
-            durations = new double[range];
-            past = high_resolution_clock::now();
-            future = high_resolution_clock::now();
-        }
+        explicit FPSCounter(int range);
 
-        ~FPSCounter() {
-            delete[] durations;
-        }
+        ~FPSCounter();
 
-        double getFPS() {
-            return 1000 / durations[now];
-        }
+        double getFPS();
 
-        void setRange(int range) {
-            double *old = durations;
-            _range = range;
-            now = 0;
-            durations = new double[range];
-//            perPeriod = 0;
-            past = high_resolution_clock::now();
-            future = high_resolution_clock::now();
-            delete[] old;
-        }
+        void setRange(int range);
 
-        void countFPSAndSleep() {
-            duration<double, std::milli> length =
-                    (future = high_resolution_clock::now()) - past;
-            if (++now == _range) {
-                now = 0;
-            }
-            durations[now] = length.count();
-            past = future;
-//            struct tm *timer_info;
-//            char buff[26];
-//            time_t a = system_clock::to_time_t(system_clock::now());
-//            timer_info = localtime(&a);
-//            strftime(buff, 26, "%Y-%m-%d %H:%M:%S", timer_info);
-//            std::cout << buff << " " << getFPS() << " " << durations[now] << " " << now << std::endl;
-            std::this_thread::sleep_until(
-                    time_point_cast<seconds>(future) + microseconds(1000000 * (now + 1) / _range));
-        }
+        void countFPSAndSleep();
 
-        float getDelta() {
-            return durations[now];
-        }
+        float getDelta();
     };
 }
 

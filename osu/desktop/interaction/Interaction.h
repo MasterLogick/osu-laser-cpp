@@ -1,5 +1,5 @@
 //
-// Created by user on 1/24/20.
+// Created by MasterLogick on 1/24/20.
 //
 
 #ifndef OSU_LASER_C_INTERACTION_H
@@ -11,14 +11,9 @@
 namespace osu {
     class Interaction {
     public:
-        static void initialise() {
-            AudioSystem::initialise();
-            Input::initialise();
-        }
+        static void initialise();
 
-        static void start() {
-
-        }
+        static void start();
     };
 }
 

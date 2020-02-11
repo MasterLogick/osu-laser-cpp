@@ -1,5 +1,5 @@
 //
-// Created by user on 1/23/20.
+// Created by MasterLogick on 1/23/20.
 //
 #ifndef OSU_LASER_C_OSU_H
 #define OSU_LASER_C_OSU_H

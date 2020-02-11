@@ -1,5 +1,5 @@
 //
-// Created by user on 1/19/20.
+// Created by MasterLogick on 1/19/20.
 //
 #ifndef OSU_LASER_C_GRAPHICS_H
 #define OSU_LASER_C_GRAPHICS_H
@@ -18,6 +18,7 @@ namespace osu {
 
     class Graphics {
     public:
+        static FPSCounter* drawingCounter;
         static std::thread *drawingThread;
         static GLFWWindow *mainScreen;
 
