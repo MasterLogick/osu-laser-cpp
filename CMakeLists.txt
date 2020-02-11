@@ -29,7 +29,7 @@ option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 
 #compilation defines
-add_compile_definitions(GLFW_INCLUDE_NONE GLM_FORCE_messageS)
+add_compile_definitions(GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
 
 #compiling libconfig
 add_subdirectory(libconfig)
@@ -41,9 +41,16 @@ add_library(glm::glm ALIAS glm)
 #compiling SOIL
 add_subdirectory(SOIL)
 
-#adding sources
+#det glad sources
+set(GLAD_SOURCES glad/src/glad.c)
+
+#adding main sources
 file(GLOB_RECURSE SOURCE_FILES "osu/desktop/*")
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} glad/src/glad.c)#
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${GLAD_SOURCES})
+
+#adding test sources
+#file(GLOB_RECURSE TEST_SOURCE_FILES "osu/test/*")
+#add_executable(${CMAKE_PROJECT_NAME}-test ${TEST_SOURCE_FILES} ${GLAD_SOURCES})
 
 #include cmake generated headers
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR})
@@ -67,4 +74,4 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC glad/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC SOIL/src)
 
 #link boost GLFW
-target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} pthread ${libconfig_libname}++ soil_static)
+target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} pthread ${libconfig_libname}++ soil-static)
