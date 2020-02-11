@@ -155,14 +155,11 @@ namespace osu {
         }
         std::cout << std::endl;
         std::cout << std::endl;
-
-
     }
 
 #endif
 
     void closeCallback(GLFWwindow *window) {
-
         shouldClose = true;
 #ifndef NDEBUG
         std::cout << "WindowClose event" << std::endl;
