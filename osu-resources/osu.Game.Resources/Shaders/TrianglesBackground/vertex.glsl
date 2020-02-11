@@ -14,5 +14,5 @@ uniform float y;
 out float colorOut;
 void main(){
     colorOut = alpha;
-    gl_Position = projection*vec4(localPos*scale+globalPos+vec2(x, y), 0.0f, 1.0f);
+    gl_Position = projection*vec4(localPos*scale+globalPos+vec2(x, y), -999.0f, 1.0f);
 }
