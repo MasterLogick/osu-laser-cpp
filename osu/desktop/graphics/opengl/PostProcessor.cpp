@@ -15,7 +15,6 @@ namespace osu {
         glBindFramebuffer(GL_FRAMEBUFFER, destinationFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-//        glDisable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
         glDisable(GL_BLEND);
         Shader::postProcessorShader->bind();
