@@ -160,6 +160,7 @@ namespace osu {
 #endif
 
     void closeCallback(GLFWwindow *window) {
+
         shouldClose = true;
 #ifndef NDEBUG
         std::cout << "WindowClose event" << std::endl;
