@@ -11,7 +11,6 @@ namespace osu {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, multiSampledFramebuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessingFramebuffer);
         glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
         glBindFramebuffer(GL_FRAMEBUFFER, destinationFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -96,6 +95,8 @@ namespace osu {
 //
 // Created by Masterlogick on 2/5/20.
 //
+
+
 
 #include "PostProcessor.h"
 #include "Shader.h"
