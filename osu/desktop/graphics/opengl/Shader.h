@@ -1,5 +1,5 @@
 //
-// Created by user on 1/25/20.
+// Created by MasterLogick on 1/25/20.
 //
 
 #ifndef OSU_LASER_C_SHADER_H
@@ -10,11 +10,10 @@
 #include <glad/glad.h>
 
 namespace osu {
-    const int SCREEN_INFO_BINDING_POINT = 0;
 
     class Shader {
     private:
-        int program;
+        GLuint program;
         std::map<std::string, int> *uniforms;
         int id;
 
@@ -22,9 +21,10 @@ namespace osu {
 
     public:
         static Shader *triangleShader;
-        static Shader *postProcessor;
+        static Shader *postProcessorShader;
+        static Shader *fontShader;
 
-        Shader(int id, std::map<std::string, int> *uniforms);
+        Shader(GLuint id, std::map<std::string, int> *uniforms);
 
         void bind();
 
@@ -35,6 +35,9 @@ namespace osu {
         void uniform(const char *name, int val);
 
         static void initialise();
+
+        void uniform3(const char name[6], float *val);
+        void uniform4(const char name[6], float *val);
     };
 }
 
