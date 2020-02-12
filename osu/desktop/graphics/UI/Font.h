@@ -80,7 +80,7 @@ namespace osu {
         Char *chars;
         Page *pages;
         unsigned int charactersCount;
-        std::map<wchar_t , std::map<wchar_t , int> > kerningPairs;
+//        std::map<wchar_t , std::map<wchar_t , int> > kerningPairs;
         std::string *pageNames;
 
         GLuint vao;
@@ -94,6 +94,25 @@ namespace osu {
     public:
 
         static Font *Exo2_0_Black;
+        static Font *Exo2_0_BlackItalic;
+        static Font *Exo2_0_Bold;
+        static Font *Exo2_0_BoldItalic;
+        static Font *Exo2_0_Light;
+        static Font *Exo2_0_LightItalic;
+        static Font *Exo2_0_Medium;
+        static Font *Exo2_0_MediumItalic;
+        static Font *Exo2_0_Regular;
+        static Font *Exo2_0_RegularItalic;
+        static Font *Exo2_0_SemiBold;
+        static Font *Exo2_0_SemiBoldItalic;
+        static Font *Noto_Basic;
+        static Font *Noto_CJK_Basic;
+        static Font *Noto_CJK_Compatibility;
+        static Font *Noto_Hangul;
+        static Font *osuFont;
+        static Font *Venera;
+        static Font *Venera_Light;
+        static Font *Venera_Medium;
 
         static void initialise();
 

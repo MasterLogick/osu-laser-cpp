@@ -7,6 +7,27 @@
 #include "../opengl/Shader.h"
 
 namespace osu {
+    Font *Font::Exo2_0_Black = nullptr;
+    Font *Font::Exo2_0_BlackItalic = nullptr;
+    Font *Font::Exo2_0_Bold = nullptr;
+    Font *Font::Exo2_0_BoldItalic = nullptr;
+    Font *Font::Exo2_0_Light = nullptr;
+    Font *Font::Exo2_0_LightItalic = nullptr;
+    Font *Font::Exo2_0_Medium = nullptr;
+    Font *Font::Exo2_0_MediumItalic = nullptr;
+    Font *Font::Exo2_0_Regular = nullptr;
+    Font *Font::Exo2_0_RegularItalic = nullptr;
+    Font *Font::Exo2_0_SemiBold = nullptr;
+    Font *Font::Exo2_0_SemiBoldItalic = nullptr;
+    Font *Font::Noto_Basic = nullptr;
+    Font *Font::Noto_CJK_Basic = nullptr;
+    Font *Font::Noto_CJK_Compatibility = nullptr;
+    Font *Font::Noto_Hangul = nullptr;
+    Font *Font::osuFont = nullptr;
+    Font *Font::Venera = nullptr;
+    Font *Font::Venera_Light = nullptr;
+    Font *Font::Venera_Medium = nullptr;
+
     static const unsigned int indices[] = {
             3, 1, 2,                        //23
             1, 0, 2                         //01
@@ -26,8 +47,6 @@ namespace osu {
         middle = (left + right) / 2;
         return chars + middle;
     }
-
-    Font *Font::Exo2_0_Black = nullptr;
 
     unsigned int charsToInt(const char *c) {
         return (unsigned char) c[3] << 24 | (unsigned char) c[2] << 16 | (unsigned char) c[1] << 8 | (unsigned char) c[0];
@@ -107,7 +126,7 @@ namespace osu {
             c->page = (unsigned char) fileData[18];
             c->chnl = (unsigned char) fileData[19];
         }
-        fileData++;
+        /*fileData++;
         unsigned int kerningPairsBlockSize = charsToInt(fileData);
         saved = fileData;
         while (saved + kerningPairsBlockSize > fileData) {
@@ -116,17 +135,56 @@ namespace osu {
             int amount = charsToWord(fileData + 8);
             kerningPairs[first][second] = amount;
             fileData += FONT_KERNING_BLOCK_SIZE;
-        }
+        }*/
 #ifndef NDEBUG
         std::cout << "Font '" << info.fontName << "' metadata read" << std::endl;
 #endif
     }
 
     void Font::initialise() {
-        //--------Fonts loading block begin-----------
+        //--------Fonts loading block-----------
         Font::Exo2_0_Black = new Font("Exo2.0-Black");
-        //--------Fonts loading block end-------------
+        Font::Exo2_0_BlackItalic = new Font("Exo2.0-BlackItalic");
+        Font::Exo2_0_Bold = new Font("Exo2.0-Bold");
+        Font::Exo2_0_BoldItalic = new Font("Exo2.0-BoldItalic");
+        Font::Exo2_0_Light = new Font("Exo2.0-Light");
+        Font::Exo2_0_LightItalic = new Font("Exo2.0-LightItalic");
+        Font::Exo2_0_Medium = new Font("Exo2.0-Medium");
+        Font::Exo2_0_MediumItalic = new Font("Exo2.0-MediumItalic");
+        Font::Exo2_0_Regular = new Font("Exo2.0-Regular");
+        Font::Exo2_0_RegularItalic = new Font("Exo2.0-RegularItalic");
+        Font::Exo2_0_SemiBold = new Font("Exo2.0-SemiBold");
+        Font::Exo2_0_SemiBoldItalic = new Font("Exo2.0-SemiBoldItalic");
+        Font::Noto_Basic = new Font("Noto-Basic");
+        Font::Noto_CJK_Basic = new Font("Noto-CJK-Basic");
+        Font::Noto_CJK_Compatibility = new Font("Noto-CJK-Compatibility");
+        Font::Noto_Hangul = new Font("Noto-Hangul");
+        Font::osuFont = new Font("osuFont");
+        Font::Venera = new Font("Venera");
+        Font::Venera_Light = new Font("Venera-Light");
+        Font::Venera_Medium = new Font("Venera-Medium");
+
+        //--------Fonts initialising block-------------
         Font::Exo2_0_Black->loadTextures();
+        Font::Exo2_0_BlackItalic->loadTextures();
+        Font::Exo2_0_Bold->loadTextures();
+        Font::Exo2_0_BoldItalic->loadTextures();
+        Font::Exo2_0_Light->loadTextures();
+        Font::Exo2_0_LightItalic->loadTextures();
+        Font::Exo2_0_Medium->loadTextures();
+        Font::Exo2_0_MediumItalic->loadTextures();
+        Font::Exo2_0_Regular->loadTextures();
+        Font::Exo2_0_RegularItalic->loadTextures();
+        Font::Exo2_0_SemiBold->loadTextures();
+        Font::Exo2_0_SemiBoldItalic->loadTextures();
+        Font::Noto_Basic->loadTextures();
+        Font::Noto_CJK_Basic->loadTextures();
+        Font::Noto_CJK_Compatibility->loadTextures();
+        Font::Noto_Hangul->loadTextures();
+        Font::osuFont->loadTextures();
+        Font::Venera->loadTextures();
+        Font::Venera_Light->loadTextures();
+        Font::Venera_Medium->loadTextures();
     }
 
     void Font::loadTextures() {
@@ -150,10 +208,6 @@ namespace osu {
             pages[i].id = texture;
             pages[i].width = width;
             pages[i].height = height;
-#ifndef NDEBUG
-            std::cout << "Texture '" << pageNames[i] << "' with width " << width << ", height " << height << " and channels amount "
-                      << chanels << " loaded as texture " << texture << std::endl;
-#endif
         }
         float data[16];
         GLuint positionLocation = Shader::fontShader->getAttribLocation("position");
@@ -217,12 +271,12 @@ namespace osu {
             glNamedBufferSubData(vbo, 0, 2 * 2 * 4 * sizeof(float), vertsData);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             carretGlobalPos += c->xadvance * m;
-            if (i != len - 1) {
+            /*if (i != len - 1) {
                 auto iter = kerningPairs[str[i]].find(str[i + 1]);
                 if (iter != kerningPairs[str[i]].end()) {
                     carretGlobalPos += iter->second * m;
                 }
-            }
+            }*/
         }
     }
 }
