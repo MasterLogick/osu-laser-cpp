@@ -94,6 +94,7 @@ namespace osu {
     public:
 
         static Font *Exo2_0_Black;
+#ifdef COMPILE_WITH_ALL_FONTS
         static Font *Exo2_0_BlackItalic;
         static Font *Exo2_0_Bold;
         static Font *Exo2_0_BoldItalic;
@@ -113,6 +114,7 @@ namespace osu {
         static Font *Venera;
         static Font *Venera_Light;
         static Font *Venera_Medium;
+#endif
 
         static void initialise();
 

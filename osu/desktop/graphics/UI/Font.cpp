@@ -8,6 +8,7 @@
 
 namespace osu {
     Font *Font::Exo2_0_Black = nullptr;
+#ifdef COMPILE_WITH_ALL_FONTS
     Font *Font::Exo2_0_BlackItalic = nullptr;
     Font *Font::Exo2_0_Bold = nullptr;
     Font *Font::Exo2_0_BoldItalic = nullptr;
@@ -27,11 +28,7 @@ namespace osu {
     Font *Font::Venera = nullptr;
     Font *Font::Venera_Light = nullptr;
     Font *Font::Venera_Medium = nullptr;
-
-    static const unsigned int indices[] = {
-            3, 1, 2,                        //23
-            1, 0, 2                         //01
-    };
+#endif
 
     Char *Font::binSearch(wchar_t id) {
         unsigned int left = 0, right = charactersCount;
@@ -126,16 +123,6 @@ namespace osu {
             c->page = (unsigned char) fileData[18];
             c->chnl = (unsigned char) fileData[19];
         }
-        /*fileData++;
-        unsigned int kerningPairsBlockSize = charsToInt(fileData);
-        saved = fileData;
-        while (saved + kerningPairsBlockSize > fileData) {
-            char32_t first = charsToInt(fileData);
-            char32_t second = charsToInt(fileData + 4);
-            int amount = charsToWord(fileData + 8);
-            kerningPairs[first][second] = amount;
-            fileData += FONT_KERNING_BLOCK_SIZE;
-        }*/
 #ifndef NDEBUG
         std::cout << "Font '" << info.fontName << "' metadata read" << std::endl;
 #endif
@@ -144,6 +131,7 @@ namespace osu {
     void Font::initialise() {
         //--------Fonts loading block-----------
         Font::Exo2_0_Black = new Font("Exo2.0-Black");
+#ifdef COMPILE_WITH_ALL_FONTS
         Font::Exo2_0_BlackItalic = new Font("Exo2.0-BlackItalic");
         Font::Exo2_0_Bold = new Font("Exo2.0-Bold");
         Font::Exo2_0_BoldItalic = new Font("Exo2.0-BoldItalic");
@@ -163,9 +151,11 @@ namespace osu {
         Font::Venera = new Font("Venera");
         Font::Venera_Light = new Font("Venera-Light");
         Font::Venera_Medium = new Font("Venera-Medium");
+#endif
 
         //--------Fonts initialising block-------------
         Font::Exo2_0_Black->loadTextures();
+#ifdef COMPILE_WITH_ALL_FONTS
         Font::Exo2_0_BlackItalic->loadTextures();
         Font::Exo2_0_Bold->loadTextures();
         Font::Exo2_0_BoldItalic->loadTextures();
@@ -185,6 +175,7 @@ namespace osu {
         Font::Venera->loadTextures();
         Font::Venera_Light->loadTextures();
         Font::Venera_Medium->loadTextures();
+#endif
     }
 
     void Font::loadTextures() {
@@ -271,12 +262,6 @@ namespace osu {
             glNamedBufferSubData(vbo, 0, 2 * 2 * 4 * sizeof(float), vertsData);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             carretGlobalPos += c->xadvance * m;
-            /*if (i != len - 1) {
-                auto iter = kerningPairs[str[i]].find(str[i + 1]);
-                if (iter != kerningPairs[str[i]].end()) {
-                    carretGlobalPos += iter->second * m;
-                }
-            }*/
         }
     }
 }

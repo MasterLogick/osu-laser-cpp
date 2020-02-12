@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(osu-laser-cpp VERSION 0.0.1 LANGUAGES C CXX)
-
+set(CMAKE_CXX_STANDARD 20)
+option(COMPILE_WITH_ALL_FONTS "Enable compilation using all osu-resources fonts" OFF)
 if (CMAKE_HOST_WIN32)
     set(libconfig_libname "libconfig")
 else ()
@@ -14,7 +15,6 @@ find_package(OpenGL REQUIRED)
 find_package(Boost 1.65.1 REQUIRED COMPONENTS system filesystem)
 
 #cpp default settings
-set(CMAKE_CXX_STANDARD 20)
 set(RESOURCES ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources)
 set(CONFIG_PATH ${PROJECT_BINARY_DIR}/config.cfg)
 set(FONTS_PATH ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources/Fonts/)
@@ -28,6 +28,9 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 
+if (${COMPILE_WITH_ALL_FONTS})
+    add_compile_definitions(COMPILE_WITH_ALL_FONTS)
+endif ()
 #compilation defines
 add_compile_definitions(GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
 
