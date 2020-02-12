@@ -12,13 +12,11 @@
 
 namespace osu {
 
-    void runThread();
-
     extern FPSCounter drawingCounter;
 
     class Graphics {
     public:
-        static FPSCounter* drawingCounter;
+        static FPSCounter *drawingCounter;
         static std::thread *drawingThread;
         static GLFWWindow *mainScreen;
 

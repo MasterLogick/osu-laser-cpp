@@ -35,8 +35,7 @@ namespace osu {
         glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4), sizeof(float), &width);
         glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + sizeof(float), sizeof(float), &height);
         glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + 2 * sizeof(float), 2 * sizeof(float), nullptr);
-        glBindBufferRange(GL_UNIFORM_BUFFER, SCREEN_INFO_BINDING_POINT, blockVBO, 0,
-                          sizeof(glm::mat4x4) + 2 * sizeof(float));
+        glBindBufferRange(GL_UNIFORM_BUFFER, SCREEN_INFO_BINDING_POINT, blockVBO, 0, sizeof(glm::mat4x4) + 2 * sizeof(float));
         char *TriangleBackground[2];
         TriangleBackground[0] = (char *) "x";
         TriangleBackground[1] = (char *) "y";

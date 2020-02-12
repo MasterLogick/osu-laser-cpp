@@ -8,14 +8,16 @@
 #include "../Callbacks.h"
 #include "../Osu.h"
 #include "../interaction/FPSCounter.h"
-#include "UI/Font.h"
 #include <mutex>
 #include <condition_variable>
 #include <glad/glad.h>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
 namespace osu {
+    static void initOpenGL();
+
+    static void runThread();
+
     FPSCounter *Graphics::drawingCounter = new FPSCounter{60};
     GLFWWindow *Graphics::mainScreen = nullptr;
     std::thread *Graphics::drawingThread = nullptr;
@@ -41,7 +43,7 @@ namespace osu {
         _lock.notify_all();
     }
 
-    void runThread() {
+    void initOpenGL() {
         glfwSetErrorCallback(errorCallback);
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -66,6 +68,12 @@ namespace osu {
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(MessageCallback, nullptr);
 #endif
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+    }
+
+    void runThread() {
+        initOpenGL();
         GameDrawer::initialise();
         drawThreadInitialised = true;
         _lock.notify_all();
