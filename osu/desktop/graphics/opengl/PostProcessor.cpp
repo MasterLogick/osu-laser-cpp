@@ -11,13 +11,10 @@
 namespace osu {
 
     static float quadVerticesData[] = {
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-
+            1.0f, 1.0f, 1.0f, 1.0f,
             -1.0f, 1.0f, 0.0f, 1.0f,
             1.0f, -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f
+            -1.0f, -1.0f, 0.0f, 0.0f
     };
 
     void PostProcessor::initialise(int width, int height) {
@@ -65,7 +62,7 @@ namespace osu {
             GLuint positionLocation = Shader::postProcessorShader->getAttribLocation("position");
             GLuint texCordLocation = Shader::postProcessorShader->getAttribLocation("texCord");
 
-            glNamedBufferData(quadVBO, 2 * 3 * 2 * 2 * sizeof(float), quadVerticesData, GL_STATIC_DRAW);
+            glNamedBufferData(quadVBO, 4 * 2 * 2 * sizeof(float), quadVerticesData, GL_STATIC_DRAW);
 
             glEnableVertexArrayAttrib(quadVAO, positionLocation);
             glVertexArrayAttribFormat(quadVAO, positionLocation, 2, GL_FLOAT, false, 0);
@@ -94,7 +91,7 @@ namespace osu {
         Shader::postProcessorShader->bind();
         glBindTextureUnit(0, postProcessingdTexture);
         glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
     void PostProcessor::preparePostProcessor() {

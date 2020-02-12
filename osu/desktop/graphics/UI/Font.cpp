@@ -207,10 +207,6 @@ namespace osu {
 
         glCreateBuffers(1, &vbo);
         glCreateBuffers(1, &ibo);
-
-        glVertexArrayElementBuffer(vao, ibo);
-
-        glNamedBufferData(ibo, 3 * 2 * sizeof(float), indices, GL_STATIC_DRAW);
         glNamedBufferData(vbo, 2 * 2 * 4 * sizeof(float), data, GL_STREAM_DRAW);
 
         glEnableVertexArrayAttrib(vao, positionLocation);
@@ -238,29 +234,30 @@ namespace osu {
         for (int i = 0; i < len; ++i) {
             Char *c = binSearch(str[i]);
             float xoffest = carretGlobalPos == x ? 0 : c->xoffset * m;
-            /*      0,1,2,3         4,5,6,7
+            /*      4,5,6,7         0,1,2,3
              *      +---------------+
-             *      | 2           3 |
+             *      | 3           2 |
              *      |               |
              *      |    (glyph)    |               (x,y,s,t)
              *      |               |
              *      |               |
-             *      | 0           1 |
+             *      | 1           0 |
              *      +---------------+
-             *      8,9,10,11       12,13,14,15
+             *      12,13,14,15     8,9,10,11
              */
-            vertsData[8] = vertsData[0] = carretGlobalPos - xoffest;
-            vertsData[12] = vertsData[4] = carretGlobalPos - xoffest + c->width * m;
+            vertsData[12] = vertsData[4] = carretGlobalPos - xoffest;
+            vertsData[8] = vertsData[0] = carretGlobalPos - xoffest + c->width * m;
             vertsData[13] = vertsData[9] = ceilLine - c->yoffset * m - c->height * m;
             vertsData[5] = vertsData[1] = ceilLine - c->yoffset * m;
-            vertsData[10] = vertsData[2] = (float) c->x / pages[c->page].width;
-            vertsData[14] = vertsData[6] = ((float) c->x + c->width) / pages[c->page].width;
+            vertsData[14] = vertsData[6] = (float) c->x / pages[c->page].width;
+            vertsData[10] = vertsData[2] = ((float) c->x + c->width) / pages[c->page].width;
             vertsData[7] = vertsData[3] = (float) c->y / pages[c->page].height;
             vertsData[15] = vertsData[11] = ((float) c->y + c->height) / pages[c->page].height;
 
             glBindTextureUnit(0, pages[c->page].id);
-            glNamedBufferSubData(vbo, 0, 2 * 2 * 4 * sizeof(float), vertsData);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * 2 * 4 * sizeof(float), vertsData);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             carretGlobalPos += c->xadvance * m;
         }
     }
