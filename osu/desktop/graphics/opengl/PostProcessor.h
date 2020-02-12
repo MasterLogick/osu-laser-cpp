@@ -9,16 +9,6 @@
 #include "../Graphics.h"
 
 namespace osu {
-    const float quadVerticesData[] = {
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f
-    };
-
     class PostProcessor {
     private:
         int width;
@@ -32,6 +22,7 @@ namespace osu {
         GLuint quadVBO;
         GLuint msaaLevel;
     public:
+
         explicit PostProcessor(GLuint msaaLevel);
 
         void initialise(int width, int height);

@@ -9,6 +9,7 @@
 #include "../Graphics.h"
 #include "../opengl/Shader.h"
 
+#define BUFFERS_AMOUNT 4
 namespace osu {
     const float vertices[] = {
             (float) (-sqrt(3) / 2.0f), -1.0f / 2.0f,
@@ -74,42 +75,35 @@ namespace osu {
 //        for (int i = 0; i < amount * 2; ++i, ++i) {
 //            std::cout << positions[i] << " " << positions[i + 1] << std::endl;
 //        }
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        unsigned int vbos[4];
-        glGenBuffers(4, vbos);
+        glCreateVertexArrays(1, &vao);
+        unsigned int vbos[BUFFERS_AMOUNT];
+        glCreateBuffers(4, vbos);
         localPosVBO = vbos[0];
         globalPosVBO = vbos[1];
         colorVBO = vbos[2];
         scaleVBO = vbos[3];
-        GLuint localPosLoc = Shader::triangleShader->getAttribLocation("localPos");
-        GLuint globalPosLoc = Shader::triangleShader->getAttribLocation("globalPos");
-        GLuint alphaLoc = Shader::triangleShader->getAttribLocation("alpha");
-        GLuint scaleLoc = Shader::triangleShader->getAttribLocation("scale");
+        glNamedBufferData(localPosVBO, 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+        glNamedBufferData(globalPosVBO, amount * 2 * sizeof(float), positions, GL_STREAM_DRAW);
+        glNamedBufferData(colorVBO, amount * 3 * sizeof(float), positions, GL_DYNAMIC_DRAW);
+        glNamedBufferData(scaleVBO, amount * 1 * sizeof(float), scale, GL_DYNAMIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, localPosVBO);
-        glEnableVertexAttribArray(localPosLoc);
-        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(localPosLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
+        GLuint localPosLocation = Shader::triangleShader->getAttribLocation("localPos");
+        GLuint globalPosLocation = Shader::triangleShader->getAttribLocation("globalPos");
+        GLuint alphaLocation = Shader::triangleShader->getAttribLocation("alpha");
+        GLuint scaleLocation = Shader::triangleShader->getAttribLocation("scale");
+        GLuint offsets[] = {0, 0, 0, 0};
+        GLuint strides[] = {2 * sizeof(float), 2 * sizeof(float), 3 * sizeof(float), 1 * sizeof(float)};
+        GLuint locations[] = {localPosLocation, globalPosLocation, alphaLocation, scaleLocation};
+        for (int i = 0; i < BUFFERS_AMOUNT; i++) {
+            glEnableVertexArrayAttrib(vao, locations[i]);
+            glVertexArrayAttribFormat(vao, locations[i], 2, GL_FLOAT, false, 0);
+            glVertexArrayVertexBuffer(vao, locations[i], vbos[i], offsets[i], strides[i]);
+        }
 
-        glBindBuffer(GL_ARRAY_BUFFER, globalPosVBO);
-        glEnableVertexAttribArray(globalPosLoc);
-        glBufferData(GL_ARRAY_BUFFER, 2 * amount * sizeof(float), positions, GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(globalPosLoc, 2, GL_FLOAT, false, 2 * sizeof(float), (void *) 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-        glBufferData(GL_ARRAY_BUFFER, 3 * amount * sizeof(float), color, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(alphaLoc);
-        glVertexAttribPointer(alphaLoc, 3, GL_FLOAT, false, 3 * sizeof(float), (void *) 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, scaleVBO);
-        glBufferData(GL_ARRAY_BUFFER, amount * sizeof(float), scale, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(scaleLoc);
-        glVertexAttribPointer(scaleLoc, 1, GL_FLOAT, false, 1 * sizeof(float), (void *) 0);
-
-        glVertexAttribDivisor(globalPosLoc, 1);
-        glVertexAttribDivisor(alphaLoc, 1);
-        glVertexAttribDivisor(scaleLoc, 1);
+        glVertexArrayBindingDivisor(vao, globalPosLocation, 1);
+        glVertexArrayBindingDivisor(vao, alphaLocation, 1);
+        glVertexArrayBindingDivisor(vao, scaleLocation, 1);
+        glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, localPosVBO);
         glBindVertexArray(0);
     }
@@ -133,12 +127,8 @@ namespace osu {
                 velocity[i] = (float) (rand()) / ((float) (RAND_MAX / (MAX_VELOCITY)));
             }
         }
-        glBindBuffer(GL_ARRAY_BUFFER, globalPosVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0L, 2 * amount * sizeof(float), positions);
-        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0L, 3 * amount * sizeof(float), color);
-        glBindBuffer(GL_ARRAY_BUFFER, scaleVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0L, amount * sizeof(float), scale);
-        glBindBuffer(GL_ARRAY_BUFFER, localPosVBO);
+        glNamedBufferSubData(globalPosVBO, 0L, 2 * amount * sizeof(float), positions);
+        glNamedBufferSubData(colorVBO, 0L, 3 * amount * sizeof(float), color);
+        glNamedBufferSubData(scaleVBO, 0L, amount * sizeof(float), scale);
     }
 }

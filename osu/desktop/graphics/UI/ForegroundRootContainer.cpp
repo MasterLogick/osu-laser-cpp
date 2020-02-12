@@ -12,8 +12,8 @@ namespace osu {
     static float color[] = {0, 0, 0.5, 1};
 
     void ForegroundRootContainer::draw(int x, int y) {
-        fps = L"FPS: " + boost::lexical_cast<std::wstring>(Graphics::drawingCounter->getFPS());
-        Font::Exo2_0_Black->draw((wchar_t *) (fps.c_str()), fps.size(), x, y, 50, color);
+//        fps = L"FPS: " + boost::lexical_cast<std::wstring>(Graphics::drawingCounter->getFPS());
+//        Font::Exo2_0_Black->draw((wchar_t *) (fps.c_str()), fps.size(), x, y, 50, color);
     }
 
     void ForegroundRootContainer::draw() {

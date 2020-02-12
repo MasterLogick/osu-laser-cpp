@@ -28,15 +28,13 @@ namespace osu {
         glm::mat4x4 ortho = glm::ortho<float>(0, Graphics::mainScreen->getWidth(), 0, Graphics::mainScreen->getHeight(),
                                               0, MAX_LAYERS_DEPTH);
         GLuint blockVBO;
-        glGenBuffers(1, &blockVBO);
-        glBindBuffer(GL_UNIFORM_BUFFER, blockVBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) + 4 * sizeof(float), nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0L, sizeof(glm::mat4x4), glm::value_ptr(ortho));
+        glCreateBuffers(1, &blockVBO);
+        glNamedBufferData(blockVBO, sizeof(glm::mat4x4) + 4 * sizeof(float), nullptr, GL_STATIC_DRAW);
+        glNamedBufferSubData(blockVBO, 0L, sizeof(glm::mat4x4), glm::value_ptr(ortho));
         float width = Graphics::mainScreen->getWidth(), height = Graphics::mainScreen->getHeight();
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4), sizeof(float), &width);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) + sizeof(float), sizeof(float), &height);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) + 2*sizeof(float), 2*sizeof(float), nullptr);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4), sizeof(float), &width);
+        glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + sizeof(float), sizeof(float), &height);
+        glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + 2 * sizeof(float), 2 * sizeof(float), nullptr);
         glBindBufferRange(GL_UNIFORM_BUFFER, SCREEN_INFO_BINDING_POINT, blockVBO, 0,
                           sizeof(glm::mat4x4) + 2 * sizeof(float));
         char *TriangleBackground[2];
@@ -50,9 +48,7 @@ namespace osu {
         triangleShader = ShaderLoader::loadShader((char *) "TrianglesBackground", TriangleBackground, 2);
         postProcessorShader = ShaderLoader::loadShader((char *) "PostProcessor", PostProcessor, 1);
         fontShader = ShaderLoader::loadShader((char *) "Font", Font, 2);
-        triangleShader->
-                bindUniform(SCREEN_INFO_BINDING_POINT,
-                            const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
+        triangleShader->bindUniform(SCREEN_INFO_BINDING_POINT, const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
         fontShader->bindUniform(SCREEN_INFO_BINDING_POINT, const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
     }
 
@@ -63,7 +59,6 @@ namespace osu {
     void Shader::bindUniform(int bindingPoint, char *name) {
         GLuint index = glGetUniformBlockIndex(program, name);
         glUniformBlockBinding(program, index, bindingPoint);
-
     }
 
     GLuint Shader::getAttribLocation(const GLchar *name) {

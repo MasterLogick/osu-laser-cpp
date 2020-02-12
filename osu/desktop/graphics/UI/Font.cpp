@@ -1,7 +1,7 @@
 //
 // Created by MasterLogick on 2/4/20.
 //
-
+#include <cmath>
 #include "SOIL.h"
 #include "Font.h"
 #include "../opengl/Shader.h"
@@ -134,20 +134,19 @@ namespace osu {
         for (int i = 0; i < common.pages; ++i) {
             std::string name = std::string(FONTS_PATH) + pageNames[i];
             GLuint texture;
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+            glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             int width, height, chanels;
             unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &chanels, 4);
             if (data) {
-                glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                glGenerateMipmap(GL_TEXTURE_2D);
+                glTextureStorage2D(texture, log2(std::max(width, height)), GL_RGBA8, width, height);
+                glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                glGenerateTextureMipmap(texture);
             }
             SOIL_free_image_data(data);
-            glBindTexture(GL_TEXTURE_2D, 0);
             pages[i].id = texture;
             pages[i].width = width;
             pages[i].height = height;
@@ -159,20 +158,23 @@ namespace osu {
         float data[16];
         GLuint positionLocation = Shader::fontShader->getAttribLocation("position");
         GLuint texCordLocation = Shader::fontShader->getAttribLocation("texCord");
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        glGenBuffers(1, &vbo);
-        glGenBuffers(1, &ibo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * 2 * sizeof(float), indices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glEnableVertexAttribArray(positionLocation);
-        glEnableVertexAttribArray(texCordLocation);
-        glBufferData(GL_ARRAY_BUFFER, 2 * 2 * 4 * sizeof(float), data, GL_STREAM_DRAW);
-        glVertexAttribPointer(positionLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
-        glVertexAttribPointer(texCordLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        glCreateVertexArrays(1, &vao);
+
+        glCreateBuffers(1, &vbo);
+        glCreateBuffers(1, &ibo);
+
+        glVertexArrayElementBuffer(vao, ibo);
+
+        glNamedBufferData(ibo, 3 * 2 * sizeof(float), indices, GL_STATIC_DRAW);
+        glNamedBufferData(vbo, 2 * 2 * 4 * sizeof(float), data, GL_STREAM_DRAW);
+
+        glEnableVertexArrayAttrib(vao, positionLocation);
+        glVertexArrayAttribFormat(vao, positionLocation, 2, GL_FLOAT, false, 0);
+        glVertexArrayVertexBuffer(vao, positionLocation, vbo, 0, 2 * 2 * sizeof(float));
+
+        glEnableVertexArrayAttrib(vao, texCordLocation);
+        glVertexArrayAttribFormat(vao, texCordLocation, 2, GL_FLOAT, false, 0);
+        glVertexArrayVertexBuffer(vao, texCordLocation, vbo, 2 * sizeof(float), 2 * 2 * sizeof(float));
         delete[] pageNames;
     }
 
@@ -210,9 +212,9 @@ namespace osu {
             vertsData[14] = vertsData[6] = ((float) c->x + c->width) / pages[c->page].width;
             vertsData[7] = vertsData[3] = (float) c->y / pages[c->page].height;
             vertsData[15] = vertsData[11] = ((float) c->y + c->height) / pages[c->page].height;
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, pages[c->page].id);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * 2 * 4 * sizeof(float), vertsData);
+
+            glBindTextureUnit(0, pages[c->page].id);
+            glNamedBufferSubData(vbo, 0, 2 * 2 * 4 * sizeof(float), vertsData);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             carretGlobalPos += c->xadvance * m;
             if (i != len - 1) {
