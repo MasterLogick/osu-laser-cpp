@@ -7,7 +7,6 @@
 #include <locale>
 
 
-
 int main(int argc, const char **argv, const char **envp) {
 #ifndef NDEBUG
     for (int i = 0; i < argc; i++) {
@@ -22,6 +21,7 @@ int main(int argc, const char **argv, const char **envp) {
 
 namespace osu {
     bool shouldClose = false;
+
     void Osu::initialise() {
         srand(time(nullptr));
         std::locale::global(std::locale("en_US.UTF-8"));

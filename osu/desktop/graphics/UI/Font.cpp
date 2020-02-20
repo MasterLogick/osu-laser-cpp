@@ -29,6 +29,7 @@ namespace osu {
     Font *Font::Venera_Light = nullptr;
     Font *Font::Venera_Medium = nullptr;
 #endif
+    bool Font::is = true;
 
     Char *Font::binSearch(wchar_t id) {
         unsigned int left = 0, right = charactersCount;
@@ -46,20 +47,20 @@ namespace osu {
     }
 
     unsigned int charsToInt(const char *c) {
-        return (unsigned char) c[3] << 24 | (unsigned char) c[2] << 16 | (unsigned char) c[1] << 8 | (unsigned char) c[0];
+        return ((unsigned char) c[3] << 24) | ((unsigned char) c[2]) << 16 | ((unsigned char) c[1]) << 8 | ((unsigned char) c[0]);
     }
 
-    unsigned int charsToWord(const char *c) {
-        return (unsigned char) c[1] << 8 | (unsigned char) c[0];
+    unsigned short int charsToWord(const char *c) {
+        return ((unsigned char) c[1]) << 8 | (unsigned char) c[0];
     }
 
     Font::Font(const char *name) {
         std::string fontBinData;
         std::ifstream file;
         file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        std::string vertexPath = std::string(FONTS_PATH) + name + ".bin";
+        std::string filePath = std::string(FONTS_PATH) + name + ".bin";
         try {
-            file.open(vertexPath);
+            file.open(filePath);
             std::stringstream sstream;
             sstream << file.rdbuf();
             file.close();
@@ -122,6 +123,16 @@ namespace osu {
             c->xadvance = charsToWord(fileData + 16);
             c->page = (unsigned char) fileData[18];
             c->chnl = (unsigned char) fileData[19];
+        }
+        fileData++;
+        kerningPairsAmount = charsToInt(fileData) / FONT_KERNING_BLOCK_SIZE;
+        kernings = new Kerning[kerningPairsAmount];
+        saved = fileData;
+        fileData += 4;
+        for (int i = 0; saved + kerningPairsAmount * FONT_KERNING_BLOCK_SIZE > fileData; i++, fileData += FONT_KERNING_BLOCK_SIZE) {
+            kernings[i].first = charsToInt(fileData);
+            kernings[i].second = charsToInt(fileData + 4);
+            kernings[i].size = (signed short) charsToWord(fileData + 8);
         }
 #ifndef NDEBUG
         std::cout << "Font '" << info.fontName << "' metadata read" << std::endl;
@@ -191,9 +202,8 @@ namespace osu {
             int width, height, chanels;
             unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &chanels, 4);
             if (data) {
-                glTextureStorage2D(texture, log2(std::max(width, height)), GL_RGBA8, width, height);
+                glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
                 glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                glGenerateTextureMipmap(texture);
             }
             SOIL_free_image_data(data);
             pages[i].id = texture;
@@ -234,6 +244,7 @@ namespace osu {
         for (int i = 0; i < len; ++i) {
             Char *c = binSearch(str[i]);
             float xoffest = carretGlobalPos == x ? 0 : c->xoffset * m;
+
             /*      4,5,6,7         0,1,2,3
              *      +---------------+
              *      | 3           2 |
@@ -259,6 +270,36 @@ namespace osu {
             glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * 2 * 4 * sizeof(float), vertsData);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             carretGlobalPos += c->xadvance * m;
+            if (Font::is)
+                if (i < len - 1) {
+                    Kerning *c = getKerning(str[i], str[i + 1]);
+                    if (c->first == str[i] && c->second == str[i + 1]) {
+                        carretGlobalPos += c->size;
+                    }
+                }
         }
+    }
+
+    Kerning *Font::getKerning(wchar_t first, wchar_t second) {
+        unsigned int left = 0, right = kerningPairsAmount;
+        unsigned int middle;
+        while (left < right) {
+            middle = (left + right) / 2;
+            if ((kernings + middle)->first < first) {
+                left = middle + 1;
+            } else {
+                right = middle;
+            }
+        }
+        right = kerningPairsAmount;
+        while (left < right) {
+            middle = (left + right) / 2;
+            if ((kernings + middle)->second <= second && (kernings + middle)->first == first) {
+                left = middle + 1;
+            } else {
+                right = middle;
+            }
+        }
+        return kernings + right - 1;
     }
 }

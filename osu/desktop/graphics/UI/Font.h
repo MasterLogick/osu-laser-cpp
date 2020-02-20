@@ -24,7 +24,7 @@
 namespace osu {
     unsigned int charsToInt(const char *c);
 
-    unsigned int charsToWord(const char *c);
+    unsigned short int charsToWord(const char *c);
 
     struct Info {
         int fontSize;
@@ -72,6 +72,11 @@ namespace osu {
         int width;
         int height;
     };
+    struct Kerning {
+        wchar_t first;
+        wchar_t second;
+        signed short size;
+    };
 
     class Font {
     private:
@@ -80,9 +85,11 @@ namespace osu {
         Char *chars;
         Page *pages;
         unsigned int charactersCount;
+
 //        std::map<wchar_t , std::map<wchar_t , int> > kerningPairs;
         std::string *pageNames;
-
+        Kerning *kernings;
+        unsigned char kerningPairsAmount;
         GLuint vao;
         GLuint vbo;
         GLuint ibo;
@@ -91,8 +98,8 @@ namespace osu {
 
         Char *binSearch(wchar_t id);
 
+        Kerning *getKerning(wchar_t i, wchar_t i1);
     public:
-
         static Font *Exo2_0_Black;
 #ifdef COMPILE_WITH_ALL_FONTS
         static Font *Exo2_0_BlackItalic;
@@ -114,7 +121,11 @@ namespace osu {
         static Font *Venera;
         static Font *Venera_Light;
         static Font *Venera_Medium;
+
+
 #endif
+
+        static bool is;
 
         static void initialise();
 

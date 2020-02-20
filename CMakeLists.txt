@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(osu-laser-cpp VERSION 0.0.1 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
-option(COMPILE_WITH_ALL_FONTS "Enable compilation using all osu-resources fonts" OFF)
+
+option(COMPILE_WITH_ALL_FONTS_OPTION "Enable compilation using all osu-resources fonts" ON)
+
 if (CMAKE_HOST_WIN32)
     set(libconfig_libname "libconfig")
 else ()
@@ -51,6 +53,15 @@ set(GLAD_SOURCES glad/src/glad.c)
 file(GLOB_RECURSE SOURCE_FILES "osu/desktop/*")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${GLAD_SOURCES})
 
+#compilation defines
+target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
+if (COMPILE_WITH_ALL_FONTS_OPTION)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE COMPILE_WITH_ALL_FONTS)
+    message("Compiling with all fonts")
+else ()
+    message("Compiling with minimal fonts")
+endif ()
+unset(COMPILE_WITH_ALL_FONTS_OPTION CACHE)
 #adding test sources
 #file(GLOB_RECURSE TEST_SOURCE_FILES "osu/test/*")
 #add_executable(${CMAKE_PROJECT_NAME}-test ${TEST_SOURCE_FILES} ${GLAD_SOURCES})
