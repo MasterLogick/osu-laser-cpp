@@ -35,4 +35,8 @@ namespace osu {
             delete[] keys;
         }
     }
+
+    void Input::start() {
+
+    }
 }

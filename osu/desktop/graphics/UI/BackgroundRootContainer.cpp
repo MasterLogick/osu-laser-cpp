@@ -4,6 +4,7 @@
 
 #include "BackgroundRootContainer.h"
 #include "Font.h"
+#include "../Graphics.h"
 
 namespace osu {
     int BackgroundRootContainer::size = 100;
@@ -18,9 +19,9 @@ namespace osu {
 
     void BackgroundRootContainer::draw(int x, int y) {
         triangleBackground.draw(x, y);
-        wchar_t str[] = L"Java is the best language";
-        float color[] = {0.5, 0.5, 0.5, 0.75};
-        Font::Exo2_0_Black->draw(str, sizeof(str)/ sizeof(wchar_t), x, y, size, color);
+        std::wstring str = L"FPS: " + std::to_wstring(Graphics::drawingCounter->getFPS());
+        float color[] = {0.5, 0.5, 0.5, 1};
+        Font::Exo2_0_Black->draw(const_cast<wchar_t *>(str.c_str()), str.size(), x, y, size, color);
     }
 }
 

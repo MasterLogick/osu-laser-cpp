@@ -4,6 +4,7 @@
 
 #include "GameDrawer.h"
 #include "UI/Font.h"
+#include "../interaction/video/MediaFile.h"
 
 #define MSAA_LEVEL 4
 namespace osu {

@@ -12,6 +12,7 @@
       <file path="$PROJECT_DIR$/glfw" />
       <file path="$PROJECT_DIR$/glm" />
       <file path="$PROJECT_DIR$/libconfig" />
+      <file path="$PROJECT_DIR$/openal-soft" />
       <file path="$PROJECT_DIR$/osu-resources" />
     </libraryRoots>
   </component>

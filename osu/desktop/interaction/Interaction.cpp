@@ -12,6 +12,7 @@ namespace osu {
     }
 
     void Interaction::start() {
+        AudioSystem::start();
 
     }
 }

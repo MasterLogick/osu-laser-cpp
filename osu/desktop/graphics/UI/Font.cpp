@@ -2,11 +2,13 @@
 // Created by MasterLogick on 2/4/20.
 //
 #include <cmath>
+#include <thread>
 #include "SOIL.h"
 #include "Font.h"
 #include "../opengl/Shader.h"
 
 namespace osu {
+
     Font *Font::Exo2_0_Black = nullptr;
 #ifdef COMPILE_WITH_ALL_FONTS
     Font *Font::Exo2_0_BlackItalic = nullptr;
@@ -141,52 +143,108 @@ namespace osu {
 
     void Font::initialise() {
         //--------Fonts loading block-----------
-        Font::Exo2_0_Black = new Font("Exo2.0-Black");
+        std::thread thExo2_0_B = std::thread([]() -> void {
+            Font::Exo2_0_Black = new Font("Exo2.0-Black");
+        });
 #ifdef COMPILE_WITH_ALL_FONTS
-        Font::Exo2_0_BlackItalic = new Font("Exo2.0-BlackItalic");
-        Font::Exo2_0_Bold = new Font("Exo2.0-Bold");
-        Font::Exo2_0_BoldItalic = new Font("Exo2.0-BoldItalic");
-        Font::Exo2_0_Light = new Font("Exo2.0-Light");
-        Font::Exo2_0_LightItalic = new Font("Exo2.0-LightItalic");
-        Font::Exo2_0_Medium = new Font("Exo2.0-Medium");
-        Font::Exo2_0_MediumItalic = new Font("Exo2.0-MediumItalic");
-        Font::Exo2_0_Regular = new Font("Exo2.0-Regular");
-        Font::Exo2_0_RegularItalic = new Font("Exo2.0-RegularItalic");
-        Font::Exo2_0_SemiBold = new Font("Exo2.0-SemiBold");
-        Font::Exo2_0_SemiBoldItalic = new Font("Exo2.0-SemiBoldItalic");
-        Font::Noto_Basic = new Font("Noto-Basic");
-        Font::Noto_CJK_Basic = new Font("Noto-CJK-Basic");
-        Font::Noto_CJK_Compatibility = new Font("Noto-CJK-Compatibility");
-        Font::Noto_Hangul = new Font("Noto-Hangul");
-        Font::osuFont = new Font("osuFont");
-        Font::Venera = new Font("Venera");
-        Font::Venera_Light = new Font("Venera-Light");
-        Font::Venera_Medium = new Font("Venera-Medium");
-#endif
-
-        //--------Fonts initialising block-------------
-        Font::Exo2_0_Black->loadTextures();
-#ifdef COMPILE_WITH_ALL_FONTS
+        std::thread thExo2_0_Bla = std::thread([]() -> void {
+            Font::Exo2_0_BlackItalic = new Font("Exo2.0-BlackItalic");
+        });
+        std::thread thExo2_0_Bol = std::thread([]() -> void {
+            Font::Exo2_0_Bold = new Font("Exo2.0-Bold");
+        });
+        std::thread thExo2_0_BolI = std::thread([]() -> void {
+            Font::Exo2_0_BoldItalic = new Font("Exo2.0-BoldItalic");
+        });
+        std::thread thExo2_0_Lig = std::thread([]() -> void {
+            Font::Exo2_0_Light = new Font("Exo2.0-Light");
+        });
+        std::thread thExo2_0_LigI = std::thread([]() -> void {
+            Font::Exo2_0_LightItalic = new Font("Exo2.0-LightItalic");
+        });
+        std::thread thExo2_0_Med = std::thread([]() -> void {
+            Font::Exo2_0_Medium = new Font("Exo2.0-Medium");
+        });
+        std::thread thExo2_0_MedI = std::thread([]() -> void {
+            Font::Exo2_0_MediumItalic = new Font("Exo2.0-MediumItalic");
+        });
+        std::thread thExo2_0_Reg = std::thread([]() -> void {
+            Font::Exo2_0_Regular = new Font("Exo2.0-Regular");
+        });
+        std::thread thExo2_0_RegI = std::thread([]() -> void {
+            Font::Exo2_0_RegularItalic = new Font("Exo2.0-RegularItalic");
+        });
+        std::thread thExo2_0_Sem = std::thread([]() -> void {
+            Font::Exo2_0_SemiBold = new Font("Exo2.0-SemiBold");
+        });
+        std::thread thExo2_0_SemI = std::thread([]() -> void {
+            Font::Exo2_0_SemiBoldItalic = new Font("Exo2.0-SemiBoldItalic");
+        });
+        std::thread thNoto_Basic = std::thread([]() -> void {
+            Font::Noto_Basic = new Font("Noto-Basic");
+        });
+        std::thread thNoto_CJK_B = std::thread([]() -> void {
+            Font::Noto_CJK_Basic = new Font("Noto-CJK-Basic");
+        });
+        std::thread thNoto_CJK_C = std::thread([]() -> void {
+            Font::Noto_CJK_Compatibility = new Font("Noto-CJK-Compatibility");
+        });
+        std::thread thNoto_Hangu = std::thread([]() -> void {
+            Font::Noto_Hangul = new Font("Noto-Hangul");
+        });
+        std::thread thosuFont = std::thread([]() -> void {
+            Font::osuFont = new Font("osuFont");
+        });
+        std::thread thVenera = std::thread([]() -> void {
+            Font::Venera = new Font("Venera");
+        });
+        std::thread thVenera_Lig = std::thread([]() -> void {
+            Font::Venera_Light = new Font("Venera-Light");
+        });
+        std::thread thVenera_Med = std::thread([]() -> void {
+            Font::Venera_Medium = new Font("Venera-Medium");
+        });
+        thExo2_0_Bla.join();
         Font::Exo2_0_BlackItalic->loadTextures();
+        thExo2_0_Bol.join();
         Font::Exo2_0_Bold->loadTextures();
+        thExo2_0_BolI.join();
         Font::Exo2_0_BoldItalic->loadTextures();
+        thExo2_0_Lig.join();
         Font::Exo2_0_Light->loadTextures();
+        thExo2_0_LigI.join();
         Font::Exo2_0_LightItalic->loadTextures();
+        thExo2_0_Med.join();
         Font::Exo2_0_Medium->loadTextures();
+        thExo2_0_MedI.join();
         Font::Exo2_0_MediumItalic->loadTextures();
+        thExo2_0_Reg.join();
         Font::Exo2_0_Regular->loadTextures();
+        thExo2_0_RegI.join();
         Font::Exo2_0_RegularItalic->loadTextures();
+        thExo2_0_Sem.join();
         Font::Exo2_0_SemiBold->loadTextures();
+        thExo2_0_SemI.join();
         Font::Exo2_0_SemiBoldItalic->loadTextures();
+        thNoto_Basic.join();
         Font::Noto_Basic->loadTextures();
+        thNoto_CJK_B.join();
         Font::Noto_CJK_Basic->loadTextures();
+        thNoto_CJK_C.join();
         Font::Noto_CJK_Compatibility->loadTextures();
+        thNoto_Hangu.join();
         Font::Noto_Hangul->loadTextures();
+        thosuFont.join();
         Font::osuFont->loadTextures();
+        thVenera.join();
         Font::Venera->loadTextures();
+        thVenera_Lig.join();
         Font::Venera_Light->loadTextures();
+        thVenera_Med.join();
         Font::Venera_Medium->loadTextures();
 #endif
+        thExo2_0_B.join();
+        Font::Exo2_0_Black->loadTextures();
     }
 
     void Font::loadTextures() {
@@ -195,10 +253,6 @@ namespace osu {
             std::string name = std::string(FONTS_PATH) + pageNames[i];
             GLuint texture;
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-            glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             int width, height, chanels;
             unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &chanels, 4);
             if (data) {
@@ -210,14 +264,13 @@ namespace osu {
             pages[i].width = width;
             pages[i].height = height;
         }
-        float data[16];
         GLuint positionLocation = Shader::fontShader->getAttribLocation("position");
         GLuint texCordLocation = Shader::fontShader->getAttribLocation("texCord");
         glCreateVertexArrays(1, &vao);
 
         glCreateBuffers(1, &vbo);
         glCreateBuffers(1, &ibo);
-        glNamedBufferData(vbo, 2 * 2 * 4 * sizeof(float), data, GL_STREAM_DRAW);
+        glNamedBufferData(vbo, 2 * 2 * 4 * sizeof(float), nullptr, GL_STREAM_DRAW);
 
         glEnableVertexArrayAttrib(vao, positionLocation);
         glVertexArrayAttribFormat(vao, positionLocation, 2, GL_FLOAT, false, 0);
@@ -274,7 +327,7 @@ namespace osu {
                 if (i < len - 1) {
                     Kerning *c = getKerning(str[i], str[i + 1]);
                     if (c->first == str[i] && c->second == str[i + 1]) {
-                        carretGlobalPos += c->size;
+                        carretGlobalPos -= c->size;
                     }
                 }
         }

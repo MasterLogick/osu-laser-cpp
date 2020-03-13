@@ -16,10 +16,12 @@ namespace osu {
         static std::thread inputThread;
         static KeyBindingStore store;
 
-        static void loadKeyBindingStoreFromString(std::string *keyBindingStore) ;
+        static void loadKeyBindingStoreFromString(std::string *keyBindingStore);
 
     public:
         static void initialise();
+
+        static void start();
     };
 }
 

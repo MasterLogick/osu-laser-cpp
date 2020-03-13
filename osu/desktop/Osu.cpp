@@ -16,7 +16,6 @@ int main(int argc, const char **argv, const char **envp) {
 #endif
     osu::Osu::initialise();
     osu::Osu::start();
-    return EXIT_SUCCESS;
 }
 
 namespace osu {
@@ -38,7 +37,6 @@ namespace osu {
 #ifndef NDEBUG
         std::cout << "Join to drawingThread" << std::endl;
 #endif
-//        while (true)std::this_thread::yield();
         Graphics::drawingThread->join();
     }
 }
