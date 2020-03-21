@@ -50,6 +50,8 @@ namespace osu {
 
     public:
 
+        bool hasVideo;
+        bool hasAudio;
         VideoState *mVideo;
 
         ~MovieState();

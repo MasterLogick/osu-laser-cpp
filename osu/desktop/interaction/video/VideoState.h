@@ -48,10 +48,12 @@ namespace osu {
         int mWidth{0}, mHeight{0}; // Logical image size (actual size may be larger)
         bool mFirstUpdate{true};
 
-        std::chrono::nanoseconds getClock();
-
         void display(SDL_Window *screen, SDL_Renderer *renderer);
+
     public:
+        void draw(int x, int y);
+
+        std::chrono::nanoseconds getClock();
 
         void updateVideo(SDL_Window *screen, SDL_Renderer *renderer, bool redraw);
 

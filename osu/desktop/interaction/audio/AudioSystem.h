@@ -8,12 +8,15 @@
 //#include "al.h"
 #include "alext.h"
 #include "alc.h"
+#include "../video/MediaFile.h"
+
 namespace osu {
     class AudioSystem {
     private:
         static void loadSounds();
 
     public:
+        static MediaFile *mf;
         static LPALGETSOURCEI64VSOFT alGetSourcei64vSOFT;
         static LPALCGETINTEGER64VSOFT alcGetInteger64vSOFT;
         static ALCdevice *device;

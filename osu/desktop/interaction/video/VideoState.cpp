@@ -68,7 +68,6 @@ namespace osu {
         SDL_Rect dst_rect{x, y, w, h};
         SDL_RenderCopy(renderer, mImage, &src_rect, &dst_rect);
         SDL_RenderPresent(renderer);
-        std::cout << "draw" << std::endl;
 //  todo a
 //        if (!mImage)
 //            return;
@@ -107,128 +106,6 @@ namespace osu {
 // * frame.
 
     void VideoState::updateVideo(SDL_Window *screen, SDL_Renderer *renderer, bool redraw) {
-        /*size_t read_idx{mPictQRead};
-        Picture *vp{&mPictQ[read_idx]};
-
-        auto clocktime = mMovie.getMasterClock();
-        bool updated{false};
-        while (1) {
-            size_t next_idx{(read_idx + 1) % mPictQ.size()};
-            if (next_idx == mPictQWrite)
-                break;
-            Picture *nextvp{&mPictQ[next_idx]};
-            if (clocktime < nextvp->mPts)
-                break;
-
-            vp = nextvp;
-            updated = true;
-            read_idx = next_idx;
-        }
-        if (mMovie.mQuit) {
-            if (mEOS)
-                mFinalUpdate = true;
-            mPictQRead = read_idx;
-            std::unique_lock<std::mutex>{mPictQMutex}.unlock();
-            mPictQCond.notify_one();
-            return;
-        }
-
-        if (updated) {
-            mPictQRead = read_idx;
-            std::unique_lock<std::mutex>{mPictQMutex}.unlock();
-            mPictQCond.notify_one();
-
-            // allocate or resize the buffer!
-            bool fmt_updated{false};
-            if (!mTexture || mWidth != mCodecCtx->width || mHeight != mCodecCtx->height) {
-                fmt_updated = true;
-                //todo write drawer
-//                 if (mTexture) {
-//                     SDL_DestroyTexture(mImage);
-//                 }
-//                 mImage = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING,
-//                                            mCodecCtx->coded_width, mCodecCtx->coded_height);
-//                 if (!mImage)
-//                     std::cerr << "Failed to create YV12 texture!" << std::endl;
-                mWidth = mCodecCtx->width;
-                mHeight = mCodecCtx->height;
-
-                if (mFirstUpdate && mWidth > 0 && mHeight > 0) {
-                    // For the first update, set the window size to the video size.
-                    mFirstUpdate = false;
-
-                    int w{mWidth};
-                    int h{mHeight};
-                    if (mCodecCtx->sample_aspect_ratio.den != 0) {
-                        double aspect_ratio = av_q2d(mCodecCtx->sample_aspect_ratio);
-                        if (aspect_ratio >= 1.0)
-                            w = static_cast<int>(w * aspect_ratio + 0.5);
-                        else if (aspect_ratio > 0.0)
-                            h = static_cast<int>(h / aspect_ratio + 0.5);
-                    }
-//                    SDL_SetWindowSize(screen, w, h); todo
-                }
-            }
-//            todo
-//            if (mImage) {
-//                AVFrame *frame{vp->mFrame.get()};
-//                void *pixels{nullptr};
-//                int pitch{0};
-//
-//                if (mCodecCtx->pix_fmt == AV_PIX_FMT_YUV420P)
-//                    SDL_UpdateYUVTexture(mImage, nullptr,
-//                                         frame->data[0], frame->linesize[0],
-//                                         frame->data[1], frame->linesize[1],
-//                                         frame->data[2], frame->linesize[2]
-//                    );
-//                else if (SDL_LockTexture(mImage, nullptr, &pixels, &pitch) != 0)
-//                    std::cerr << "Failed to lock texture" << std::endl;
-//                else {
-//                    // Convert the image into YUV format that SDL uses
-//                    int coded_w{mCodecCtx->coded_width};
-//                    int coded_h{mCodecCtx->coded_height};
-//                    int w{mCodecCtx->width};
-//                    int h{mCodecCtx->height};
-//                    if (!mSwscaleCtx || fmt_updated) {
-//                        mSwscaleCtx.reset(sws_getContext(
-//                                w, h, mCodecCtx->pix_fmt,
-//                                w, h, AV_PIX_FMT_YUV420P, 0,
-//                                nullptr, nullptr, nullptr
-//                        ));
-//                    }
-//
-//                    // point pict at the queue
-//                    uint8_t *pict_data[3];
-//                    pict_data[0] = static_cast<uint8_t *>(pixels);
-//                    pict_data[1] = pict_data[0] + coded_w * coded_h;
-//                    pict_data[2] = pict_data[1] + coded_w * coded_h / 4;
-//
-//                    int pict_linesize[3];
-//                    pict_linesize[0] = pitch;
-//                    pict_linesize[1] = pitch / 2;
-//                    pict_linesize[2] = pitch / 2;
-//
-//                    sws_scale(mSwscaleCtx.get(), reinterpret_cast<uint8_t **>(frame->data), frame->linesize,
-//                              04, h, pict_data, pict_linesize);
-//                    SDL_UnlockTexture(mImage);
-//                }
-//            }
-            draw(screen, renderer);
-        }
-        if (updated) {
-            auto disp_time = get_avtime();
-
-            std::lock_guard<std::mutex> _{mDispPtsMutex};
-            mDisplayPts = vp->mPts;
-            mDisplayPtsTime = disp_time;
-        }
-        if (mEOS) {
-            if ((read_idx + 1) % mPictQ.size() == mPictQWrite) {
-                mFinalUpdate = true;
-                std::unique_lock<std::mutex>{mPictQMutex}.unlock();
-                mPictQCond.notify_one();
-            }
-        }*/
         size_t read_idx{mPictQRead};
         Picture *vp{&mPictQ[read_idx]};
 
@@ -240,7 +117,6 @@ namespace osu {
                 break;
             Picture *nextvp{&mPictQ[next_idx]};
             if (clocktime < nextvp->mPts) {
-                std::cout << clocktime.count() << " " << nextvp->mPts.count() << std::endl;
                 break;
             }
 
@@ -258,7 +134,6 @@ namespace osu {
         }
 
         if (updated) {
-            std::cout << "update" << std::endl;
             mPictQRead = read_idx;
             std::unique_lock<std::mutex>{mPictQMutex}.unlock();
             mPictQCond.notify_one();
@@ -426,5 +301,9 @@ namespace osu {
         while (!mFinalUpdate) mPictQCond.wait(lock);
 
         return 0;
+    }
+
+    void VideoState::draw(int x, int y) {
+
     }
 }

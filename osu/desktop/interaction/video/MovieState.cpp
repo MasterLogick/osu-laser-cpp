@@ -11,11 +11,13 @@ extern "C" {
 
 namespace osu {
     static std::chrono::microseconds get_avtime() { return std::chrono::microseconds{av_gettime()}; }
+
     MovieState::~MovieState() {
         mQuit = true;
         if (mParseThread.joinable())
             mParseThread.join();
     }
+
     int MovieState::decode_interrupt_cb(void *ctx) {
         return static_cast<MovieState *>(ctx)->mQuit;
     }
@@ -54,7 +56,9 @@ namespace osu {
     }
 
     std::chrono::nanoseconds MovieState::getMasterClock() {
-        return mAudio->getClock();
+        if (hasAudio)
+            return mAudio->getClock();
+        return mVideo->getClock();
     }
 
     std::chrono::nanoseconds MovieState::getDuration() {
@@ -122,11 +126,17 @@ namespace osu {
 
         // Set the base time 750ms ahead of the current av time.
         mClockBase = get_avtime() + std::chrono::milliseconds{750};
-
-        if (audio_index >= 0)
+        hasVideo = false;
+        hasAudio = false;
+        if (audio_index >= 0) {
             mAudioThread = std::thread{std::mem_fn(&AudioState::handler), mAudio};
-        if (video_index >= 0)
+            hasAudio = true;
+        }
+        if (video_index >= 0) {
             mVideoThread = std::thread{std::mem_fn(&VideoState::handler), mVideo};
+            hasVideo = true;
+        }
+
         // Main packet reading/dispatching loop
         while (!mQuit) {
             AVPacket packet;
@@ -169,9 +179,10 @@ namespace osu {
 
         return 0;
     }
+
     MovieState::MovieState(std::string fname) {
-    mAudio = new AudioState(this);
-    mVideo = new VideoState(this);
-    mFilename = std::move(fname);
-}
+        mAudio = new AudioState(this);
+        mVideo = new VideoState(this);
+        mFilename = std::move(fname);
+    }
 }
