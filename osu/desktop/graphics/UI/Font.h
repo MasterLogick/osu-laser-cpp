@@ -92,7 +92,6 @@ namespace osu {
         unsigned char kerningPairsAmount;
         GLuint vao;
         GLuint vbo;
-        GLuint ibo;
 
         void loadTextures();
 

@@ -269,7 +269,6 @@ namespace osu {
         glCreateVertexArrays(1, &vao);
 
         glCreateBuffers(1, &vbo);
-        glCreateBuffers(1, &ibo);
         glNamedBufferData(vbo, 2 * 2 * 4 * sizeof(float), nullptr, GL_STREAM_DRAW);
 
         glEnableVertexArrayAttrib(vao, positionLocation);
