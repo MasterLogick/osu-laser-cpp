@@ -18,6 +18,7 @@ namespace osu {
     Shader *Shader::triangleShader = nullptr;
     Shader *Shader::postProcessorShader = nullptr;
     Shader *Shader::fontShader = nullptr;
+    Shader *Shader::spriteDrawingShader = nullptr;
 
     osu::Shader::Shader(GLuint id, std::map<std::string, int> *uniforms) {
         program = id;
@@ -36,19 +37,17 @@ namespace osu {
         glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + sizeof(float), sizeof(float), &height);
         glNamedBufferSubData(blockVBO, sizeof(glm::mat4x4) + 2 * sizeof(float), 2 * sizeof(float), nullptr);
         glBindBufferRange(GL_UNIFORM_BUFFER, SCREEN_INFO_BINDING_POINT, blockVBO, 0, sizeof(glm::mat4x4) + 2 * sizeof(float));
-        char *TriangleBackground[2];
-        TriangleBackground[0] = (char *) "x";
-        TriangleBackground[1] = (char *) "y";
-        char *PostProcessor[1];
-        PostProcessor[0] = (char *) "screenTexture";
-        char *Font[2];
-        Font[0] = (char *) "textureSampler";
-        Font[1] = (char *) "Color";
-        triangleShader = ShaderLoader::loadShader((char *) "TrianglesBackground", TriangleBackground, 2);
-        postProcessorShader = ShaderLoader::loadShader((char *) "PostProcessor", PostProcessor, 1);
-        fontShader = ShaderLoader::loadShader((char *) "Font", Font, 2);
+        char *TriangleBackgroundUniforms[] = {(char *) "x", (char *) "y"};
+        char *PostProcessorUniforms = (char *) "screenTexture";
+        char *FontUniforms[] = {(char *) "textureSampler", (char *) "Color"};
+        char *SpriteDrawingUniforms[] = {(char *) "textureSampler", (char *) "layer"};
+        triangleShader = ShaderLoader::loadShader((char *) "TrianglesBackground", TriangleBackgroundUniforms, 2);
+        postProcessorShader = ShaderLoader::loadShader((char *) "PostProcessor", &PostProcessorUniforms, 1);
+        fontShader = ShaderLoader::loadShader((char *) "Font", FontUniforms, 2);
+        spriteDrawingShader = ShaderLoader::loadShader((char *) "RectShader", SpriteDrawingUniforms, 2);
         triangleShader->bindUniform(SCREEN_INFO_BINDING_POINT, const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
         fontShader->bindUniform(SCREEN_INFO_BINDING_POINT, const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
+        spriteDrawingShader->bindUniform(SCREEN_INFO_BINDING_POINT, const_cast<char *>(SCREEN_INFO_BINDING_POINT_NAME));
     }
 
     void Shader::bind() {

@@ -23,6 +23,7 @@ namespace osu {
         static Shader *triangleShader;
         static Shader *postProcessorShader;
         static Shader *fontShader;
+        static Shader *spriteDrawingShader;
 
         Shader(GLuint id, std::map<std::string, int> *uniforms);
 
@@ -37,6 +38,7 @@ namespace osu {
         static void initialise();
 
         void uniform3(const char name[6], float *val);
+
         void uniform4(const char name[6], float *val);
     };
 }
