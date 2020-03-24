@@ -291,23 +291,22 @@ namespace osu {
         Shader::fontShader->uniform("textureSampler", 0);
         Shader::fontShader->uniform4("Color", color);
         glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         float vertsData[16];
         for (int i = 0; i < len; ++i) {
             Char *c = binSearch(str[i]);
             float xoffest = carretGlobalPos == x ? 0 : c->xoffset * m;
-
-            /*      4,5,6,7         0,1,2,3
-             *      +---------------+
-             *      | 3           2 |
-             *      |               |
-             *      |    (glyph)    |               (x,y,s,t)
-             *      |               |
-             *      |               |
-             *      | 1           0 |
-             *      +---------------+
-             *      12,13,14,15     8,9,10,11
-             */
+            //
+            //     4,5,6,7         0,1,2,3
+            //     +---------------+
+            //     | 3           2 |
+            //     |               |
+            //     |    (glyph)    |               (x,y,s,t)
+            //     |               |
+            //     |               |
+            //     | 1           0 |
+            //     +---------------+
+            //     12,13,14,15     8,9,10,11
+            //
             vertsData[12] = vertsData[4] = carretGlobalPos - xoffest;
             vertsData[8] = vertsData[0] = carretGlobalPos - xoffest + c->width * m;
             vertsData[13] = vertsData[9] = ceilLine - c->yoffset * m - c->height * m;
@@ -318,8 +317,7 @@ namespace osu {
             vertsData[15] = vertsData[11] = ((float) c->y + c->height) / pages[c->page].height;
 
             glBindTextureUnit(0, pages[c->page].id);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * 2 * 4 * sizeof(float), vertsData);
+            glNamedBufferSubData(vbo, 0, 2 * 2 * 4 * sizeof(float), vertsData);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             carretGlobalPos += c->xadvance * m;
             if (Font::is)
