@@ -28,33 +28,32 @@ namespace osu {
 
         glEnableVertexArrayAttrib(spriteDrawingVAO, spriteDrawingShaderTexCordLocation);
         glVertexArrayAttribFormat(spriteDrawingVAO, spriteDrawingShaderTexCordLocation, 2, GL_FLOAT, false, 0);
-        glVertexArrayVertexBuffer(spriteDrawingVAO, spriteDrawingShaderPositionLocation,
+        glVertexArrayVertexBuffer(spriteDrawingVAO, spriteDrawingShaderTexCordLocation,
                                   spriteDrawingVBO, 2 * sizeof(float), 2 * 2 * sizeof(float));
     }
 
-    void UtillDrawer::drawRectSprite(glm::vec4 *p1, glm::vec4 *p2, int layer, GLuint spriteTexture) {
+    void UtillDrawer::drawRectSprite(glm::vec4 *p1, glm::vec4 *p2, float layer, GLuint spriteTexture) {
         Shader::spriteDrawingShader->bind();
         Shader::spriteDrawingShader->uniform("textureSampler", 0);
         Shader::spriteDrawingShader->uniform("layer", layer);
 
-        glBindTextureUnit(0, spriteTexture);
         glBindVertexArray(spriteDrawingVAO);
-        //  4,5,6,7         12,13,14,15
+        glBindTextureUnit(0, spriteTexture);
         //  +---------------+
-        //  | 1           3 |
+        //  | 2           3 |
         //  |               |
         //  |               |
+        //  |               |    texture y-axis inverted because of OpenGL implementation specification
         //  |               |
-        //  |               |
-        //  | 0           2 |
+        //  | 0           1 |
         //  +---------------+
-        //  0,1,2,3         8,9,10,11
         float vertexes[] = {
-                p1->x, p1->y, p1->z, p1->w,
-                p1->x, p2->y, p1->z, p2->w,
-                p2->x, p1->y, p2->z, p1->w,
-                p2->x, p2->y, p2->z, p2->w};
-        glNamedBufferSubData(spriteDrawingVBO, 0, 4 * 4 * 2 * sizeof(float), vertexes);
+                p1->x, p1->y, p1->z, 1 - p1->w,
+                p2->x, p1->y, p2->z, 1 - p1->w,
+                p1->x, p2->y, p1->z, 1 - p2->w,
+                p2->x, p2->y, p2->z, 1 - p2->w
+        };
+        glNamedBufferSubData(spriteDrawingVBO, 0, 4 * 4 * sizeof(float), vertexes);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 }
