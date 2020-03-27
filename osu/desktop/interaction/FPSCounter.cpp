@@ -11,6 +11,7 @@ namespace osu {
     FPSCounter::FPSCounter(int range) {
         _range = range;
         now = 0;
+        passed = 0;
         durations = new double[range];
         start = future = past = high_resolution_clock::now();
     }
@@ -20,14 +21,14 @@ namespace osu {
     }
 
     double FPSCounter::getFPS() {
-        return 1000000 / durations[now];
+        return 1000000 * now / passed;
     }
 
     void FPSCounter::setRange(int range) {
         double *old = durations;
         _range = range;
         now = 0;
-        frames = 0;
+        passed = 0;
         durations = new double[range];
         delete[] old;
         start = future = past = high_resolution_clock::now();
@@ -37,20 +38,22 @@ namespace osu {
         auto length = (future = high_resolution_clock::now()) - past;
         if (++now == _range) {
             now = 0;
+            passed = 0;
         }
         durations[now] = duration_cast<microseconds>(length).count();
         past = future;
-        frames++;
         if (future - start >= 1s) {
             start = future;
-            frames = 0;
+            now = 0;
+            passed = 0;
             std::this_thread::sleep_until(start + microseconds(1000000 / _range));
-        } else if (frames == _range) {
+        } else if (now == 0) {
             start += 1s;
-            frames = 0;
+            passed = 0;
             std::this_thread::sleep_until(start);
         } else {
-            std::this_thread::sleep_until(start + microseconds(1000000 / _range * (frames)));
+            passed += durations[now];
+            std::this_thread::sleep_until(start + microseconds(1000000 / _range * (now)));
         }
     }
 

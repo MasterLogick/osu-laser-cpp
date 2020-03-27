@@ -18,7 +18,7 @@ namespace osu {
         time_point<system_clock> future;
         int _range;
         int now;
-        int frames = 0;
+        double passed;
         double *durations;
     public:
         explicit FPSCounter(int range);
