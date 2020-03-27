@@ -4,13 +4,15 @@
 #include <thread>
 #include "FPSCounter.h"
 
+using namespace std::chrono;
+
 namespace osu {
 
     FPSCounter::FPSCounter(int range) {
         _range = range;
         now = 0;
         durations = new double[range];
-        future = past = high_resolution_clock::now();
+        start = future = past = high_resolution_clock::now();
     }
 
     FPSCounter::~FPSCounter() {
@@ -18,17 +20,17 @@ namespace osu {
     }
 
     double FPSCounter::getFPS() {
-        return 1000 / durations[now];
+        return 1000000 / durations[now];
     }
 
     void FPSCounter::setRange(int range) {
         double *old = durations;
         _range = range;
         now = 0;
+        frames = 0;
         durations = new double[range];
-        past = high_resolution_clock::now();
-        future = high_resolution_clock::now();
         delete[] old;
+        start = future = past = high_resolution_clock::now();
     }
 
     void FPSCounter::countFPSAndSleep() {
@@ -36,9 +38,20 @@ namespace osu {
         if (++now == _range) {
             now = 0;
         }
-        durations[now] = length.count();
+        durations[now] = duration_cast<microseconds>(length).count();
         past = future;
-        std::this_thread::sleep_until(future + microseconds(1000000 / _range * 2) - length);
+        frames++;
+        if (future - start >= 1s) {
+            start = future;
+            frames = 0;
+            std::this_thread::sleep_until(start + microseconds(1000000 / _range));
+        } else if (frames == _range) {
+            start += 1s;
+            frames = 0;
+            std::this_thread::sleep_until(start);
+        } else {
+            std::this_thread::sleep_until(start + microseconds(1000000 / _range * (frames)));
+        }
     }
 
     float FPSCounter::getDelta() {

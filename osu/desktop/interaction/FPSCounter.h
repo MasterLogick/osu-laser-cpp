@@ -13,10 +13,12 @@ namespace osu {
 
     class FPSCounter {
     private:
-        time_point<system_clock, duration<double, std::milli>> past;
-        time_point<system_clock, duration<double, std::milli>> future;
+        time_point<system_clock> start;
+        time_point<system_clock> past;
+        time_point<system_clock> future;
         int _range;
         int now;
+        int frames = 0;
         double *durations;
     public:
         explicit FPSCounter(int range);
