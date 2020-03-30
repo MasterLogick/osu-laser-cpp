@@ -79,6 +79,7 @@ namespace osu {
     };
 
     class Font {
+        //todo create defaultSize method
     private:
         Info info;
         Common common;

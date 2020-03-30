@@ -253,11 +253,14 @@ namespace osu {
             std::string name = std::string(FONTS_PATH) + pageNames[i];
             GLuint texture;
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-            int width, height, chanels;
-            unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &chanels, 4);
+            int width, height, channels;
+            unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &channels, 4);
             if (data) {
                 glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
                 glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            } else {
+                std::cerr << "texture loading error" << std::endl;
+                exit(-1);
             }
             SOIL_free_image_data(data);
             pages[i].id = texture;
