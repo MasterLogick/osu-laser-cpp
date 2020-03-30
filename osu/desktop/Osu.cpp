@@ -22,7 +22,6 @@ namespace osu {
     bool shouldClose = false;
 
     void Osu::initialise() {
-        srand(time(nullptr));
         std::locale::global(std::locale("en_US.UTF-8"));
         Properties::initialise();
         Graphics::initialise();
