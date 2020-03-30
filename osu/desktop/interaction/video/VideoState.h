@@ -13,7 +13,7 @@
 #include "glad/glad.h"
 
 extern "C" {
-#include <libavcodec/avcodec.h>
+#include  <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 struct SwsContext;
 }
@@ -21,6 +21,7 @@ struct SwsContext;
 #include "MovieState.h"
 #include "PacketQueue.h"
 
+#define PBO_AMOUNT 3*2
 namespace osu {
     class MovieState;
 
@@ -43,39 +44,50 @@ namespace osu {
 
         std::array<Picture, 24> mPictQ;
         size_t mPictQRead{0u}, mPictQWrite{1u};
-//        GLuint mTexture;
+        GLuint yPlaneTexture;
+        GLuint uPlaneTexture;
+        GLuint vPlaneTexture;
+        GLuint unpackPBO[PBO_AMOUNT];
+        float *mappedPBO[PBO_AMOUNT];
+        GLuint drawVAO;
+        GLuint drawVBO;
+        int index;
+        int nextIndex;
         SDL_Texture *mImage{nullptr};
         int mWidth{0}, mHeight{0}; // Logical image size (actual size may be larger)
         bool mFirstUpdate{true};
+        std::mutex pboLock;
 
         void display(SDL_Window *screen, SDL_Renderer *renderer);
 
     public:
-        void draw(int x, int y);
-
-        std::chrono::nanoseconds getClock();
-
-        void updateVideo(SDL_Window *screen, SDL_Renderer *renderer, bool redraw);
-
-        std::condition_variable mPictQCond;
+        bool redraw;
 
         bool mFinalUpdate{false};
 
-        std::mutex mPictQMutex;
-
         bool mEOS{false};
 
-        explicit VideoState(MovieState *movie) : mMovie{movie} {}
+        std::condition_variable mPictQCond;
+        std::mutex mPictQMutex;
+
+        AVCodecContext *mCodecCtx;
+        PacketQueue mPackets{14 * 1024 * 1024};
+
+        void initialise();
+
+        void draw(float x, float y);
+
+        std::chrono::nanoseconds getClock();
+
+        void updateVideo(SDL_Window *screen, SDL_Renderer *renderer);
+
+        explicit VideoState(MovieState *movie) : mMovie(movie) {}
 
         ~VideoState();
 
         int handler();
 
         AVStream *mStream{nullptr};
-
-        AVCodecContext *mCodecCtx;
-
-        PacketQueue mPackets{14 * 1024 * 1024};
     };
 }
 

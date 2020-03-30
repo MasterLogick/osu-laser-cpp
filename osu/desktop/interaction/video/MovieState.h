@@ -8,12 +8,7 @@
 #include <chrono>
 #include <thread>
 #include <string>
-
-
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-};
+#include <mutex>
 
 #include "VideoState.h"
 #include "AudioState.h"
@@ -29,13 +24,13 @@ namespace osu {
         AVFormatContext *fmtctx;
         bool DisableVideo{false};
         std::chrono::microseconds mClockBase{std::chrono::microseconds::min()};
-
         AudioState *mAudio;
 
         std::thread mParseThread;
-        std::thread mAudioThread;
 
+        std::thread mAudioThread;
         std::thread mVideoThread;
+
         std::string mFilename;
 
         static int decode_interrupt_cb(void *ctx);
@@ -49,7 +44,6 @@ namespace osu {
         int parse_handler();
 
     public:
-
         bool hasVideo;
         bool hasAudio;
         VideoState *mVideo;

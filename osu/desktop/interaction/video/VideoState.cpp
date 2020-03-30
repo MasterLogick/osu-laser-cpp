@@ -3,23 +3,25 @@
 //
 
 #include "VideoState.h"
+#include "../../graphics/opengl/UtillDrawer.h"
+#include "../../graphics/opengl/Shader.h"
 #include <iostream>
 #include <algorithm>
-#include <SDL_video.h>
-#include <SDL_render.h>
 
 extern "C" {
-#include "libavutil/time.h"
-#include "libswscale/swscale.h"
-struct SwsContext;
+#include <libavutil/time.h>
+#include <libswscale/swscale.h>
 }
+#define VIDEO_FRAME_WIDTH 1280
+#define VIDEO_FRAME_HEIGHT 720
+#define IMAGE_DATA_SIZE VIDEO_FRAME_WIDTH * VIDEO_FRAME_HEIGHT
 namespace osu {
+    const GLbitfield bufferStorageBitfield = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT;
+    const GLbitfield bufferMappingBitfield = GL_WRITE_ONLY | GL_MAP_INVALIDATE_BUFFER_BIT /*| GL_MAP_FLUSH_EXPLICIT_BIT*/;
+
     static std::chrono::microseconds get_avtime() { return std::chrono::microseconds{av_gettime()}; }
 
     VideoState::~VideoState() {
-//            if (mTexture)
-//                glDeleteTextures(1,&mTexture);
-//        mTexture = 0;
         //todo delete another opengl objects
 
         if (mImage)
@@ -68,44 +70,13 @@ namespace osu {
         SDL_Rect dst_rect{x, y, w, h};
         SDL_RenderCopy(renderer, mImage, &src_rect, &dst_rect);
         SDL_RenderPresent(renderer);
-//  todo a
-//        if (!mImage)
-//            return;
-        //texture filling and drawing
-//        double aspect_ratio;
-//        int win_w, win_h;
-//        int w, h, x, y;
-
-//        if (mCodecCtx->sample_aspect_ratio.num == 0)
-//            aspect_ratio = 0.0;
-//        else {
-//            aspect_ratio = av_q2d(mCodecCtx->sample_aspect_ratio) * mCodecCtx->width /
-//                           mCodecCtx->height;
-//        }
-//        if (aspect_ratio <= 0.0)
-//            aspect_ratio = static_cast<double>(mCodecCtx->width) / mCodecCtx->height;
-//
-//        SDL_GetWindowSize(screen, &win_w, &win_h);
-//        h = win_h;
-//        w = (static_cast<int>(std::rint(h * aspect_ratio)) + 3) & ~3;
-//        if (w > win_w) {
-//            w = win_w;
-//            h = (static_cast<int>(std::rint(w / aspect_ratio)) + 3) & ~3;
-//        }
-//        x = (win_w - w) / 2;
-//        y = (win_h - h) / 2;
-//
-//        SDL_Rect src_rect{0, 0, mWidth, mHeight};
-//        SDL_Rect dst_rect{x, y, w, h};
-//        SDL_RenderCopy(renderer, mImage, &src_rect, &dst_rect);
-//        SDL_RenderPresent(renderer);
     }
 
 // Called regularly on the main thread where the SDL_Renderer was created. It
-// * handles updating the textures of decoded frames and displaying the latest
-// * frame.
+// handles updating the textures of decoded frames and displaying the latest
+// frame.
 
-    void VideoState::updateVideo(SDL_Window *screen, SDL_Renderer *renderer, bool redraw) {
+    void VideoState::updateVideo(SDL_Window *screen, SDL_Renderer *renderer) {
         size_t read_idx{mPictQRead};
         Picture *vp{&mPictQ[read_idx]};
 
@@ -119,7 +90,6 @@ namespace osu {
             if (clocktime < nextvp->mPts) {
                 break;
             }
-
             vp = nextvp;
             updated = true;
             read_idx = next_idx;
@@ -140,7 +110,7 @@ namespace osu {
 
             /* allocate or resize the buffer! */
             bool fmt_updated{false};
-            if (!mImage || mWidth != mCodecCtx->width || mHeight != mCodecCtx->height) {
+            if (!mImage /*|| mWidth != mCodecCtx->width || mHeight != mCodecCtx->height*/) {
                 fmt_updated = true;
                 if (mImage)
                     SDL_DestroyTexture(mImage);
@@ -148,8 +118,8 @@ namespace osu {
                                            mCodecCtx->coded_width, mCodecCtx->coded_height);
                 if (!mImage)
                     std::cerr << "Failed to create YV12 texture!" << std::endl;
-                mWidth = mCodecCtx->width;
-                mHeight = mCodecCtx->height;
+                mWidth = VIDEO_FRAME_WIDTH;//mCodecCtx->width;
+                mHeight = VIDEO_FRAME_HEIGHT;//mCodecCtx->height;
 
                 if (mFirstUpdate && mWidth > 0 && mHeight > 0) {
                     /* For the first update, set the window size to the video size. */
@@ -167,56 +137,55 @@ namespace osu {
                     SDL_SetWindowSize(screen, w, h);
                 }
             }
-
+            if (!mSwscaleCtx || fmt_updated) {
+                mSwscaleCtx = sws_getContext(
+                        mCodecCtx->width, mCodecCtx->height, mCodecCtx->pix_fmt,
+                        VIDEO_FRAME_WIDTH, VIDEO_FRAME_HEIGHT, AV_PIX_FMT_YUV420P, 0,
+                        nullptr, nullptr, nullptr
+                );
+            }
+            AVFrame *frame{vp->mFrame};
+            uint8_t *pict_data[3];
+            int pict_linesize[3];
+            int coded_w{mCodecCtx->coded_width};
+            int coded_h{mCodecCtx->coded_height};
+            int w{mCodecCtx->width};
+            int h{mCodecCtx->height};
+            pict_linesize[0] = VIDEO_FRAME_WIDTH;
+            pict_linesize[1] = VIDEO_FRAME_WIDTH / 2;
+            pict_linesize[2] = VIDEO_FRAME_WIDTH / 2;
+            pboLock.lock();
+            pict_data[0] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3]);
+            pict_data[1] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3 + 1]);
+            pict_data[2] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3 + 2]);
+            sws_scale(mSwscaleCtx,
+                      reinterpret_cast<uint8_t **>(frame->data), frame->linesize, 0, h, pict_data, pict_linesize);
+            pboLock.unlock();
             if (mImage) {
-                AVFrame *frame{vp->mFrame};
+
                 void *pixels{nullptr};
                 int pitch{0};
-
-                if (mCodecCtx->pix_fmt == AV_PIX_FMT_YUV420P)
-                    SDL_UpdateYUVTexture(mImage, nullptr,
-                                         frame->data[0], frame->linesize[0],
-                                         frame->data[1], frame->linesize[1],
-                                         frame->data[2], frame->linesize[2]
-                    );
-                else if (SDL_LockTexture(mImage, nullptr, &pixels, &pitch) != 0)
+                if (SDL_LockTexture(mImage, nullptr, &pixels, &pitch) != 0) {
                     std::cerr << "Failed to lock texture" << std::endl;
-                else {
-                    // Convert the image into YUV format that SDL uses
-                    int coded_w{mCodecCtx->coded_width};
-                    int coded_h{mCodecCtx->coded_height};
-                    int w{mCodecCtx->width};
-                    int h{mCodecCtx->height};
-                    if (!mSwscaleCtx || fmt_updated) {
-                        mSwscaleCtx = sws_getContext(
-                                w, h, mCodecCtx->pix_fmt,
-                                w, h, AV_PIX_FMT_YUV420P, 0,
-                                nullptr, nullptr, nullptr
-                        );
-                    }
-
-                    /* point pict at the queue */
-                    uint8_t *pict_data[3];
+                } else {
                     pict_data[0] = static_cast<uint8_t *>(pixels);
                     pict_data[1] = pict_data[0] + coded_w * coded_h;
                     pict_data[2] = pict_data[1] + coded_w * coded_h / 4;
 
-                    int pict_linesize[3];
                     pict_linesize[0] = pitch;
                     pict_linesize[1] = pitch / 2;
                     pict_linesize[2] = pitch / 2;
 
-                    sws_scale(mSwscaleCtx, reinterpret_cast<uint8_t **>(frame->data), frame->linesize,
-                              0, h, pict_data, pict_linesize);
+                    sws_scale(mSwscaleCtx,
+                              reinterpret_cast<uint8_t **>(frame->data), frame->linesize, 0, h, pict_data, pict_linesize);
                     SDL_UnlockTexture(mImage);
                 }
             }
-
             redraw = true;
         }
 
         if (redraw) {
-            /* Show the picture! */
+            // Show the picture!
             display(screen, renderer);
         }
 
@@ -280,7 +249,7 @@ namespace osu {
             current_pts += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>{frame_delay});
 
             // Put the frame in the queue to be loaded into a texture and displayed
-//             * by the rendering thread.
+            // by the rendering thread.
 
             write_idx = (write_idx + 1) % mPictQ.size();
             mPictQWrite = write_idx;
@@ -303,7 +272,87 @@ namespace osu {
         return 0;
     }
 
-    void VideoState::draw(int x, int y) {
+    void VideoState::draw(float x, float y) {
+        if (redraw) {
+            pboLock.lock();
+            index = (index + 1) & 1;
+            nextIndex = (index + 1) & 1;
+            glUnmapNamedBuffer(unpackPBO[index * 3]);
+            glUnmapNamedBuffer(unpackPBO[index * 3 + 1]);
+            glUnmapNamedBuffer(unpackPBO[index * 3 + 2]);
+            glBindTexture(GL_TEXTURE_2D, yPlaneTexture);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH, VIDEO_FRAME_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            glBindTexture(GL_TEXTURE_2D, uPlaneTexture);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3 + 1]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2, GL_RED, GL_UNSIGNED_BYTE, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            glBindTexture(GL_TEXTURE_2D, vPlaneTexture);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3 + 2]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2, GL_RED, GL_UNSIGNED_BYTE, 0);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            mappedPBO[index * 3] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3], bufferMappingBitfield));
+            mappedPBO[index * 3 + 1] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3 + 1], bufferMappingBitfield));
+            mappedPBO[index * 3 + 2] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3 + 2], bufferMappingBitfield));
+            redraw = false;
+            pboLock.unlock();
+        }
+        float vertexes[] = {
+                x, y, 0, 1,
+                x + VIDEO_FRAME_WIDTH, y, 1, 1,
+                x, y + VIDEO_FRAME_HEIGHT, 0, 0,
+                x + VIDEO_FRAME_WIDTH, y + VIDEO_FRAME_HEIGHT, 1, 0
+        };
+        glNamedBufferSubData(drawVBO, 0, 4 * 4 * sizeof(float), vertexes);
+        glBindVertexArray(drawVAO);
+        glBindTextureUnit(0, yPlaneTexture);
+        glBindTextureUnit(1, uPlaneTexture);
+        glBindTextureUnit(2, vPlaneTexture);
+        Shader::videoDrawingShader->bind();
+        Shader::videoDrawingShader->uniform("yPlaneSampler", 0);
+        Shader::videoDrawingShader->uniform("uPlaneSampler", 1);
+        Shader::videoDrawingShader->uniform("vPlaneSampler", 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
 
+    void VideoState::initialise() {
+        glCreateTextures(GL_TEXTURE_2D, 1, &yPlaneTexture);
+        glCreateTextures(GL_TEXTURE_2D, 1, &uPlaneTexture);
+        glCreateTextures(GL_TEXTURE_2D, 1, &vPlaneTexture);
+
+        glTextureStorage2D(yPlaneTexture, 1, GL_R8, VIDEO_FRAME_WIDTH, VIDEO_FRAME_HEIGHT);
+        glTextureStorage2D(uPlaneTexture, 1, GL_R8, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2);
+        glTextureStorage2D(vPlaneTexture, 1, GL_R8, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2);
+
+        glCreateBuffers(PBO_AMOUNT, unpackPBO);
+        for (int i = 0; i < PBO_AMOUNT; i += 3) {
+            glNamedBufferStorage(unpackPBO[i], IMAGE_DATA_SIZE, nullptr, bufferStorageBitfield);
+            glNamedBufferStorage(unpackPBO[i + 1], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
+            glNamedBufferStorage(unpackPBO[i + 2], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
+            mappedPBO[i] =
+                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i], bufferMappingBitfield));
+            mappedPBO[i + 1] =
+                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i + 1], bufferMappingBitfield));
+            mappedPBO[i + 2] =
+                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i + 2], bufferMappingBitfield));
+        }
+
+        glCreateVertexArrays(1, &drawVAO);
+        glCreateBuffers(1, &drawVBO);
+
+        glNamedBufferData(drawVBO, 4 * 4 * sizeof(float), nullptr, GL_STREAM_DRAW);
+
+        GLuint positionLocation = Shader::videoDrawingShader->getAttribLocation("position");
+        GLuint texCordLocation = Shader::videoDrawingShader->getAttribLocation("texCord");
+
+        glEnableVertexArrayAttrib(drawVAO, positionLocation);
+        glVertexArrayAttribFormat(drawVAO, positionLocation, 2, GL_FLOAT, false, 0);
+        glVertexArrayVertexBuffer(drawVAO, positionLocation, drawVBO, 0, 2 * 2 * sizeof(float));
+
+        glEnableVertexArrayAttrib(drawVAO, texCordLocation);
+        glVertexArrayAttribFormat(drawVAO, texCordLocation, 2, GL_FLOAT, false, 0);
+        glVertexArrayVertexBuffer(drawVAO, texCordLocation, drawVBO, 2 * sizeof(float), 2 * 2 * sizeof(float));
     }
 }

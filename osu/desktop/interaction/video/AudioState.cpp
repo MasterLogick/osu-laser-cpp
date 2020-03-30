@@ -12,8 +12,8 @@
 
 extern "C" {
 #include <libavutil/time.h>
-#include <libswresample/swresample.h>
 }
+
 namespace osu {
     static std::chrono::microseconds get_avtime() { return std::chrono::microseconds{av_gettime()}; }
 

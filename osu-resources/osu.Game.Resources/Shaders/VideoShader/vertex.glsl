@@ -10,6 +10,6 @@ layout (std140) uniform Screen
 };
 void main()
 {
-    gl_Position = projection*vec4(position, 0.0f, 1.0);
+    gl_Position = projection*vec4(position, -998.0, 1.0);
     TexCoords = texCord;
 }

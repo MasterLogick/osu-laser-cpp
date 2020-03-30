@@ -136,7 +136,6 @@ namespace osu {
             mVideoThread = std::thread{std::mem_fn(&VideoState::handler), mVideo};
             hasVideo = true;
         }
-
         // Main packet reading/dispatching loop
         while (!mQuit) {
             AVPacket packet;

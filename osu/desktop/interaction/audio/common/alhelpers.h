@@ -12,7 +12,7 @@ namespace osu {
     const char *FormatName(ALenum type);
 
 /* Easy device init/deinit functions. InitAL returns 0 on success. */
-    int InitAL(ALCdevice *device, ALCcontext *context, const char* name);
+    bool InitAL(ALCdevice *device, ALCcontext *context, const char *name);
 
     void CloseAL();
 

@@ -60,7 +60,7 @@ namespace osu {
 #endif
         }
         Graphics::mainScreen->viewport();
-        Graphics::mainScreen->setVSync(1);
+        Graphics::mainScreen->setVSync(0);
         Graphics::mainScreen->setWindowShouldCloseCallback(closeCallback);
         Graphics::mainScreen->setKeyCallback(keyCallback);
 #ifndef NDEBUG

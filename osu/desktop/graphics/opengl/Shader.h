@@ -24,6 +24,7 @@ namespace osu {
         static Shader *postProcessorShader;
         static Shader *fontShader;
         static Shader *spriteDrawingShader;
+        static Shader *videoDrawingShader;
 
         Shader(GLuint id, std::map<std::string, int> *uniforms);
 

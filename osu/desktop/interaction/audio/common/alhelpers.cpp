@@ -51,7 +51,7 @@ namespace osu {
         }
     }
 
-    int InitAL(ALCdevice *device, ALCcontext *context, const char *name) {
+    bool InitAL(ALCdevice *device, ALCcontext *context, const char *name) {
         /* Open and initialize a device */
         device = alcOpenDevice(name);
         if (!device) {
@@ -65,11 +65,9 @@ namespace osu {
                 alcDestroyContext(context);
             alcCloseDevice(device);
             fprintf(stderr, "Could not set a context!\n");
-            return 1;
+            return false;
         }
         return true;
-
-        return 0;
     }
 
 /* CloseAL closes the device belonging to the current context, and destroys the

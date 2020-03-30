@@ -4,7 +4,7 @@
 
 #include "GameDrawer.h"
 #include "UI/Font.h"
-#include "../interaction/video/MediaFile.h"
+#include "opengl/UtillDrawer.h"
 
 #define MSAA_LEVEL 4
 namespace osu {
@@ -36,6 +36,7 @@ namespace osu {
     void GameDrawer::initialise() {
         Shader::initialise();
         Font::initialise();
+        UtillDrawer::initialise();
         postProcessor.initialise(Graphics::mainScreen->getWidth(), Graphics::mainScreen->getHeight());
         UIManager::initialise();
     }

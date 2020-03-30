@@ -16,7 +16,6 @@ namespace osu {
         static void loadSounds();
 
     public:
-        static MediaFile *mf;
         static LPALGETSOURCEI64VSOFT alGetSourcei64vSOFT;
         static LPALCGETINTEGER64VSOFT alcGetInteger64vSOFT;
         static ALCdevice *device;

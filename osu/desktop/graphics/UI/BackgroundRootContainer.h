@@ -17,7 +17,6 @@ namespace osu {
 
         TriangleBackground triangleBackground;
     public:
-        static int size;
 
         BackgroundRootContainer() : triangleBackground(TRIANGLES_AMOUNT) {
 
