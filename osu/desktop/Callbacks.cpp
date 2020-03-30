@@ -22,21 +22,16 @@ namespace osu {
     }
 
     void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_KP_ADD) {
-            ++BackgroundRootContainer::size;
-
-        }
-        if (key == GLFW_KEY_KP_SUBTRACT) {
-            --BackgroundRootContainer::size;
-        }
-        if (key == GLFW_KEY_ESCAPE) {
-            shouldClose = true;
-        }
-        if (key == GLFW_KEY_LEFT) {
-            Font::is = false;
-        }
-        if (key == GLFW_KEY_RIGHT) {
-            Font::is = true;
+        switch (key) {
+            case GLFW_KEY_ESCAPE:
+                shouldClose = true;
+                break;
+            case GLFW_KEY_LEFT:
+                Font::is = false;
+                break;
+            case GLFW_KEY_RIGHT:
+                Font::is = true;
+                break;
         }
     }
 
