@@ -6,6 +6,7 @@
 #define OSU_LASER_C_TRIANGLEBACKGROUND_H
 
 #include "Component.h"
+#include <random>
 
 namespace osu {
     class TriangleBackground : public Component {
@@ -20,6 +21,7 @@ namespace osu {
         float *scale;
         float *color;
         float *velocity;
+        std::mt19937 rndDevice;
 
         void movePositions();
 
