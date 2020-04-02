@@ -21,7 +21,7 @@ struct SwsContext;
 #include "MovieState.h"
 #include "PacketQueue.h"
 
-#define PBO_AMOUNT 3*2
+#define PBO_AMOUNT 3
 namespace osu {
     class MovieState;
 
@@ -48,11 +48,9 @@ namespace osu {
         GLuint uPlaneTexture;
         GLuint vPlaneTexture;
         GLuint unpackPBO[PBO_AMOUNT];
-        float *mappedPBO[PBO_AMOUNT];
+        uint8_t *mappedPBO[PBO_AMOUNT];
         GLuint drawVAO;
         GLuint drawVBO;
-        int index;
-        int nextIndex;
         SDL_Texture *mImage{nullptr};
         int mWidth{0}, mHeight{0}; // Logical image size (actual size may be larger)
         bool mFirstUpdate{true};

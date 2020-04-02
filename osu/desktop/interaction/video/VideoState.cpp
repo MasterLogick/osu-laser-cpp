@@ -110,7 +110,7 @@ namespace osu {
 
             /* allocate or resize the buffer! */
             bool fmt_updated{false};
-            if (!mImage /*|| mWidth != mCodecCtx->width || mHeight != mCodecCtx->height*/) {
+            if (!mImage) {
                 fmt_updated = true;
                 if (mImage)
                     SDL_DestroyTexture(mImage);
@@ -118,8 +118,8 @@ namespace osu {
                                            mCodecCtx->coded_width, mCodecCtx->coded_height);
                 if (!mImage)
                     std::cerr << "Failed to create YV12 texture!" << std::endl;
-                mWidth = VIDEO_FRAME_WIDTH;//mCodecCtx->width;
-                mHeight = VIDEO_FRAME_HEIGHT;//mCodecCtx->height;
+                mWidth = VIDEO_FRAME_WIDTH;
+                mHeight = VIDEO_FRAME_HEIGHT;
 
                 if (mFirstUpdate && mWidth > 0 && mHeight > 0) {
                     /* For the first update, set the window size to the video size. */
@@ -145,7 +145,6 @@ namespace osu {
                 );
             }
             AVFrame *frame{vp->mFrame};
-            uint8_t *pict_data[3];
             int pict_linesize[3];
             int coded_w{mCodecCtx->coded_width};
             int coded_h{mCodecCtx->coded_height};
@@ -155,14 +154,11 @@ namespace osu {
             pict_linesize[1] = VIDEO_FRAME_WIDTH / 2;
             pict_linesize[2] = VIDEO_FRAME_WIDTH / 2;
             pboLock.lock();
-            pict_data[0] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3]);
-            pict_data[1] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3 + 1]);
-            pict_data[2] = reinterpret_cast<uint8_t *>(mappedPBO[nextIndex * 3 + 2]);
-            sws_scale(mSwscaleCtx,
-                      reinterpret_cast<uint8_t **>(frame->data), frame->linesize, 0, h, pict_data, pict_linesize);
+            sws_scale(mSwscaleCtx, frame->data, frame->linesize, 0, h, mappedPBO, pict_linesize);
             pboLock.unlock();
             if (mImage) {
 
+                uint8_t *pict_data[3];
                 void *pixels{nullptr};
                 int pitch{0};
                 if (SDL_LockTexture(mImage, nullptr, &pixels, &pitch) != 0) {
@@ -275,29 +271,27 @@ namespace osu {
     void VideoState::draw(float x, float y) {
         if (redraw) {
             pboLock.lock();
-            index = (index + 1) & 1;
-            nextIndex = (index + 1) & 1;
-            glUnmapNamedBuffer(unpackPBO[index * 3]);
-            glUnmapNamedBuffer(unpackPBO[index * 3 + 1]);
-            glUnmapNamedBuffer(unpackPBO[index * 3 + 2]);
+            glUnmapNamedBuffer(unpackPBO[0]);
+            glUnmapNamedBuffer(unpackPBO[1]);
+            glUnmapNamedBuffer(unpackPBO[2]);
             glBindTexture(GL_TEXTURE_2D, yPlaneTexture);
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3]);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[0]);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH, VIDEO_FRAME_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, 0);
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             glBindTexture(GL_TEXTURE_2D, uPlaneTexture);
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3 + 1]);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[1]);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2, GL_RED, GL_UNSIGNED_BYTE, 0);
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             glBindTexture(GL_TEXTURE_2D, vPlaneTexture);
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[index * 3 + 2]);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpackPBO[2]);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2, GL_RED, GL_UNSIGNED_BYTE, 0);
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
-            mappedPBO[index * 3] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3], bufferMappingBitfield));
-            mappedPBO[index * 3 + 1] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3 + 1], bufferMappingBitfield));
-            mappedPBO[index * 3 + 2] = static_cast<float *>(glMapNamedBuffer(unpackPBO[index * 3 + 2], bufferMappingBitfield));
-            redraw = false;
+            mappedPBO[0] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[0], bufferMappingBitfield));
+            mappedPBO[1] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[1], bufferMappingBitfield));
+            mappedPBO[2] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[2], bufferMappingBitfield));
             pboLock.unlock();
+            redraw = false;
         }
         float vertexes[] = {
                 x, y, 0, 1,
@@ -327,18 +321,12 @@ namespace osu {
         glTextureStorage2D(vPlaneTexture, 1, GL_R8, VIDEO_FRAME_WIDTH / 2, VIDEO_FRAME_HEIGHT / 2);
 
         glCreateBuffers(PBO_AMOUNT, unpackPBO);
-        for (int i = 0; i < PBO_AMOUNT; i += 3) {
-            glNamedBufferStorage(unpackPBO[i], IMAGE_DATA_SIZE, nullptr, bufferStorageBitfield);
-            glNamedBufferStorage(unpackPBO[i + 1], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
-            glNamedBufferStorage(unpackPBO[i + 2], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
-            mappedPBO[i] =
-                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i], bufferMappingBitfield));
-            mappedPBO[i + 1] =
-                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i + 1], bufferMappingBitfield));
-            mappedPBO[i + 2] =
-                    static_cast<float *>(glMapNamedBuffer(unpackPBO[i + 2], bufferMappingBitfield));
-        }
-
+        glNamedBufferStorage(unpackPBO[0], IMAGE_DATA_SIZE, nullptr, bufferStorageBitfield);
+        glNamedBufferStorage(unpackPBO[1], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
+        glNamedBufferStorage(unpackPBO[2], IMAGE_DATA_SIZE / 4, nullptr, bufferStorageBitfield);
+        mappedPBO[0] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[0], bufferMappingBitfield));
+        mappedPBO[1] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[1], bufferMappingBitfield));
+        mappedPBO[2] = static_cast<uint8_t *>(glMapNamedBuffer(unpackPBO[2], bufferMappingBitfield));
         glCreateVertexArrays(1, &drawVAO);
         glCreateBuffers(1, &drawVBO);
 
