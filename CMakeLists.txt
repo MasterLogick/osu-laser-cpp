@@ -66,9 +66,6 @@ add_subdirectory(SOIL)
 option(ALSOFT_EXAMPLES OFF)
 add_subdirectory(openal-soft)
 
-#compiling SDL
-add_subdirectory(SDL2-2.0.10)
-
 #def glad sources
 set(GLAD_SOURCES glad/src/glad.c)
 
@@ -113,12 +110,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC SOIL/src)
 #include OpenAL
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC openal-soft/include/AL)
 
-#include SDL
-target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC SDL2-2.0.10/include)
-
 #include ffmpeg
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${SWRESAMPLE_INCLUDE_DIR} ${SWSCALE_INCLURE_DIR})
 
 #link libs
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} pthread ${libconfig_libname}++ soil-static OpenAL
-        ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${AVDEVICE_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY} SDL2)
+        ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${AVDEVICE_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY})

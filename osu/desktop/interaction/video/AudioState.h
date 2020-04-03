@@ -9,6 +9,8 @@
 #include <vector>
 #include "al.h"
 #include "alc.h"
+#include "MovieState.h"
+#include "PacketQueue.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -17,8 +19,6 @@ extern "C" {
 struct SwrContext;
 }
 
-#include "MovieState.h"
-#include "PacketQueue.h"
 
 namespace osu {
     class MovieState;

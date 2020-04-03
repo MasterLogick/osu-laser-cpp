@@ -23,10 +23,6 @@ namespace osu {
 
     VideoState::~VideoState() {
         //todo delete another opengl objects
-
-        if (mImage)
-            SDL_DestroyTexture(mImage);
-        mImage = nullptr;
     }
 
     std::chrono::nanoseconds VideoState::getClock() {
@@ -38,45 +34,11 @@ namespace osu {
         return mDisplayPts + delta;
     }
 
-// Called by VideoState::updateVideo to display the next video frame.
-    void VideoState::display(SDL_Window *screen, SDL_Renderer *renderer) {
-        if (!mImage)
-            return;
-
-        double aspect_ratio;
-        int win_w, win_h;
-        int w, h, x, y;
-
-        if (mCodecCtx->sample_aspect_ratio.num == 0)
-            aspect_ratio = 0.0;
-        else {
-            aspect_ratio = av_q2d(mCodecCtx->sample_aspect_ratio) * mCodecCtx->width /
-                           mCodecCtx->height;
-        }
-        if (aspect_ratio <= 0.0)
-            aspect_ratio = static_cast<double>(mCodecCtx->width) / mCodecCtx->height;
-
-        SDL_GetWindowSize(screen, &win_w, &win_h);
-        h = win_h;
-        w = (static_cast<int>(std::rint(h * aspect_ratio)) + 3) & ~3;
-        if (w > win_w) {
-            w = win_w;
-            h = (static_cast<int>(std::rint(w / aspect_ratio)) + 3) & ~3;
-        }
-        x = (win_w - w) / 2;
-        y = (win_h - h) / 2;
-
-        SDL_Rect src_rect{0, 0, mWidth, mHeight};
-        SDL_Rect dst_rect{x, y, w, h};
-        SDL_RenderCopy(renderer, mImage, &src_rect, &dst_rect);
-        SDL_RenderPresent(renderer);
-    }
-
 // Called regularly on the main thread where the SDL_Renderer was created. It
 // handles updating the textures of decoded frames and displaying the latest
 // frame.
 
-    void VideoState::updateVideo(SDL_Window *screen, SDL_Renderer *renderer) {
+    void VideoState::updateVideo() {
         size_t read_idx{mPictQRead};
         Picture *vp{&mPictQ[read_idx]};
 
@@ -109,45 +71,16 @@ namespace osu {
             mPictQCond.notify_one();
 
             /* allocate or resize the buffer! */
-            bool fmt_updated{false};
-            if (!mImage) {
-                fmt_updated = true;
-                if (mImage)
-                    SDL_DestroyTexture(mImage);
-                mImage = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING,
-                                           mCodecCtx->coded_width, mCodecCtx->coded_height);
-                if (!mImage)
-                    std::cerr << "Failed to create YV12 texture!" << std::endl;
-                mWidth = VIDEO_FRAME_WIDTH;
-                mHeight = VIDEO_FRAME_HEIGHT;
-
-                if (mFirstUpdate && mWidth > 0 && mHeight > 0) {
-                    /* For the first update, set the window size to the video size. */
-                    mFirstUpdate = false;
-
-                    int w{mWidth};
-                    int h{mHeight};
-                    if (mCodecCtx->sample_aspect_ratio.den != 0) {
-                        double aspect_ratio = av_q2d(mCodecCtx->sample_aspect_ratio);
-                        if (aspect_ratio >= 1.0)
-                            w = static_cast<int>(w * aspect_ratio + 0.5);
-                        else if (aspect_ratio > 0.0)
-                            h = static_cast<int>(h / aspect_ratio + 0.5);
-                    }
-                    SDL_SetWindowSize(screen, w, h);
-                }
-            }
-            if (!mSwscaleCtx || fmt_updated) {
+            if (!mSwscaleCtx || mFirstUpdate) {
                 mSwscaleCtx = sws_getContext(
                         mCodecCtx->width, mCodecCtx->height, mCodecCtx->pix_fmt,
                         VIDEO_FRAME_WIDTH, VIDEO_FRAME_HEIGHT, AV_PIX_FMT_YUV420P, 0,
                         nullptr, nullptr, nullptr
                 );
+                mFinalUpdate = false;
             }
             AVFrame *frame{vp->mFrame};
             int pict_linesize[3];
-            int coded_w{mCodecCtx->coded_width};
-            int coded_h{mCodecCtx->coded_height};
             int w{mCodecCtx->width};
             int h{mCodecCtx->height};
             pict_linesize[0] = VIDEO_FRAME_WIDTH;
@@ -156,38 +89,10 @@ namespace osu {
             pboLock.lock();
             sws_scale(mSwscaleCtx, frame->data, frame->linesize, 0, h, mappedPBO, pict_linesize);
             pboLock.unlock();
-            if (mImage) {
-
-                uint8_t *pict_data[3];
-                void *pixels{nullptr};
-                int pitch{0};
-                if (SDL_LockTexture(mImage, nullptr, &pixels, &pitch) != 0) {
-                    std::cerr << "Failed to lock texture" << std::endl;
-                } else {
-                    pict_data[0] = static_cast<uint8_t *>(pixels);
-                    pict_data[1] = pict_data[0] + coded_w * coded_h;
-                    pict_data[2] = pict_data[1] + coded_w * coded_h / 4;
-
-                    pict_linesize[0] = pitch;
-                    pict_linesize[1] = pitch / 2;
-                    pict_linesize[2] = pitch / 2;
-
-                    sws_scale(mSwscaleCtx,
-                              reinterpret_cast<uint8_t **>(frame->data), frame->linesize, 0, h, pict_data, pict_linesize);
-                    SDL_UnlockTexture(mImage);
-                }
-            }
             redraw = true;
         }
-
-        if (redraw) {
-            // Show the picture!
-            display(screen, renderer);
-        }
-
         if (updated) {
             auto disp_time = get_avtime();
-
             std::lock_guard<std::mutex> _{mDispPtsMutex};
             mDisplayPts = vp->mPts;
             mDisplayPtsTime = disp_time;

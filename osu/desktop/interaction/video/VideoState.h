@@ -8,7 +8,6 @@
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
-#include <SDL.h>
 
 #include "glad/glad.h"
 
@@ -51,12 +50,8 @@ namespace osu {
         uint8_t *mappedPBO[PBO_AMOUNT];
         GLuint drawVAO;
         GLuint drawVBO;
-        SDL_Texture *mImage{nullptr};
-        int mWidth{0}, mHeight{0}; // Logical image size (actual size may be larger)
         bool mFirstUpdate{true};
         std::mutex pboLock;
-
-        void display(SDL_Window *screen, SDL_Renderer *renderer);
 
     public:
         bool redraw;
@@ -77,7 +72,7 @@ namespace osu {
 
         std::chrono::nanoseconds getClock();
 
-        void updateVideo(SDL_Window *screen, SDL_Renderer *renderer);
+        void updateVideo();
 
         explicit VideoState(MovieState *movie) : mMovie(movie) {}
 

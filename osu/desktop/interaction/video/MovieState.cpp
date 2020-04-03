@@ -170,12 +170,6 @@ namespace osu {
         lock.unlock();
         mQuit = true;
 
-        //test
-        SDL_Event evt{};
-        evt.user.type = SDL_USEREVENT;
-        SDL_PushEvent(&evt);
-        //test
-
         return 0;
     }
 
