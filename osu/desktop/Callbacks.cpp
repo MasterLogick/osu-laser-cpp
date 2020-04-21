@@ -5,7 +5,6 @@
 #include "Osu.h"
 #include <iostream>
 #include <glad/glad.h>
-#include "graphics/UI/BackgroundRootContainer.h"
 #include "graphics/Graphics.h"
 #include "graphics/UI/Font.h"
 

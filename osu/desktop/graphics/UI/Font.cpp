@@ -3,6 +3,9 @@
 //
 #include <cmath>
 #include <thread>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include "SOIL.h"
 #include "Font.h"
 #include "../opengl/Shader.h"

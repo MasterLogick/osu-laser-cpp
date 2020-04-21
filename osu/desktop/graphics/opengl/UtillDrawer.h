@@ -1,11 +1,13 @@
 //
 // Created by Masterlogick on 3/24/20.
 //
-#include <glad/glad.h>
-#include <vec4.hpp>
 
 #ifndef OSU_LASER_C_UTILLDRAWER_H
 #define OSU_LASER_C_UTILLDRAWER_H
+
+#include <glad/glad.h>
+#include <vec4.hpp>
+
 namespace osu {
 
     class UtillDrawer {

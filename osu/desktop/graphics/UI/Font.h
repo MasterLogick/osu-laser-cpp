@@ -5,12 +5,7 @@
 #ifndef OSU_LASER_C_FONT_H
 #define OSU_LASER_C_FONT_H
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <platformDependentDefines.h>
-#include <vector>
-#include <map>
 #include <glad/glad.h>
 
 #define FONT_SMOOTH 0x80
@@ -87,7 +82,6 @@ namespace osu {
         Page *pages;
         unsigned int charactersCount;
 
-//        std::map<wchar_t , std::map<wchar_t , int> > kerningPairs;
         std::string *pageNames;
         Kerning *kernings;
         unsigned char kerningPairsAmount;

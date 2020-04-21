@@ -7,7 +7,6 @@
 #include "common/alhelpers.h"
 
 #include "AudioSystem.h"
-#include "../video/MediaFile.h"
 
 namespace osu {
     ALCdevice *AudioSystem::device = nullptr;

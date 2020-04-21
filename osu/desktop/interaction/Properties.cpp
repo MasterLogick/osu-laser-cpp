@@ -2,7 +2,6 @@
 // Created by MasterLogick on 1/19/20.
 //
 
-#include <iostream>
 #include "Properties.h"
 #include "platformDependentDefines.h"
 #include "../graphics/GLFWWindow.h"

@@ -5,7 +5,6 @@
 #ifndef OSU_LASER_C_AUDIOSYSTEM_H
 #define OSU_LASER_C_AUDIOSYSTEM_H
 
-//#include "al.h"
 #include "alext.h"
 #include "alc.h"
 #include "../video/MediaFile.h"
