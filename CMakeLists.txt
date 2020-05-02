@@ -32,8 +32,6 @@ find_library(SWRESAMPLE_LIBRARY swresample)
 find_path(SWSCALE_INCLURE_DIR libswscale/swscale.h)
 find_library(SWSCALE_LIBRARY swscale)
 
-message("${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${AVDEVICE_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY}")
-
 #find boost
 find_package(Boost 1.65.1 REQUIRED COMPONENTS system filesystem)
 
