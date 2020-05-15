@@ -1,0 +1,45 @@
+{
+    "build_systems": [{
+        "auto_close": false,
+        "cancel": {
+            "kill": true
+        },
+        "cmd": [""],
+        "file_regex": "^\\s*(\\S[^:]*)\\((\\d+):(\\d+)\\): ([^\\n]+)",
+        "name": "CMake",
+        "target": "terminus_open",
+        "variants": [{
+            "cmd": ["cmake", "-DCMAKE_BUILD_TYPE=Debug", "-G", "CodeBlocks - Unix Makefiles", "$project_path"],
+            "name": "Configure Debug",
+            "working_dir": "$project_path/cmake-build-debug"
+        }, {
+            "cmd": ["cmake", "-DCMAKE_BUILD_TYPE=Release", "-G", "CodeBlocks - Unix Makefiles", "$project_path"],
+            "name": "Configure Release",
+            "working_dir": "$project_path/cmake-build-release"
+        }, {
+            "cmd": ["cmake", "--build", "$project_path/cmake-build-debug", "--target", "osu-laser-cpp", "--", "-j 4"],
+            "name": "Build Debug",
+            "working_dir": "${project_path}/cmake-build-debug"
+        }, {
+            "cmd": ["cmake", "--build", "$project_path/cmake-build-release", "--target", "osu-laser-cpp", "--", "-j 4"],
+            "name": "Build Release",
+            "working_dir": "${project_path}/cmake-build-release"
+        }, {
+            "cmd": ["$project_path/cmake-build-debug/osu-laser-cpp"],
+            "name": "Run Debug",
+            "working_dir": "$project_path"
+        }, {
+            "cmd": ["$project_path/cmake-build-release/osu-laser-cpp"],
+            "name": "Run Release",
+            "working_dir": "$project_path"
+        }, {
+            "cmd": ["python3", "$project_path/remove_cache.py"],
+            "name": "Remove cache"
+        }]
+    }],
+    "folders": [{
+        "path": "."
+    }, {
+        "path": "/home/user/osu-wiki/wiki"
+    }]
+}

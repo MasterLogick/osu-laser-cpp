@@ -2,3 +2,4 @@
 /cmake-build-release/
 *.sln
 *.vcproj
+/osu-laser-cpp.sublime-workspace
