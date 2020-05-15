@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include "BeatmapEnums.h"
+#include "GameMode.h"
 
 namespace osu {
     struct GeneralSettings {
@@ -16,7 +17,7 @@ namespace osu {
         char Countdown{1};
         SampleSets SampleSet{Normal};
         float StackLeniency{0.7};
-        GameMode Mode{Standart};
+        GameMode Mode{Standard};
         bool LetterboxInBreaks{false};
         bool UseSkinSprites{false};
         OverlayPositions OverlayPosition{NoChange};

@@ -10,13 +10,12 @@
 #include "BeatmapMetadata.h"
 #include "TimingPoint.h"
 #include "TimingPointSet.h"
+#include "ColorSchema.h"
+#include "../modes/HitObjectParser.h"
 
 namespace osu {
     class BeatmapLoader {
     private:
-//        Beatmap *beatmap;
-        BeatmapMetadata *metadata;
-        TimingPointSet *timingQueue;
         enum SectionTokens {
             General,
             Editor,
@@ -28,10 +27,18 @@ namespace osu {
             HitObjects,
             Variables
         };
+//        Beatmap *beatmap;
+        BeatmapMetadata *metadata{nullptr};
+        TimingPointSet *timingQueue{nullptr};
+        ColorSchema *colorSchema{nullptr};
+        HitObjectParser *hitObjectParser{nullptr};
+        std::list<std::pair<std::string, std::string>> variables;
+        std::vector<void *> hitObjects;
         int formatVersion;
         int globalOffset;
-        std::vector<std::pair<std::string, std::string>> variables;
         SectionTokens currientToken{General};
+
+        void handleSection(std::string line);
 
         void handleGeneral(std::string line);
 
@@ -49,7 +56,7 @@ namespace osu {
 
         void handleHitObjects(std::string line);
 
-        void handleVariables(std::vector<std::pair<std::string, std::string>> *map, std::string line);
+        void handleVariables(std::string line);
 
         void decodeVariables(std::string *line);
 
@@ -63,11 +70,11 @@ namespace osu {
 
     public:
 
-        BeatmapLoader(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {};
+        explicit BeatmapLoader(int version);
 
-        void loadLegacyBeatmapFromFile(std::string path);
+        void loadLegacyBeatmap(std::istream stream);
 
-        void loadLegacyStoryBoardFromFile(std::string path);
+        void loadLegacyStoryBoardFromFile(std::istream stream);
 
         Beatmap *buildBeatmap();
 

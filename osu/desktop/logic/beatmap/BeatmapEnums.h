@@ -4,6 +4,7 @@
 
 #ifndef OSU_LASER_C_BEATMAPENUMS_H
 #define OSU_LASER_C_BEATMAPENUMS_H
+
 namespace osu {
     enum TimeSignatures {
         Triple = 3,
@@ -17,10 +18,6 @@ namespace osu {
     };
     enum EventType {
         Background = 0, Video = 1, Break = 2
-    };
-
-    enum GameMode {
-        Standart = 0, Taiko = 1, Catch = 2, Mania = 3
     };
 }
 #endif //OSU_LASER_C_BEATMAPENUMS_H

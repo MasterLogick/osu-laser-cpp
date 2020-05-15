@@ -5,13 +5,13 @@
 #ifndef OSU_LASER_C_TIMINGPOINTSET_H
 #define OSU_LASER_C_TIMINGPOINTSET_H
 
-#include <queue>
+#include <list>
 #include "TimingPoint.h"
 
 namespace osu {
     class TimingPointSet {
     public:
-        std::queue<TimingPoint> timingPointQueue;
+        std::list<TimingPoint> timingPointQueue;
     };
 }
 
