@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/osu!laser#c++.iml" filepath="$PROJECT_DIR$/.idea/osu!laser#c++.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/osu-laser-cpp.iml" filepath="$PROJECT_DIR$/.idea/osu-laser-cpp.iml" />
     </modules>
   </component>
 </project>
