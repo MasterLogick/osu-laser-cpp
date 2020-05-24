@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "SOIL.h"
+#include "../stb_image.h"
 #include "Font.h"
 #include "../opengl/Shader.h"
 
@@ -52,7 +52,8 @@ namespace osu {
     }
 
     unsigned int charsToInt(const char *c) {
-        return ((unsigned char) c[3] << 24) | ((unsigned char) c[2]) << 16 | ((unsigned char) c[1]) << 8 | ((unsigned char) c[0]);
+        return ((unsigned char) c[3] << 24) | ((unsigned char) c[2]) << 16 | ((unsigned char) c[1]) << 8 |
+               ((unsigned char) c[0]);
     }
 
     unsigned short int charsToWord(const char *c) {
@@ -117,7 +118,8 @@ namespace osu {
         chars = new Char[charactersCount];
         fileData += 5;
         const char *saved = fileData;
-        for (Char *c = chars; fileData < saved + charactersCount * FONT_CHAR_PACKET_SIZE; fileData += FONT_CHAR_PACKET_SIZE, c++) {
+        for (Char *c = chars;
+             fileData < saved + charactersCount * FONT_CHAR_PACKET_SIZE; fileData += FONT_CHAR_PACKET_SIZE, c++) {
             c->id = charsToInt(fileData);
             c->x = charsToWord(fileData + 4);
             c->y = charsToWord(fileData + 6);
@@ -134,7 +136,8 @@ namespace osu {
         kernings = new Kerning[kerningPairsAmount];
         saved = fileData;
         fileData += 4;
-        for (int i = 0; saved + kerningPairsAmount * FONT_KERNING_BLOCK_SIZE > fileData; i++, fileData += FONT_KERNING_BLOCK_SIZE) {
+        for (int i = 0; saved + kerningPairsAmount * FONT_KERNING_BLOCK_SIZE >
+                        fileData; i++, fileData += FONT_KERNING_BLOCK_SIZE) {
             kernings[i].first = charsToInt(fileData);
             kernings[i].second = charsToInt(fileData + 4);
             kernings[i].size = (signed short) charsToWord(fileData + 8);
@@ -257,7 +260,7 @@ namespace osu {
             GLuint texture;
             glCreateTextures(GL_TEXTURE_2D, 1, &texture);
             int width, height, channels;
-            unsigned char *data = SOIL_load_image(name.c_str(), &width, &height, &channels, 4);
+            unsigned char *data = stbi_load(name.c_str(), &width, &height, &channels, 4);
             if (data) {
                 glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
                 glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -265,7 +268,7 @@ namespace osu {
                 std::cerr << "texture loading error" << std::endl;
                 exit(-1);
             }
-            SOIL_free_image_data(data);
+            stbi_image_free(data);
             pages[i].id = texture;
             pages[i].width = width;
             pages[i].height = height;

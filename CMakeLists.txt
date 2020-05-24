@@ -49,16 +49,12 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 
-
 #compiling libconfig
 add_subdirectory(libconfig)
 
 #compiling glm
 add_subdirectory(glm/glm)
 add_library(glm::glm ALIAS glm)
-
-#compiling SOIL
-add_subdirectory(SOIL)
 
 #comliling OpenAL
 option(ALSOFT_EXAMPLES OFF)
@@ -80,9 +76,6 @@ else ()
     message("Compiling with minimal fonts")
 endif ()
 unset(COMPILE_WITH_ALL_FONTS_OPTION CACHE)
-#adding test sources
-#file(GLOB_RECURSE TEST_SOURCE_FILES "osu/test/*")
-#add_executable(${CMAKE_PROJECT_NAME}-test ${TEST_SOURCE_FILES} ${GLAD_SOURCES})
 
 #include cmake generated headers
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR})
@@ -102,9 +95,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC libconfig/lib)
 #include GLAD
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC glad/include)
 
-#include SIOL
-target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC SOIL/src)
-
 #include OpenAL
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC openal-soft/include/AL)
 
@@ -112,5 +102,5 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC openal-soft/include/AL)
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${AVDEVICE_INCLUDE_DIR} ${SWRESAMPLE_INCLUDE_DIR} ${SWSCALE_INCLURE_DIR})
 
 #link libs
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} pthread ${libconfig_libname}++ soil-static OpenAL
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES} glfw ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} pthread ${libconfig_libname}++ OpenAL
         ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} ${AVDEVICE_LIBRARY} ${SWRESAMPLE_LIBRARY} ${SWSCALE_LIBRARY})
