@@ -17,11 +17,11 @@
             "name": "Configure Release",
             "working_dir": "$project_path/cmake-build-release"
         }, {
-            "cmd": ["cmake", "--build", "$project_path/cmake-build-debug", "--target", "osu-laser-cpp", "--", "-j 4"],
+            "cmd": ["cmake", "--build", "$project_path/cmake-build-debug", "--target", "osu-laser-cpp", "--", "-j4"],
             "name": "Build Debug",
             "working_dir": "${project_path}/cmake-build-debug"
         }, {
-            "cmd": ["cmake", "--build", "$project_path/cmake-build-release", "--target", "osu-laser-cpp", "--", "-j 4"],
+            "cmd": ["cmake", "--build", "$project_path/cmake-build-release", "--target", "osu-laser-cpp", "--", "-j4"],
             "name": "Build Release",
             "working_dir": "${project_path}/cmake-build-release"
         }, {
