@@ -50,6 +50,17 @@ namespace osu {
         return std::pair<std::string, std::string>(kpVar.substr(0, pos), val);
     }
 
+    static std::pair<std::string, std::string> splitKeyValPair(std::string kpVar, int skip, char separator = ':') {
+        size_t pos = -1;
+        for (int i = 0; i < skip; ++i) {
+            pos = kpVar.find(separator, pos + 1);
+        }
+        pos = kpVar.find(separator, pos + 1);
+        std::string val{kpVar.substr(pos + 1)};
+        ltrim(val);
+        return std::pair<std::string, std::string>(kpVar.substr(0, pos), val);
+    }
+
     static std::vector<std::string> split(std::string str, std::string separator) {
         std::vector<std::string> result;
         boost::split(result, str, boost::is_any_of(separator));

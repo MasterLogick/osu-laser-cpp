@@ -11,11 +11,39 @@
 namespace osu {
     struct HitSample {
     public:
-        uint8_t normalSet{0};
-        uint8_t additionSet{0};
-        int index{0};
-        uint8_t volume{0};
-        const char *filename{nullptr};
+        HitSample() : normalSet(0), additionSet(0), index(0), volume(100), filename(nullptr) {
+
+        }
+
+        HitSample(std::string sample) {
+            std::vector<std::string> options = split(sample, ":");
+            if (options[0].size() != 0)
+                normalSet = boost::lexical_cast<int>(options[0]);
+            else
+                normalSet = 0;
+            if (options[1].size() != 0)
+                additionSet = boost::lexical_cast<int>(options[1]);
+            else
+                additionSet = 0;
+            if (options[2].size() != 0)
+                index = boost::lexical_cast<int>(options[2]);
+            else
+                index = 0;
+            if (options[3].size() != 0)
+                volume = boost::lexical_cast<int>(options[3]);
+            else
+                volume = 100;
+            if (options[4].size() != 0)
+                filename = options[4].c_str();
+            else
+                filename = nullptr;
+        }
+
+        uint8_t normalSet;
+        uint8_t additionSet;
+        int index;
+        uint8_t volume;
+        const char *filename;
     };
 }
 

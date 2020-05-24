@@ -18,37 +18,37 @@ namespace osu {
 
     class OsuHitObject {
     public:
-        Point pos{0, 0};
-        int time{0};
-        uint8_t hitSoundBitField{0};
-        HitSample hitSample{};
+        Point pos;
+        int time;
+        uint8_t hitSoundBitField;
+        HitSample hitSample;
     };
 
     class OsuCircle : public OsuHitObject {
     };
 
     enum CurveType {
-        Bezier,
-        Catmull,
-        Linear,
-        PerfectCircle
+        Bezier = 'B',
+        Catmull = 'C',
+        Linear = 'L',
+        PerfectCircle = 'P'
     };
 
     class OsuSlider : public OsuHitObject {
     public:
-        CurveType curveType{Bezier};
-        Point *curvePoints{nullptr};
-        std::size_t curvePointsCount{0};
-        int slides{1};
+        CurveType curveType;
+        Point *curvePoints;
+        std::size_t curvePointsCount;
+        int slides;
         double length;
-        uint8_t *edgeSounds{nullptr};
-        HitSample *edgeSets{nullptr};
-        std::size_t edgeCount{0};
+        std::size_t edgeCount;
+        uint8_t *edgeSounds;
+        HitSample *edgeSets;
     };
 
     class OsuSpinner : public OsuHitObject {
     public:
-        int endTime{-1};
+        int endTime;
     };
 }
 #endif //OSU_LASER_C_OSUHITOBJECT_H
