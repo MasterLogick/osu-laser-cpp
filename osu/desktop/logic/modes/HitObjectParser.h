@@ -7,6 +7,7 @@
 
 #include "../beatmap/BeatmapEnums.h"
 #include "../beatmap/GameMode.h"
+#include "HitObject.h"
 #include <string>
 
 namespace osu {
@@ -16,7 +17,7 @@ namespace osu {
         int globalOffset;
 
     public:
-        virtual void *parseHitObject(std::string line) = 0;
+        virtual HitObject *parseHitObject(std::string line) = 0;
 
         explicit HitObjectParser(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {}
 

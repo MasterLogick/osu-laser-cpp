@@ -261,9 +261,11 @@ namespace osu {
         TimingPoint point{metadata->General.SampleSet};
         point.time = getOffsetTime(boost::lexical_cast<int>(trim_copy(vals[0])));
         if (valsCount >= 3) {
-            point.timeSignature = vals[2][0] == '0' ? Quadruple : (TimeSignatures) boost::lexical_cast<int>(trim_copy(vals[2]));
+            point.timeSignature =
+                    vals[2][0] == '0' ? Quadruple : (TimeSignatures) boost::lexical_cast<int>(trim_copy(vals[2]));
             if (valsCount >= 4) {
-                point.sampleSet = vals[3][0] == '0' ? point.sampleSet : (SampleSets) boost::lexical_cast<int>(trim_copy(vals[3]));
+                point.sampleSet =
+                        vals[3][0] == '0' ? point.sampleSet : (SampleSets) boost::lexical_cast<int>(trim_copy(vals[3]));
                 if (valsCount >= 5) {
                     point.sampleIndex = boost::lexical_cast<int>(trim_copy(vals[4]));
                     if (valsCount >= 6) {
@@ -313,12 +315,12 @@ namespace osu {
         if (hitObjectParser == nullptr) {
             //todo catch undefined mode exception
         }
-        void *hitObject = hitObjectParser->parseHitObject(line);
+        HitObject *hitObject = hitObjectParser->parseHitObject(line);
         hitObjects.push_back(hitObject);
     }
 
     void BeatmapLoader::handleVariables(std::string line) {
-        variables.push_back(splitKeyValPair(line, '='));
+        variables.push_back(splitKeyValPair(std::move(line), '='));
     }
 
     void BeatmapLoader::decodeVariables(std::string *line) {
@@ -345,12 +347,41 @@ namespace osu {
     }
 
     void BeatmapLoader::addControlPoint(TimingPoint timingPoint) {
-        timingQueue->timingPointQueue.push_back(timingPoint);
+        timingPointSet->timingPointQueue.push_back(timingPoint);
     }
 
     BeatmapLoader::BeatmapLoader(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {
         metadata = new BeatmapMetadata();
-        timingQueue = new TimingPointSet();
+        timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();
+    }
+
+    Beatmap *BeatmapLoader::buildBeatmap() {
+        Beatmap *beatmap = new Beatmap();
+        std::sort(hitObjects.begin(), hitObjects.end());
+        std::copy(hitObjects.begin(), hitObjects.end(), beatmap->hitObjects.begin());
+        beatmap->metadata = metadata;
+        beatmap->colorSchema = colorSchema;
+        beatmap->timingPointSet = timingPointSet;
+        return beatmap;
+    }
+
+    void BeatmapLoader::prepare() {
+        currientToken = None;
+        metadata = new BeatmapMetadata();
+        timingPointSet = new TimingPointSet();
+        colorSchema = new ColorSchema();
+        hitObjectParser = nullptr;
+        variables.clear();
+        hitObjects.clear();
+    }
+
+    void BeatmapLoader::setVersion(int version) {
+        formatVersion = version;
+        globalOffset = version < 5 ? 24 : 0;
+    }
+
+    void BeatmapLoader::destroy() {
+        //todo
     }
 }

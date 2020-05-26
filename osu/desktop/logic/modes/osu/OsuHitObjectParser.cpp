@@ -10,11 +10,10 @@
 
 namespace osu {
 
-    void *OsuHitObjectParser::parseHitObject(std::string line) {
+    HitObject * OsuHitObjectParser::parseHitObject(std::string line) {
         std::vector<std::string> data = split(line, ",");
-        OsuHitObject *obj;
         int type = boost::lexical_cast<int>(data[3]);
-        if (type & OsuHitObjectType::Circle) {
+        if (type & HitObjectType::Circle) {
             //0 1 2    3    4        5
             //x,y,time,type,hitSound,hitSample
             OsuCircle *tmp = new OsuCircle();
@@ -23,8 +22,9 @@ namespace osu {
             tmp->time = boost::lexical_cast<int>(data[2]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
             tmp->hitSample = HitSample(data[5]);
-            obj = tmp;
-        } else if (type & OsuHitObjectType::Slider) {
+            tmp->type = type;
+            return tmp;
+        } else if (type & HitObjectType::Slider) {
             //0 1 2    3    4        5         x:y         6      7      8          9        10
             //x,y,time,type,hitSound,curveType|curvePoints,slides,length,edgeSounds,edgeSets,hitSample
             OsuSlider *tmp = new OsuSlider();
@@ -62,8 +62,9 @@ namespace osu {
             tmp->time = boost::lexical_cast<int>(data[2]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
             tmp->hitSample = HitSample(data[10]);
-            obj = tmp;
-        } else if (type & OsuHitObjectType::Spinner) {
+            tmp->type = type;
+            return tmp;
+        } else if (type & HitObjectType::Spinner) {
             //0 1 2    3    4        5       6
             //x,y,time,type,hitSound,endTime,hitSample
             OsuSpinner *tmp = new OsuSpinner();
@@ -71,12 +72,12 @@ namespace osu {
             tmp->endTime = boost::lexical_cast<int>(data[5]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
             tmp->hitSample = HitSample(data[6]);
-            obj = tmp;
+            tmp->type = type;
+            return tmp;
         } else {
             //todo throw unknown_type error
             //todo delete all allocated vars
             return nullptr;
         }
-        return obj;
     }
 }

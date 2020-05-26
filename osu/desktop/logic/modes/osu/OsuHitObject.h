@@ -8,18 +8,13 @@
 #include <cstdint>
 #include "../HitSample.h"
 #include "../../utill/Point.h"
+#include "../HitObject.h"
 
 namespace osu {
-    enum OsuHitObjectType {
-        Circle = 1,
-        Slider = 2,
-        Spinner = 4
-    };
 
-    class OsuHitObject {
+    class OsuHitObject : public HitObject {
     public:
         Point pos;
-        int time;
         uint8_t hitSoundBitField;
         HitSample hitSample;
     };

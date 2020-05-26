@@ -25,18 +25,18 @@ namespace osu {
             TimingPoints,
             Colours,
             HitObjects,
-            Variables
+            Variables,
+            None
         };
-//        Beatmap *beatmap;
-        BeatmapMetadata *metadata{nullptr};
-        TimingPointSet *timingQueue{nullptr};
-        ColorSchema *colorSchema{nullptr};
-        HitObjectParser *hitObjectParser{nullptr};
+        BeatmapMetadata *metadata;
+        TimingPointSet *timingPointSet;
+        ColorSchema *colorSchema;
+        HitObjectParser *hitObjectParser;
         std::list<std::pair<std::string, std::string>> variables;
-        std::vector<void *> hitObjects;
+        std::vector<HitObject *> hitObjects;
         int formatVersion;
         int globalOffset;
-        SectionTokens currientToken{General};
+        SectionTokens currientToken{None};
 
         void handleSection(std::string line);
 
@@ -77,6 +77,14 @@ namespace osu {
         void loadLegacyStoryBoardFromFile(std::istream stream);
 
         Beatmap *buildBeatmap();
+
+        ///Removes all pointers and flushes loading variables. Prepares loader for next beatmap
+        void prepare();
+
+        void setVersion(int version);
+
+        ///Destroys all available allocated data. Call it only on error. Built beatmap MUST destroy all related data
+        void destroy();
 
     };
 }
