@@ -12,16 +12,17 @@
 #include "../utill/str_switch.h"
 #include "BeatmapEnums.h"
 #include "TimingPoint.h"
+#include "../modes/osu/OsuHitObjectParser.h"
 
 #define KIAI_MODE 0x1
 #define OMIT_FIRST_BAR_SIGNATURE 0x8
 namespace osu {
 
 
-    void BeatmapLoader::loadLegacyBeatmap(std::istream stream) {
+    void BeatmapLoader::loadLegacyBeatmap(std::ifstream *stream) {
         std::string line;
-        while (!stream.eof()) {
-            getline(stream, line);
+        while (!stream->eof()) {
+            getline(*stream, line);
             trim(line);
             std::size_t pos = line.find("//");
             if (line.size() <= 1 || pos == 0) {
@@ -118,7 +119,21 @@ namespace osu {
                 break;
                 scase("Mode"):
                 metadata->General.Mode = static_cast<GameMode>(boost::lexical_cast<int>(data.second));
-                hitObjectParser = HitObjectParser::getParserByMode(metadata->General.Mode);
+                switch (metadata->General.Mode) {
+                    case Standard:
+                        hitObjectParser = new OsuHitObjectParser(formatVersion);
+                        //todo return standard parser
+                        break;
+                    case Taiko:
+                        //todo return taiko parser
+                        break;
+                    case Mania:
+                        //todo return mania parser
+                        break;
+                    case Catch:
+                        //todo return catch parser
+                        break;
+                }
                 break;
                 scase("OverlayPosition"):
                 sswitch(data.second) {
@@ -315,7 +330,7 @@ namespace osu {
         if (hitObjectParser == nullptr) {
             //todo catch undefined mode exception
         }
-        HitObject *hitObject = hitObjectParser->parseHitObject(line);
+        HitObject *hitObject = hitObjectParser->parseHitObject(std::move(line));
         hitObjects.push_back(hitObject);
     }
 

@@ -7,11 +7,18 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include "../utill/StringUtills.h"
+#include <boost/lexical_cast.hpp>
 
 namespace osu {
+    struct HitSample;
+
     struct HitSample {
     public:
-        HitSample() : normalSet(0), additionSet(0), index(0), volume(100), filename(nullptr) {
+        static HitSample DefaultHitsample;
+
+        explicit HitSample() : normalSet(0), additionSet(0), index(0), volume(100), filename(nullptr) {
 
         }
 

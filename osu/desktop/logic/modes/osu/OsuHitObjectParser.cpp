@@ -10,23 +10,36 @@
 
 namespace osu {
 
-    HitObject * OsuHitObjectParser::parseHitObject(std::string line) {
+    HitObject *OsuHitObjectParser::parseHitObject(std::string line) {
         std::vector<std::string> data = split(line, ",");
         int type = boost::lexical_cast<int>(data[3]);
         if (type & HitObjectType::Circle) {
             //0 1 2    3    4        5
             //x,y,time,type,hitSound,hitSample
+            if (data.size() < 5) {
+                //todo throw unknown_type error
+                //todo delete all allocated vars
+                return nullptr;
+            }
             OsuCircle *tmp = new OsuCircle();
             tmp->pos.x = boost::lexical_cast<int>(data[0]);
             tmp->pos.y = boost::lexical_cast<int>(data[1]);
-            tmp->time = boost::lexical_cast<int>(data[2]);
+            tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
-            tmp->hitSample = HitSample(data[5]);
+            if (data.size() < 6)
+                tmp->hitSample = HitSample::DefaultHitsample;
+            else
+                tmp->hitSample = HitSample(data[5]);
             tmp->type = type;
             return tmp;
         } else if (type & HitObjectType::Slider) {
             //0 1 2    3    4        5         x:y         6      7      8          9        10
             //x,y,time,type,hitSound,curveType|curvePoints,slides,length,edgeSounds,edgeSets,hitSample
+            if (data.size() < 10) {
+                //todo throw unknown_type error
+                //todo delete all allocated vars
+                return nullptr;
+            }
             OsuSlider *tmp = new OsuSlider();
             std::vector<std::string> path = split(data[5], "|");
             tmp->curveType = (CurveType) path[0][0];
@@ -59,19 +72,30 @@ namespace osu {
                 tmp->edgeSets[i * 2] = HitSample(hitPair.first);
                 tmp->edgeSets[i * 2 + 1] = HitSample(hitPair.second);
             }
-            tmp->time = boost::lexical_cast<int>(data[2]);
+            tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
-            tmp->hitSample = HitSample(data[10]);
+            if (data.size() < 11)
+                tmp->hitSample = HitSample::DefaultHitsample;
+            else
+                tmp->hitSample = HitSample(data[10]);
             tmp->type = type;
             return tmp;
         } else if (type & HitObjectType::Spinner) {
             //0 1 2    3    4        5       6
             //x,y,time,type,hitSound,endTime,hitSample
+            if (data.size() < 6) {
+                //todo throw incompatible_hitsound_sets error
+                //todo delete all allocated vars
+                return nullptr;
+            }
             OsuSpinner *tmp = new OsuSpinner();
-            tmp->time = boost::lexical_cast<int>(data[2]);
+            tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
             tmp->endTime = boost::lexical_cast<int>(data[5]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
-            tmp->hitSample = HitSample(data[6]);
+            if (data.size() < 7)
+                tmp->hitSample = HitSample::DefaultHitsample;
+            else
+                tmp->hitSample = HitSample(data[6]);
             tmp->type = type;
             return tmp;
         } else {

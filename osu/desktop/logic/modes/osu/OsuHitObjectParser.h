@@ -8,7 +8,7 @@
 #include "../HitObjectParser.h"
 
 namespace osu {
-    class OsuHitObjectParser : HitObjectParser {
+    class OsuHitObjectParser : public HitObjectParser {
     private:
         int formatVersion;
         int globalOffset;
@@ -16,7 +16,7 @@ namespace osu {
         OsuHitObjectParser(int version) : HitObjectParser(version), formatVersion(version),
                                           globalOffset(version < 5 ? 24 : 0) {}
 
-        HitObject * parseHitObject(std::string line) override;
+        HitObject *parseHitObject(std::string line) override;
     };
 }
 

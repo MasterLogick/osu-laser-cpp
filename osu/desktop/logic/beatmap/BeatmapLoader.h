@@ -72,7 +72,7 @@ namespace osu {
 
         explicit BeatmapLoader(int version);
 
-        void loadLegacyBeatmap(std::istream stream);
+        void loadLegacyBeatmap(std::ifstream *stream);
 
         void loadLegacyStoryBoardFromFile(std::istream stream);
 

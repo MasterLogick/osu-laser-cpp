@@ -20,23 +20,6 @@ namespace osu {
         virtual HitObject *parseHitObject(std::string line) = 0;
 
         explicit HitObjectParser(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {}
-
-        static HitObjectParser *getParserByMode(GameMode mode) {
-            switch (mode) {
-                case Standard:
-                    //todo return standard parser
-                    break;
-                case Taiko:
-                    //todo return taiko parser
-                    break;
-                case Mania:
-                    //todo return mania parser
-                    break;
-                case Catch:
-                    //todo return catch parser
-                    break;
-            }
-        }
     };
 }
 
