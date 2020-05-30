@@ -1,13 +1,13 @@
 {
     "build_systems": [{
-        "auto_close": false,
         "cancel": {
             "kill": true
         },
         "cmd": [""],
         "file_regex": "^\\s*(\\S[^:]*)\\((\\d+):(\\d+)\\): ([^\\n]+)",
         "name": "CMake",
-        "target": "terminus_open",
+        // "auto_close": false,
+        // "target": "terminus_open",
         "variants": [{
             "cmd": ["cmake", "-DCMAKE_BUILD_TYPE=Debug", "-G", "CodeBlocks - Unix Makefiles", "$project_path"],
             "name": "Configure Debug",

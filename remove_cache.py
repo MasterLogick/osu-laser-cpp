@@ -9,7 +9,7 @@ def rm(text):
 		if b == None:
 			break
 		if b.is_file():
-			os.remove(b)
+			os.remove(b.path)
 		if b.is_dir():
 			rm(b.path)
 	os.rmdir(text)
