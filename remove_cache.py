@@ -6,7 +6,7 @@ def rm(text):
 	a = os.scandir(text)
 	while True:
 		b = next(a, None)
-		if b == None:
+		if b is None:
 			break
 		if b.is_file():
 			os.remove(b.path)
