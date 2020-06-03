@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <utility>
 #include "BeatmapLoader.h"
 #include "BeatmapMetadata.h"
@@ -19,10 +20,10 @@
 namespace osu {
 
 
-    void BeatmapLoader::loadLegacyBeatmap(std::ifstream *stream) {
+    void BeatmapLoader::loadLegacyBeatmap(std::ifstream &stream) {
         std::string line;
-        while (!stream->eof()) {
-            getline(*stream, line);
+        while (!stream.eof()) {
+            getline(stream, line);
             trim(line);
             std::size_t pos = line.find("//");
             if (line.size() <= 1 || pos == 0) {
@@ -64,7 +65,7 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleSection(std::string line) {
+    void BeatmapLoader::handleSection(std::string &line) {
         sswitch(line) {
             scase("[General]"):
                 currientToken = General;
@@ -96,11 +97,11 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleGeneral(std::string line) {
-        std::pair<std::string, std::string> data = splitKeyValPair(std::move(line));
+    void BeatmapLoader::handleGeneral(std::string &line) {
+        std::pair<std::string, std::string> data = splitKeyValPair(line);
         sswitch(data.first) {
             scase("AudioFilename"):
-                metadata->General.AudioFilename = const_cast<char *>(data.second.c_str());
+                metadata->General.AudioFilename = std::move(data.second);
                 break;
                 scase("AudioLeadIn"):
                 metadata->General.AudioLeadIn = boost::lexical_cast<long long int>(data.second);
@@ -168,7 +169,7 @@ namespace osu {
                 metadata->General.SamplesMatchPlaybackRate = boost::lexical_cast<bool>(data.second);
                 break;
                 scase("SkinPreference"):
-                metadata->General.SkinPreference = const_cast<char *>(data.second.c_str());
+                metadata->General.SkinPreference = std::move(data.second);
                 break;
                 scase("SpecialStyle"):
                 metadata->General.SpecialStyle = boost::lexical_cast<bool>(data.second);
@@ -185,11 +186,11 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleEditor(std::string line) {
-        std::pair<std::string, std::string> data = splitKeyValPair(std::move(line));
+    void BeatmapLoader::handleEditor(std::string &line) {
+        std::pair<std::string, std::string> data = splitKeyValPair(line);
         sswitch(data.first) {
             scase("Bookmarks"):
-                metadata->Editor.Bookmarks = const_cast<char *>(data.second.c_str());
+                metadata->Editor.Bookmarks = std::move(data.second);
                 break;
                 scase("BeatDivisor"):
                 metadata->Editor.BeatDivisor = boost::lexical_cast<float>(data.second);
@@ -206,14 +207,14 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleMetadata(std::string line) {
-        std::pair<std::string, std::string> data = splitKeyValPair(std::move(line));
+    void BeatmapLoader::handleMetadata(std::string &line) {
+        std::pair<std::string, std::string> data = splitKeyValPair(line);
         sswitch(data.first) {
             scase("Artist"):
-                metadata->Metadata.Artist = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Artist = std::move(data.second);
                 break;
                 scase("ArtistUnicode"):
-                metadata->Metadata.ArtistUnicode = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.ArtistUnicode = std::move(data.second);
                 break;
                 scase("BeatmapID"):
                 metadata->Metadata.BeatmapID = boost::lexical_cast<long long int>(data.second);
@@ -222,28 +223,28 @@ namespace osu {
                 metadata->Metadata.BeatmapSetID = boost::lexical_cast<long long int>(data.second);
                 break;
                 scase("Creator"):
-                metadata->Metadata.Creator = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Creator = std::move(data.second);
                 break;
                 scase("Source"):
-                metadata->Metadata.Source = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Source = std::move(data.second);
                 break;
                 scase("Tags"):
-                metadata->Metadata.Tags = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Tags = std::move(data.second);
                 break;
                 scase("Title"):
-                metadata->Metadata.Title = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Title = std::move(data.second);
                 break;
                 scase("TitleUnicode"):
-                metadata->Metadata.TitleUnicode = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.TitleUnicode = std::move(data.second);
                 break;
                 scase("Version"):
-                metadata->Metadata.Version = const_cast<char *>(data.second.c_str());
+                metadata->Metadata.Version = std::move(data.second);
                 break;
         }
     }
 
-    void BeatmapLoader::handleDifficulty(std::string line) {
-        std::pair<std::string, std::string> data = splitKeyValPair(std::move(line));
+    void BeatmapLoader::handleDifficulty(std::string &line) {
+        std::pair<std::string, std::string> data = splitKeyValPair(line);
         sswitch(data.first) {
             scase("ApproachRate"):
                 metadata->Difficulty.ApproachRate = boost::lexical_cast<float>(data.second);
@@ -266,12 +267,12 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleEvents(std::string line) {
+    void BeatmapLoader::handleEvents(std::string &line) {
         decodeVariables(&line);
     }
 
-    void BeatmapLoader::handleTimingPoints(std::string line) {
-        std::vector<std::string> vals = split(std::move(line), ",");
+    void BeatmapLoader::handleTimingPoints(std::string &line) {
+        std::vector<std::string> vals = split(line, ",");
         size_t valsCount = vals.size();
         TimingPoint point{metadata->General.SampleSet};
         point.time = getOffsetTime(boost::lexical_cast<int>(trim_copy(vals[0])));
@@ -300,8 +301,8 @@ namespace osu {
         addControlPoint(point);
     }
 
-    void BeatmapLoader::handleColours(std::string line) {
-        std::pair<std::string, std::string> data = splitKeyValPair(std::move(line));
+    void BeatmapLoader::handleColours(std::string &line) {
+        std::pair<std::string, std::string> data = splitKeyValPair(line);
         if (data.first.find("Combo") == 0) {
             std::vector<std::string> colorData = split(data.second, ",");
             Color c((uint8_t) boost::lexical_cast<int>(trim_copy(colorData[0])),
@@ -326,16 +327,16 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleHitObjects(std::string line) {
+    void BeatmapLoader::handleHitObjects(std::string &line) {
         if (hitObjectParser == nullptr) {
             //todo catch undefined mode exception
         }
-        HitObject *hitObject = hitObjectParser->parseHitObject(std::move(line));
+        HitObject *hitObject = hitObjectParser->parseHitObject(line);
         hitObjects.push_back(hitObject);
     }
 
-    void BeatmapLoader::handleVariables(std::string line) {
-        variables.push_back(splitKeyValPair(std::move(line), '='));
+    void BeatmapLoader::handleVariables(std::string &line) {
+        variables.push_back(splitKeyValPair(line, '='));
     }
 
     void BeatmapLoader::decodeVariables(std::string *line) {
@@ -373,8 +374,12 @@ namespace osu {
 
     Beatmap *BeatmapLoader::buildBeatmap() {
         Beatmap *beatmap = new Beatmap();
-        std::sort(hitObjects.begin(), hitObjects.end());
-        std::copy(hitObjects.begin(), hitObjects.end(), beatmap->hitObjects.begin());
+        std::sort(hitObjects.begin(), hitObjects.end(),
+                  [](HitObject *a, HitObject *b) -> bool {
+                      return a->time < b->time;
+                  });
+        beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
+//        std::move(hitObjects.begin(), hitObjects.end(), beatmap->hitObjects.begin());
         beatmap->metadata = metadata;
         beatmap->colorSchema = colorSchema;
         beatmap->timingPointSet = timingPointSet;

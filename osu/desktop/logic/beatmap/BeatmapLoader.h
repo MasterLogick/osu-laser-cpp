@@ -38,25 +38,25 @@ namespace osu {
         int globalOffset;
         SectionTokens currientToken{None};
 
-        void handleSection(std::string line);
+        void handleSection(std::string &line);
 
-        void handleGeneral(std::string line);
+        void handleGeneral(std::string &line);
 
-        void handleEditor(std::string line);
+        void handleEditor(std::string &line);
 
-        void handleMetadata(std::string line);
+        void handleMetadata(std::string &line);
 
-        void handleDifficulty(std::string line);
+        void handleDifficulty(std::string &line);
 
-        void handleEvents(std::string line);
+        void handleEvents(std::string &line);
 
-        void handleTimingPoints(std::string line);
+        void handleTimingPoints(std::string &line);
 
-        void handleColours(std::string line);
+        void handleColours(std::string &line);
 
-        void handleHitObjects(std::string line);
+        void handleHitObjects(std::string &line);
 
-        void handleVariables(std::string line);
+        void handleVariables(std::string &line);
 
         void decodeVariables(std::string *line);
 
@@ -72,9 +72,9 @@ namespace osu {
 
         explicit BeatmapLoader(int version);
 
-        void loadLegacyBeatmap(std::ifstream *stream);
+        void loadLegacyBeatmap(std::ifstream &stream);
 
-        void loadLegacyStoryBoardFromFile(std::istream stream);
+        void loadLegacyStoryBoardFromFile(std::istream &stream);
 
         Beatmap *buildBeatmap();
 

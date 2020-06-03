@@ -6,12 +6,13 @@
 #define OSU_LASER_C_BEATMAPMETADATA_H
 
 #include <cstdlib>
+#include <string>
 #include "BeatmapEnums.h"
 #include "GameMode.h"
 
 namespace osu {
     struct GeneralSettings {
-        char *AudioFilename{nullptr};
+        std::string AudioFilename;
         long long int AudioLeadIn{0};
         long long int PreviewTime{-1};
         char Countdown{1};
@@ -21,7 +22,7 @@ namespace osu {
         bool LetterboxInBreaks{false};
         bool UseSkinSprites{false};
         OverlayPositions OverlayPosition{NoChange};
-        char *SkinPreference{nullptr};
+        std::string SkinPreference;
         bool EpilepsyWarning{false};
         long long int CountdownOffset{0};
         bool SpecialStyle{false};
@@ -29,21 +30,21 @@ namespace osu {
         bool SamplesMatchPlaybackRate{false};
     };
     struct EditorSettings {
-        char *Bookmarks{nullptr};
+        std::string Bookmarks;
         float DistanceSpacing;
         float BeatDivisor;
         long long int GridSize;
         float TimelineZoom;
     };
     struct MetadataSettings {
-        char *Title;
-        char *TitleUnicode;
-        char *Artist;
-        char *ArtistUnicode;
-        char *Creator;
-        char *Version;
-        char *Source;
-        char *Tags;
+        std::string Title;
+        std::string TitleUnicode;
+        std::string Artist;
+        std::string ArtistUnicode;
+        std::string Creator;
+        std::string Version;
+        std::string Source;
+        std::string Tags;
         long long int BeatmapID{0};
         long long int BeatmapSetID{-1};
     };

@@ -16,11 +16,6 @@ namespace s_s {
 
     const ullong N_HASH = static_cast<ullong>(-1);
 
-    /* constexpr ullong raise_128_to(const uchar power)
-     {
-         return 1ULL << 7 * power;
-     }
- */
     constexpr bool str_is_correct(const char *const str) {
         return (static_cast<signed char>(*str) > 0) ? str_is_correct(str + 1) : (*str ? false : true);
     }
@@ -35,6 +30,10 @@ namespace s_s {
 
     inline ullong str_hash_for_switch(const char *const str) {
         return (str_is_correct(str)) ? str_hash(str, str_len(str)) : N_HASH;
+    }
+
+    inline ullong str_hash_for_switch(const std::string *str) {
+        return (str_is_correct(str->c_str())) ? str_hash(str->c_str(), str->length()) : N_HASH;
     }
 
     inline ullong str_hash_for_switch(const std::string &str) {

@@ -16,7 +16,7 @@ namespace osu {
         OsuHitObjectParser(int version) : HitObjectParser(version), formatVersion(version),
                                           globalOffset(version < 5 ? 24 : 0) {}
 
-        HitObject *parseHitObject(std::string line) override;
+        HitObject *parseHitObject(std::string &line) override;
     };
 }
 

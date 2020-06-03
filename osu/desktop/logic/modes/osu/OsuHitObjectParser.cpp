@@ -10,7 +10,7 @@
 
 namespace osu {
 
-    HitObject *OsuHitObjectParser::parseHitObject(std::string line) {
+    HitObject *OsuHitObjectParser::parseHitObject(std::string &line) {
         std::vector<std::string> data = split(line, ",");
         int type = boost::lexical_cast<int>(data[3]);
         if (type & HitObjectType::Circle) {
@@ -35,7 +35,7 @@ namespace osu {
         } else if (type & HitObjectType::Slider) {
             //0 1 2    3    4        5         x:y         6      7      8          9        10
             //x,y,time,type,hitSound,curveType|curvePoints,slides,length,edgeSounds,edgeSets,hitSample
-            if (data.size() < 10) {
+            if (data.size() < 8) {
                 //todo throw unknown_type error
                 //todo delete all allocated vars
                 return nullptr;
@@ -54,23 +54,29 @@ namespace osu {
             tmp->curvePointsCount = path.size();
             tmp->slides = boost::lexical_cast<int>(data[6]);
             tmp->length = boost::lexical_cast<double>(data[7]);
-            std::vector<std::string> edgeHitSounds = split(data[8], "|");
-            std::vector<std::string> edgeHitSets = split(data[9], "|");
-            if (edgeHitSounds.size() != edgeHitSets.size()) {
-                //todo throw incompatible_hitsound_sets error
-                //todo delete all allocated vars
-                return nullptr;
-            }
-            tmp->edgeCount = edgeHitSounds.size();
-            tmp->edgeSounds = new uint8_t[edgeHitSounds.size()];
-            for (int i = 0; i < edgeHitSounds.size(); ++i) {
-                tmp->edgeSounds[i] = boost::lexical_cast<int>(edgeHitSounds[i]);
-            }
-            tmp->edgeSets = new HitSample[edgeHitSets.size() * 2];
-            for (int i = 0; i < edgeHitSets.size(); ++i) {
-                std::pair<std::string, std::string> hitPair = splitKeyValPair(edgeHitSets[i], 4);
-                tmp->edgeSets[i * 2] = HitSample(hitPair.first);
-                tmp->edgeSets[i * 2 + 1] = HitSample(hitPair.second);
+            if (data.size() >= 10) {
+                std::vector<std::string> edgeHitSounds = split(data[8], "|");
+                std::vector<std::string> edgeHitSets = split(data[9], "|");
+                if (edgeHitSounds.size() != edgeHitSets.size()) {
+                    //todo throw incompatible_hitsound_sets error
+                    //todo delete all allocated vars
+                    return nullptr;
+                }
+                tmp->edgeCount = edgeHitSounds.size();
+                tmp->edgeSounds = new uint8_t[edgeHitSounds.size()];
+                for (int i = 0; i < edgeHitSounds.size(); ++i) {
+                    tmp->edgeSounds[i] = boost::lexical_cast<int>(edgeHitSounds[i]);
+                }
+                tmp->edgeSets = new HitSample[edgeHitSets.size() * 2];
+                for (int i = 0; i < edgeHitSets.size(); ++i) {
+                    std::pair<std::string, std::string> hitPair = splitKeyValPair(edgeHitSets[i], 4);
+                    tmp->edgeSets[i * 2] = HitSample(hitPair.first);
+                    tmp->edgeSets[i * 2 + 1] = HitSample(hitPair.second);
+                }
+            } else {
+                tmp->edgeCount = 0;
+                tmp->edgeSounds = nullptr;
+                tmp->edgeSets = nullptr;
             }
             tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
