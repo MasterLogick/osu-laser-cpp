@@ -33,7 +33,7 @@ find_path(SWSCALE_INCLURE_DIR libswscale/swscale.h)
 find_library(SWSCALE_LIBRARY swscale)
 
 #find boost
-find_package(Boost 1.65.1 REQUIRED COMPONENTS system filesystem)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 #cpp default settings
 set(RESOURCES ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources)
