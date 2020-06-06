@@ -67,11 +67,9 @@ namespace osu {
                 for (int i = 0; i < edgeHitSounds.size(); ++i) {
                     tmp->edgeSounds[i] = boost::lexical_cast<int>(edgeHitSounds[i]);
                 }
-                tmp->edgeSets = new HitSample[edgeHitSets.size() * 2];
+                tmp->edgeSets = new HitSample[edgeHitSets.size()];
                 for (int i = 0; i < edgeHitSets.size(); ++i) {
-                    std::pair<std::string, std::string> hitPair = splitKeyValPair(edgeHitSets[i], 4);
-                    tmp->edgeSets[i * 2] = HitSample(hitPair.first);
-                    tmp->edgeSets[i * 2 + 1] = HitSample(hitPair.second);
+                    tmp->edgeSets[i] = HitSample(edgeHitSets[i]);
                 }
             } else {
                 tmp->edgeCount = 0;

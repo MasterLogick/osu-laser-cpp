@@ -32,15 +32,15 @@ namespace osu {
                 additionSet = boost::lexical_cast<int>(options[1]);
             else
                 additionSet = 0;
-            if (options[2].size() != 0)
+            if (options.size() >= 3 && options[2].size() != 0)
                 index = boost::lexical_cast<int>(options[2]);
             else
                 index = 0;
-            if (options[3].size() != 0)
+            if (options.size() >= 4 && options[3].size() != 0)
                 volume = boost::lexical_cast<int>(options[3]);
             else
                 volume = 100;
-            if (options[4].size() != 0)
+            if (options.size() >= 5 && options[4].size() != 0)
                 filename = options[4].c_str();
             else
                 filename = nullptr;

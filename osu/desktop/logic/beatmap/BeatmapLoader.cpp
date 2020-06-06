@@ -15,8 +15,6 @@
 #include "TimingPoint.h"
 #include "../modes/osu/OsuHitObjectParser.h"
 
-#define KIAI_MODE 0x1
-#define OMIT_FIRST_BAR_SIGNATURE 0x8
 namespace osu {
 
 
@@ -50,9 +48,6 @@ namespace osu {
                         break;
                     case TimingPoints:
                         handleTimingPoints(line);
-                        break;
-                    case Colours:
-                        handleColours(line);
                         break;
                     case HitObjects:
                         handleHitObjects(line);
@@ -267,10 +262,6 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::handleEvents(std::string &line) {
-        decodeVariables(&line);
-    }
-
     void BeatmapLoader::handleTimingPoints(std::string &line) {
         std::vector<std::string> vals = split(line, ",");
         size_t valsCount = vals.size();
@@ -290,8 +281,8 @@ namespace osu {
                             point.uninherited = boost::lexical_cast<bool>(trim_copy(vals[6]));
                             if (valsCount >= 8) {
                                 int bitField = boost::lexical_cast<int>(trim_copy(vals[7]));
-                                point.kiaiMode = bitField & KIAI_MODE;
-                                point.omitFirstBarSignature = bitField & OMIT_FIRST_BAR_SIGNATURE;
+                                point.kiaiMode = bitField & TimingPoint::KIAI_MODE;
+                                point.omitFirstBarSignature = bitField & TimingPoint::OMIT_FIRST_BAR_SIGNATURE;
                             }
                         }
                     }
@@ -333,21 +324,6 @@ namespace osu {
         }
         HitObject *hitObject = hitObjectParser->parseHitObject(line);
         hitObjects.push_back(hitObject);
-    }
-
-    void BeatmapLoader::handleVariables(std::string &line) {
-        variables.push_back(splitKeyValPair(line, '='));
-    }
-
-    void BeatmapLoader::decodeVariables(std::string *line) {
-        while (line->find('$') != std::string::npos) {
-            char copys[line->length()];
-            line->copy(copys, line->length());
-            std::for_each(variables.begin(), variables.end(), [line](std::pair<std::string, std::string> &i) {
-                boost::replace_all(*line, i.first.c_str(), i.second.c_str());
-            });
-            if (!line->compare(copys))return;
-        }
     }
 
     int BeatmapLoader::getOffsetTime(int time) {

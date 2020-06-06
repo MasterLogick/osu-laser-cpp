@@ -21,6 +21,9 @@ namespace osu {
         bool kiaiMode{false};
         bool omitFirstBarSignature{false};
 
+        static const int KIAI_MODE = 0x1;
+        static const int OMIT_FIRST_BAR_SIGNATURE = 0x8;
+
         TimingPoint(SampleSets sampleSets) : sampleSet(sampleSets) {};
     };
 }

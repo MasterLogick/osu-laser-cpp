@@ -6,6 +6,7 @@
 #define OSU_LASER_C_BEATMAPLOADER_H
 
 #include <string>
+#include <vector>
 #include "Beatmap.h"
 #include "BeatmapMetadata.h"
 #include "TimingPoint.h"
