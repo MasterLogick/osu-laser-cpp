@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 5/7/20.
+// Created by MasterLogick on 5/7/20.
 //
 
 #ifndef OSU_LASER_C_POINT_H

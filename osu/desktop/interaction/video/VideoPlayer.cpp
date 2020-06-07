@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 3/21/20.
+// Created by MasterLogick on 3/21/20.
 //
 #include <iostream>
 #include "VideoPlayer.h"

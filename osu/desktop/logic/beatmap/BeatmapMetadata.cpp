@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 4/21/20.
+// Created by MasterLogick on 4/21/20.
 //
 
 #include "BeatmapMetadata.h"

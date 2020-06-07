@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 3/24/20.
+// Created by MasterLogick on 3/24/20.
 //
 
 #include <vec4.hpp>

@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 5/30/20.
+// Created by MasterLogick on 5/30/20.
 //
 
 #include "HitSample.h"

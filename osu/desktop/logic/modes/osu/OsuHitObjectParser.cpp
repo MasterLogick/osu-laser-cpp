@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 5/5/20.
+// Created by MasterLogick on 5/5/20.
 //
 
 #include <boost/lexical_cast.hpp>

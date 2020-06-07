@@ -7,6 +7,7 @@
     </sourceRoots>
     <libraryRoots>
       <file path="$PROJECT_DIR$/SOIL" />
+      <file path="$PROJECT_DIR$/SQLite3" />
       <file path="$PROJECT_DIR$/glad" />
       <file path="$PROJECT_DIR$/glew" />
       <file path="$PROJECT_DIR$/glfw" />

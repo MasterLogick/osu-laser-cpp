@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 4/23/20.
+// Created by MasterLogick on 4/23/20.
 //
 
 #ifndef OSU_LASER_C_BEATMAPENUMS_H

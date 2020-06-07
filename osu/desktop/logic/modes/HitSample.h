@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 5/8/20.
+// Created by MasterLogick on 5/8/20.
 //
 
 #ifndef OSU_LASER_C_HITSAMPLE_H
@@ -22,7 +22,7 @@ namespace osu {
 
         }
 
-        HitSample(std::string sample) {
+        explicit HitSample(std::string sample) {
             std::vector<std::string> options = split(sample, ":");
             if (options[0].size() != 0)
                 normalSet = boost::lexical_cast<int>(options[0]);

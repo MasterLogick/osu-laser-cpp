@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 5/26/20.
+// Created by MasterLogick on 5/26/20.
 //
 
 #ifndef OSU_LASER_CPP_HITOBJECT_H

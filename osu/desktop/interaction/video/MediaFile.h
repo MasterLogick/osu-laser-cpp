@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 2/25/20.
+// Created by MasterLogick on 2/25/20.
 //
 
 #ifndef OSU_LASER_C_MEDIAFILE_H

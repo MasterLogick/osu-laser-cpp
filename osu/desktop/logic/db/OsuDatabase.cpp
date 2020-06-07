@@ -1,5 +1,5 @@
 //
-// Created by Masterlogick on 2/13/20.
+// Created by MasterLogick on 2/13/20.
 //
 #include <fstream>
 #include <iostream>
