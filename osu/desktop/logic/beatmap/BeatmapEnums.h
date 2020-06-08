@@ -16,8 +16,5 @@ namespace osu {
     enum OverlayPositions {
         NoChange, Below, Above
     };
-    enum EventType {
-        Background = 0, Video = 1, Break = 2
-    };
 }
 #endif //OSU_LASER_C_BEATMAPENUMS_H

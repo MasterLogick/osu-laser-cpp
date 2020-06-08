@@ -41,5 +41,7 @@
         "path": "."
     }, {
         "path": "/home/user/osu-wiki/wiki"
+    }, {
+        "path": "/home/user/osu"
     }]
 }
