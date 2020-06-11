@@ -4,7 +4,7 @@
 #include "Layer.h"
 
 namespace osu {
-    Layer parseLayer(std::string s) {
+    Layer parseLayer(std::string &s) {
         if (s.empty()) {
             //todo throw unknown_type error
             //todo delete all allocated vars
@@ -25,7 +25,7 @@ namespace osu {
             //todo delete all allocated vars
             return Background;
         } else {
-            return (Layer) (s[0] - '0');
+            return (Layer) (s.front() - '0');
         }
     }
 }

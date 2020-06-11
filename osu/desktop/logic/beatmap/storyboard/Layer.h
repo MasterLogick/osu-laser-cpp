@@ -15,7 +15,7 @@ namespace osu {
         Foreground = 3
     };
 
-    Layer parseLayer(std::string s);
+    Layer parseLayer(std::string &s);
 }
 
 #endif //OSU_LASER_CPP_LAYER_H

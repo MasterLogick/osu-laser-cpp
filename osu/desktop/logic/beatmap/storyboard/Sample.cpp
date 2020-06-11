@@ -1,8 +1,11 @@
 //
-// Created by MasterLogick on 6/7/20.
+// Created by MasterLogick on 6/9/20.
 //
 
-#include "StoryboardObjects.h"
+#include "Sample.h"
+#include "../../utill/StringUtills.h"
+#include <vector>
+#include <boost/lexical_cast.hpp>
 
 namespace osu {
     Sample::Sample(std::string &line) {
@@ -15,6 +18,7 @@ namespace osu {
         }
         time = boost::lexical_cast<int>(data[1]);
         layer = parseLayer(data[2]);//todo catch exception
-        file = std::move(data[3].substr(1, data[3].size() - 2));
+        file = data[3].substr(data[3].front() == '"' ? 1 : 0,
+                              data[3].size() - (data[3].front() == '"' ? 1 : 0) - (data[3].back() == '"' ? 1 : 0));
     }
 }

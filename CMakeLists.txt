@@ -60,6 +60,9 @@ add_library(glm::glm ALIAS glm)
 option(ALSOFT_EXAMPLES OFF)
 add_subdirectory(openal-soft)
 
+message(STATUS "")
+message(STATUS "====Dependencies configured====")
+message(STATUS "")
 #def glad sources
 set(GLAD_SOURCES glad/src/glad.c)
 
@@ -71,9 +74,9 @@ add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${GLAD_SOURCES})
 target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
 if (COMPILE_WITH_ALL_FONTS_OPTION)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE COMPILE_WITH_ALL_FONTS)
-    message("Compiling with all fonts")
+    message(STATUS "Compiling with all fonts")
 else ()
-    message("Compiling with minimal fonts")
+    message(STATUS "Compiling with minimal fonts")
 endif ()
 unset(COMPILE_WITH_ALL_FONTS_OPTION CACHE)
 
