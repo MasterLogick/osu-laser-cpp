@@ -34,7 +34,8 @@
             "working_dir": "$project_path"
         }, {
             "cmd": ["python3", "$project_path/remove_cache.py"],
-            "name": "Remove cache"
+            "name": "Remove cache",
+            "working_dir": "$project_path"
         }]
     }],
     "folders": [{
