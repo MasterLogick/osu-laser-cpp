@@ -1,16 +1,18 @@
 //
-// Created by MasterLogick on 2/9/20.
+// Created by MasterLogick on 1/23/20.
 //
+#ifndef OSU_LASER_C_CALLBACKS_H
+#define OSU_LASER_C_CALLBACKS_H
 
-#ifndef OSU_LASER_C_MAIN_H
-#define OSU_LASER_C_MAIN_H
+#include <glad/glad.h>
+#include "GLFWWindow.h"
 
 namespace osu {
-    int main(int argc, const char **argv, const char **envp);
-
     void errorCallback(int error_code, const char *description);
 
     void closeCallback(GLFWwindow *window);
+
+    void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 #ifndef NDEBUG
 
@@ -20,6 +22,4 @@ namespace osu {
 
 #endif
 }
-
-
-#endif //OSU_LASER_C_MAIN_H
+#endif

@@ -1,0 +1,8 @@
+include_directories(../desktop)
+list(APPEND TESTS SimpleTest)
+foreach (TEST IN LISTS TESTS)
+    add_executable(${TEST} ${TEST}.cpp)
+    target_include_directories(${TEST} PUBLIC ../desktop)
+    target_link_libraries(${TEST} PUBLIC ${CMAKE_PROJECT_NAME}_lib)
+    add_test(NAME ${TEST} COMMAND ${TEST} PASS_RETURN_CODE 0 FAIL_RETURN_CODE 1)
+endforeach (TEST)

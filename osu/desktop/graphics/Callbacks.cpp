@@ -2,11 +2,11 @@
 // Created by MasterLogick on 1/20/20.
 //
 #include "Callbacks.h"
-#include "Osu.h"
+#include "../logic/Osu.h"
 #include <iostream>
 #include <glad/glad.h>
-#include "graphics/Graphics.h"
-#include "graphics/UI/Font.h"
+#include "Graphics.h"
+#include "UI/Font.h"
 
 namespace osu {
     void errorCallback(int error_code, const char *description) {

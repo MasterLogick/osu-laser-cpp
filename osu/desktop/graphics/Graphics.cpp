@@ -5,8 +5,8 @@
 #include "Graphics.h"
 #include "GameDrawer.h"
 #include "UI/UIManager.h"
-#include "../Callbacks.h"
-#include "../Osu.h"
+#include "Callbacks.h"
+#include "../logic/Osu.h"
 #include "../interaction/FPSCounter.h"
 #include <mutex>
 #include <condition_variable>
