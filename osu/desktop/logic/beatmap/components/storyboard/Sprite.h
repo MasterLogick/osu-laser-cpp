@@ -6,8 +6,8 @@
 #define OSU_LASER_CPP_SPRITE_H
 
 #include "Layer.h"
-#include "../../../graphics/UI/Origin.h"
-#include "../../utill/Point.h"
+#include "../../../../graphics/UI/Origin.h"
+#include "../../../utill/Point.h"
 #include <string>
 
 namespace osu {
@@ -17,9 +17,6 @@ namespace osu {
         Origin origin;
         std::string file;
         Point pos;
-        int lifetimeStart;
-        int lifetimeEnd;
-        //todo add events container
 
         explicit Sprite(std::string &line);
     };

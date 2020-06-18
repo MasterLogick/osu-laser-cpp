@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 #include "Beatmap.h"
-#include "BeatmapMetadata.h"
-#include "TimingPoint.h"
-#include "TimingPointSet.h"
-#include "ColorSchema.h"
+#include "components/BeatmapMetadata.h"
+#include "components/TimingPoint.h"
+#include "components/TimingPointSet.h"
+#include "components/ColorSchema.h"
 #include "../modes/HitObjectParser.h"
 
 namespace osu {

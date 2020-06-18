@@ -2,8 +2,8 @@
 // Created by MasterLogick on 6/5/20.
 //
 
-#include "../BeatmapLoader.h"
-#include "../../utill/StringUtills.h"
+#include "BeatmapLoader.h"
+#include "../utill/StringUtills.h"
 
 namespace osu {
     void BeatmapLoader::loadLegacyStoryBoardFromFile(std::istream &stream) {

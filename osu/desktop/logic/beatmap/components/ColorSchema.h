@@ -6,7 +6,7 @@
 #define OSU_LASER_C_COLORSCHEMA_H
 
 #include <list>
-#include "../utill/Color.h"
+#include "../../utill/Color.h"
 
 namespace osu {
     class ColorSchema {

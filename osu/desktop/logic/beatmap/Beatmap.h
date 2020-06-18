@@ -5,9 +5,9 @@
 #ifndef OSU_LASER_C_BEATMAP_H
 #define OSU_LASER_C_BEATMAP_H
 
-#include "BeatmapMetadata.h"
-#include "TimingPointSet.h"
-#include "ColorSchema.h"
+#include "components/BeatmapMetadata.h"
+#include "components/TimingPointSet.h"
+#include "components/ColorSchema.h"
 #include "../modes/HitObject.h"
 #include <deque>
 

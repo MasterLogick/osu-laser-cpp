@@ -6,8 +6,8 @@
 #define OSU_LASER_CPP_ANIMATION_H
 
 #include "Layer.h"
-#include "../../../graphics/UI/Origin.h"
-#include "../../utill/Point.h"
+#include "../../../../graphics/UI/Origin.h"
+#include "../../../utill/Point.h"
 #include <string>
 
 namespace osu {
@@ -22,9 +22,6 @@ namespace osu {
         enum LoopType {
             LoopOnce, LoopForever
         } type;
-        int lifetimeStart;
-        int lifetimeEnd;
-        //todo add events container
 
         explicit Animation(std::string &line);
     };

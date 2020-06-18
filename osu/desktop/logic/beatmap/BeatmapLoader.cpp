@@ -8,11 +8,11 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <utility>
 #include "BeatmapLoader.h"
-#include "BeatmapMetadata.h"
+#include "components/BeatmapMetadata.h"
 #include "../utill/StringUtills.h"
 #include "../utill/str_switch.h"
-#include "BeatmapEnums.h"
-#include "TimingPoint.h"
+#include "components/BeatmapEnums.h"
+#include "components/TimingPoint.h"
 #include "../modes/osu/OsuHitObjectParser.h"
 
 namespace osu {

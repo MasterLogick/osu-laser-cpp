@@ -5,8 +5,8 @@
 #ifndef OSU_LASER_C_HITOBJECTPARSER_H
 #define OSU_LASER_C_HITOBJECTPARSER_H
 
-#include "../beatmap/BeatmapEnums.h"
-#include "../beatmap/GameMode.h"
+#include "../beatmap/components/BeatmapEnums.h"
+#include "../beatmap/components/GameMode.h"
 #include "HitObject.h"
 #include <string>
 
