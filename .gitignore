@@ -3,3 +3,4 @@
 *.sln
 *.vcproj
 /osu-laser-cpp.sublime-workspace
+/.idea/
