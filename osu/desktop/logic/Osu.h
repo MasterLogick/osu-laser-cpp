@@ -10,7 +10,7 @@
 #include "../interaction/Interaction.h"
 
 namespace osu {
-    bool shouldClose = true;
+    extern bool shouldClose;
 
     class Osu {
     public:
