@@ -49,9 +49,17 @@ set(FONTS_PATH ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources/Fonts/)
 configure_file(osu/desktop/platformDependentDefines.h.in ${PROJECT_BINARY_DIR}/platformDependentDefines.h)
 
 #compile GLFW
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
+option(BUILD_SHARED_LIBS OFF)
+option(GLFW_VULKAN_STATIC OFF)
 add_subdirectory(glfw)
 
 #compile libconfig
+option(BUILD_EXAMPLES OFF)
+option(BUILD_SHARED_LIBS OFF)
+option(BUILD_TESTS OFF)
 add_subdirectory(libconfig)
 
 #compile glm
@@ -59,6 +67,16 @@ add_subdirectory(glm/glm)
 add_library(glm::glm ALIAS glm)
 
 #compile OpenAL
+option(ALSOFT_DLOPEN ON)
+option(ALSOFT_WERROR OFF)
+option(ALSOFT_UTILS OFF)
+option(ALSOFT_NO_CONFIG_UTIL ON)
+option(ALSOFT_EXAMPLES OFF)
+option(ALSOFT_TESTS OFF)
+option(ALSOFT_CONFIG OFF)
+option(ALSOFT_HRTF_DEFS OFF)
+option(ALSOFT_AMBDEC_PRESETS OFF)
+option(ALSOFT_INSTALL OFF)
 add_subdirectory(openal-soft)
 
 message(STATUS "")
