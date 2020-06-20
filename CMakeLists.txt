@@ -106,7 +106,7 @@ unset(COMPILE_WITH_ALL_FONTS_OPTION CACHE)
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${CMAKE_BINARY_DIR})
 
 #include boost headers
-target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${Boost_LIBRARIES})
+target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${Boost_INCLUDE_DIRS})
 
 #include glm headers
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC glm/glm)
