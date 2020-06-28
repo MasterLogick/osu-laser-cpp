@@ -9,6 +9,9 @@
 
 namespace osu {
     class TriggerType {
+    private:
+        unsigned int flag{0};
+        int sampleNumber{0};
     public:
         explicit TriggerType(std::string &s);
 
