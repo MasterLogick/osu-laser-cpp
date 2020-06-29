@@ -17,7 +17,7 @@
 namespace osu {
     class BeatmapLoader {
     private:
-        enum SectionTokens {
+        enum SectionToken {
             General,
             Editor,
             Metadata,
@@ -37,7 +37,7 @@ namespace osu {
         std::vector<HitObject *> hitObjects;
         int formatVersion;
         int globalOffset;
-        SectionTokens currientToken{None};
+        SectionToken currientToken{None};
 
         void handleSection(std::string &line);
 
