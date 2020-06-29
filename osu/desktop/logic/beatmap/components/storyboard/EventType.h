@@ -9,13 +9,13 @@
 
 namespace osu {
     enum EventType {
-        Background = 0,
-        Video = 1,
-        Break = 2,
-        Colour = 3,
-        Sprite = 4,
-        Sample = 5,
-        Animation = 6
+        ETBackground = 0,
+        ETVideo = 1,
+        ETBreak = 2,
+        ETColour = 3,
+        ETSprite = 4,
+        ETSample = 5,
+        ETAnimation = 6
     };
 
     EventType parseEventType(std::string &s);

@@ -4,14 +4,13 @@
 
 #include "Animation.h"
 #include "../../../utill/StringUtills.h"
-#include <vector>
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
-    Animation::Animation(std::string &line) {
+    Animation::Animation(std::vector<std::string> &data) {
         //0         1       2        3            4   5   6            7            8
         //Animation,(layer),(origin),”(filepath)”,(x),(y),(frameCount),(frameDelay),(looptype)
-        std::vector<std::string> data = split(line, ",");
+
         if (data.size() != 9) {
             //todo throw unknown_type error
             //todo delete all allocated vars
@@ -32,5 +31,6 @@ namespace osu {
                 type = LoopOnce;
                 break;
         }
+        eventType = EventType::ETAnimation;
     }
 }

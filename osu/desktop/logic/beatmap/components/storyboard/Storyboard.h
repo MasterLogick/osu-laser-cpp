@@ -8,13 +8,16 @@
 #include <vector>
 #include "commands/Command.h"
 #include "Sprite.h"
+#include "Animation.h"
+#include "Sample.h"
+#include "Event.h"
 #include <list>
 
 namespace osu {
     class Storyboard {
     private:
         std::vector<std::pair<int, std::list<Command *>>> timeBorders;
-        std::vector<Sprite> sprites;
+        std::vector<Event *> events;
     };
 }
 

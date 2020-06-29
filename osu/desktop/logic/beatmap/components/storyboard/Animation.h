@@ -8,10 +8,12 @@
 #include "Layer.h"
 #include "../../../../graphics/UI/Origin.h"
 #include "../../../utill/Point.h"
+#include "Event.h"
 #include <string>
+#include <vector>
 
 namespace osu {
-    class Animation {
+    class Animation : public Event {
     public:
         Layer layer;
         Origin origin;
@@ -23,7 +25,7 @@ namespace osu {
             LoopOnce, LoopForever
         } type;
 
-        explicit Animation(std::string &line);
+        explicit Animation(std::vector<std::string> &data);
     };
 }
 

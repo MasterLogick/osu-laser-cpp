@@ -4,14 +4,12 @@
 
 #include "Sprite.h"
 #include "../../../utill/StringUtills.h"
-#include <vector>
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
-    Sprite::Sprite(std::string &line) {
+    Sprite::Sprite(std::vector<std::string> &data) {
         //0      1       2        3            4   5
         //Sprite,(layer),(origin),”(filepath)”,(x),(y)
-        std::vector<std::string> data = split(line, ",");
         if (data.size() != 6) {
             //todo throw unknown_type error
             //todo delete all allocated vars
@@ -22,5 +20,6 @@ namespace osu {
                               data[3].size() - (data[3].front() == '"' ? 1 : 0) - (data[3].back() == '"' ? 1 : 0));
         pos.x = boost::lexical_cast<int>(data[4]);
         pos.y = boost::lexical_cast<int>(data[5]);
+        eventType = EventType::ETSprite;
     }
 }

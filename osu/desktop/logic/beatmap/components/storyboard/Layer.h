@@ -9,10 +9,10 @@
 
 namespace osu {
     enum Layer {
-        Background = 0,
-        Fail = 1,
-        Pass = 2,
-        Foreground = 3
+        LBackground = 0,
+        LFail = 1,
+        LPass = 2,
+        LForeground = 3
     };
 
     Layer parseLayer(std::string &s);

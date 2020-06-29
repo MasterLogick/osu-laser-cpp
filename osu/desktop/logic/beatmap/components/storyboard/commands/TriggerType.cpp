@@ -35,46 +35,46 @@ namespace osu {
             flag = FAILING;
             return;
         }
-        if (startWith(s, "HitSound")) {
+        if (startsWith(s, "HitSound")) {
             flag = HITSOUND;
             std::string modifiers = s.substr(8);
-            if (startWith(modifiers, "All")) {
+            if (startsWith(modifiers, "All")) {
                 flag |= SS_ALL;
                 modifiers = modifiers.substr(3);
-            } else if (startWith(modifiers, "Drum")) {
+            } else if (startsWith(modifiers, "Drum")) {
                 flag |= SS_DRUM;
                 modifiers = modifiers.substr(4);
-            } else if (startWith(modifiers, "Normal")) {
+            } else if (startsWith(modifiers, "Normal")) {
                 flag |= SS_NORMAL;
                 modifiers = modifiers.substr(6);
-            } else if (startWith(modifiers, "Soft")) {
+            } else if (startsWith(modifiers, "Soft")) {
                 flag |= SS_SOFT;
                 modifiers = modifiers.substr(4);
             } else {
                 flag |= SS_ALL;
             }
-            if (startWith(modifiers, "All")) {
+            if (startsWith(modifiers, "All")) {
                 flag |= A_SS_ALL;
                 modifiers = modifiers.substr(3);
-            } else if (startWith(modifiers, "Drum")) {
+            } else if (startsWith(modifiers, "Drum")) {
                 flag |= A_SS_DRUM;
                 modifiers = modifiers.substr(4);
-            } else if (startWith(modifiers, "Normal")) {
+            } else if (startsWith(modifiers, "Normal")) {
                 flag |= A_SS_NORMAL;
                 modifiers = modifiers.substr(6);
-            } else if (startWith(modifiers, "Soft")) {
+            } else if (startsWith(modifiers, "Soft")) {
                 flag |= A_SS_SOFT;
                 modifiers = modifiers.substr(4);
             } else {
                 flag |= A_SS_ALL;
             }
-            if (startWith(modifiers, "Whistle")) {
+            if (startsWith(modifiers, "Whistle")) {
                 flag |= ADD_WHISTLE;
                 modifiers = modifiers.substr(7);
-            } else if (startWith(modifiers, "Clap")) {
+            } else if (startsWith(modifiers, "Clap")) {
                 flag |= ADD_CLAP;
                 modifiers = modifiers.substr(4);
-            } else if (startWith(modifiers, "Finish")) {
+            } else if (startsWith(modifiers, "Finish")) {
                 flag |= ADD_FINISH;
                 modifiers = modifiers.substr(6);
             } else {

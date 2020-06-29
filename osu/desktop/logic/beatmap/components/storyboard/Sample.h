@@ -6,17 +6,19 @@
 #define OSU_LASER_CPP_SAMPLE_H
 
 #include "Layer.h"
+#include "Event.h"
 #include <string>
+#include <vector>
 
 namespace osu {
-    class Sample {
+    class Sample : public Event {
     public:
         int time;
         Layer layer;
         std::string file;
         int volume;
 
-        explicit Sample(std::string &line);
+        explicit Sample(std::vector<std::string> &data);
     };
 }
 

@@ -10,29 +10,29 @@ namespace osu {
         if (s.empty()) {
             //todo throw unknown_type error
             //todo delete all allocated vars
-            return Background;
+            return ETBackground;
         }
         if (s.length() > 1) {
             sswitch(s)
             {
                 scase("Background"):
-                return Background;
+                    return ETBackground;
                 scase("Video"):
-                return Video;
+                    return ETVideo;
                 scase("Break"):
-                return Break;
+                    return ETBreak;
                 scase("Colour"):
-                return Colour;
+                    return ETColour;
                 scase("Sprite"):
-                return Sprite;
+                    return ETSprite;
                 scase("Sample"):
-                return Sample;
+                    return ETSample;
                 scase("Animation"):
-                return Animation;
+                    return ETAnimation;
             }
             //todo throw unknown_type error
             //todo delete all allocated vars
-            return Background;
+            return ETBackground;
         } else {
             return (EventType) (s.front() - '0');
         }
