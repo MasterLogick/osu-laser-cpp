@@ -66,5 +66,14 @@ namespace osu {
         boost::split(result, str, boost::is_any_of(separator));
         return result;
     }
+
+    bool startsWith(std::string &s, const char *prefix) {
+        const char *ptr = s.c_str();
+        size_t size = s.size();
+        for (int i = 0; prefix[i] != '\0'; i++) {
+            if (size == i || ptr[i] != prefix[i]) { return false; }
+        }
+        return true;
+    }
 }
 #endif //OSU_LASER_C_STRINGUTILLS_H

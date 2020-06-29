@@ -1,5 +1,5 @@
 include_directories(../desktop)
-list(APPEND TESTS SimpleTest DevTest)
+list(APPEND TESTS SimpleTest DevTest StartWithTest)
 foreach (TEST IN LISTS TESTS)
     add_executable(${TEST} ${TEST}.cpp)
     target_include_directories(${TEST} PUBLIC ../desktop)
