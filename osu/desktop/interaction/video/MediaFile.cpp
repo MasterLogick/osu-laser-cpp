@@ -20,6 +20,9 @@ namespace osu {
         thr = new std::thread([mf, name]() {
             if (!mf->initialised)
                 mf->_lock.wait(mf->initLocker, [mf]() -> bool { return mf->initialised; });
+#ifndef NDEBUG
+            av_log_set_level(AV_LOG_ERROR);
+#endif
             // Register all formats and codecs
 #if !(LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(58, 9, 100))
             av_register_all();
