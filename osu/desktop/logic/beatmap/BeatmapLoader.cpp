@@ -377,7 +377,7 @@ namespace osu {
         globalOffset = version < 5 ? 24 : 0;
     }
 
-    void BeatmapLoader::destroy() {
-        //todo
+    BeatmapLoader::~BeatmapLoader() {
+        //todo implement
     }
 }

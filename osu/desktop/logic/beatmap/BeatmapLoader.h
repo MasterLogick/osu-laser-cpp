@@ -84,8 +84,7 @@ namespace osu {
 
         void setVersion(int version);
 
-        ///Destroys all available allocated data. Call it only on error. Built beatmap MUST destroy all related data
-        void destroy();
+        ~BeatmapLoader();
 
     };
 }
