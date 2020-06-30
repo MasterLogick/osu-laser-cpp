@@ -30,7 +30,7 @@ namespace osu {
             if (line[0] == '[' && line[line.size() - 1] == ']') {
                 handleSection(line);
             } else {
-                switch (currientToken) {
+                switch (currentToken) {
                     case General:
                         handleGeneral(line);
                         break;
@@ -55,6 +55,9 @@ namespace osu {
                     case Variables:
                         handleVariables(line);
                         break;
+                    case Colours:
+                        handleColours(line);
+                        break;
                 }
             }
         }
@@ -63,31 +66,31 @@ namespace osu {
     void BeatmapLoader::handleSection(std::string &line) {
         sswitch(line) {
             scase("[General]"):
-                currientToken = General;
+                currentToken = General;
                 break;
                 scase("[Editor]"):
-                currientToken = Editor;
+                currentToken = Editor;
                 break;
                 scase("[Metadata]"):
-                currientToken = Metadata;
+                currentToken = Metadata;
                 break;
                 scase("[Difficulty]"):
-                currientToken = Difficulty;
+                currentToken = Difficulty;
                 break;
                 scase("[Events]"):
-                currientToken = Events;
+                currentToken = Events;
                 break;
                 scase("[TimingPoints]"):
-                currientToken = TimingPoints;
+                currentToken = TimingPoints;
                 break;
                 scase("[Colours]"):
-                currientToken = Colours;
+                currentToken = Colours;
                 break;
                 scase("[HitObjects]"):
-                currientToken = HitObjects;
+                currentToken = HitObjects;
                 break;
                 scase("[Variables]"):
-                currientToken = Variables;
+                currentToken = Variables;
                 break;
         }
     }
@@ -355,7 +358,6 @@ namespace osu {
                       return a->time < b->time;
                   });
         beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
-//        std::move(hitObjects.begin(), hitObjects.end(), beatmap->hitObjects.begin());
         beatmap->metadata = metadata;
         beatmap->colorSchema = colorSchema;
         beatmap->timingPointSet = timingPointSet;
@@ -363,7 +365,7 @@ namespace osu {
     }
 
     void BeatmapLoader::prepare() {
-        currientToken = None;
+        currentToken = None;
         metadata = new BeatmapMetadata();
         timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();

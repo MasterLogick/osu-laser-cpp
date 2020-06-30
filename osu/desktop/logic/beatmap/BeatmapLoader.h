@@ -37,7 +37,7 @@ namespace osu {
         std::vector<HitObject *> hitObjects;
         int formatVersion;
         int globalOffset;
-        SectionToken currientToken{None};
+        SectionToken currentToken{None};
 
         void handleSection(std::string &line);
 
