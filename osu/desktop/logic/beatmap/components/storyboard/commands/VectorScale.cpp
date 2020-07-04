@@ -14,7 +14,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::VectorScale;
+        type = CommandType::CTVectorScale;
         start.x = boost::lexical_cast<float>(s[4]);
         start.y = boost::lexical_cast<float>(s[5]);
         end.x = s.size() > 6 ? boost::lexical_cast<float>(s[6]) : start.x;

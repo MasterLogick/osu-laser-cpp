@@ -7,13 +7,31 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <utility>
+#include <string>
 #include "BeatmapLoader.h"
-#include "components/BeatmapMetadata.h"
+#include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
 #include "../utill/str_switch.h"
+#include "components/BeatmapMetadata.h"
 #include "components/BeatmapEnums.h"
 #include "components/TimingPoint.h"
-#include "../modes/osu/OsuHitObjectParser.h"
+#include "components/storyboard/Animation.h"
+#include "components/storyboard/Break.h"
+#include "components/storyboard/Background.h"
+#include "components/storyboard/Sample.h"
+#include "components/storyboard/Sprite.h"
+#include "components/storyboard/Video.h"
+#include "../utill/IOUtills.h"
+#include "components/storyboard/commands/Colour.h"
+#include "components/storyboard/commands/Fade.h"
+#include "components/storyboard/commands/Loop.h"
+#include "components/storyboard/commands/Move.h"
+#include "components/storyboard/commands/MoveX.h"
+#include "components/storyboard/commands/MoveY.h"
+#include "components/storyboard/commands/VectorScale.h"
+#include "components/storyboard/commands/Scale.h"
+#include "components/storyboard/commands/Trigger.h"
+#include "components/storyboard/commands/Rotate.h"
 
 namespace osu {
 
@@ -21,7 +39,15 @@ namespace osu {
     void BeatmapLoader::loadLegacyBeatmap(std::ifstream &stream) {
         std::string line;
         while (!stream.eof()) {
-            getline(stream, line);
+            readLineMultiplatform(stream, line);
+#ifndef NDEBUG
+            if (line.empty()) {
+                //todo catch exception in readLineMultiplatform
+                return;
+            }
+#else
+#error catch exception in readLineMultiplatform
+#endif
             trim(line);
             std::size_t pos = line.find("//");
             if (line.size() <= 1 || pos == 0) {
@@ -57,6 +83,9 @@ namespace osu {
                         break;
                     case Colours:
                         handleColours(line);
+                        break;
+                    case None:
+                        //todo through exception
                         break;
                 }
             }
@@ -381,5 +410,124 @@ namespace osu {
 
     BeatmapLoader::~BeatmapLoader() {
         //todo implement
+    }
+
+    void BeatmapLoader::loadLegacyStoryboardFromFile(std::istream &stream) {
+        currentToken = None;
+        std::string line;
+        while (!stream.eof()) {
+            readLineMultiplatform(stream, line);
+            if (line.empty() || startsWith(line, "//")) {
+                continue;
+            }
+            if (line.front() == '[' && line.back() == ']') {
+                handleSection(line);
+            } else {
+                switch (currentToken) {
+                    case Events:
+                        handleEvents(line);
+                        break;
+                    case Variables:
+                        handleVariables(line);
+                        break;
+                    case None:
+                        //todo through exception
+                        break;
+                }
+            }
+        }
+    }
+
+    void BeatmapLoader::handleVariables(std::string &line) {
+        variables.push_back(splitKeyValPair(line, '='));
+    }
+
+    void BeatmapLoader::decodeVariables(std::string *line) {
+        while (line->find('$') != std::string::npos) {
+            char copys[line->length()];
+            line->copy(copys, line->length());
+            std::for_each(variables.begin(), variables.end(), [line](std::pair<std::string, std::string> &i) {
+                boost::replace_all(*line, i.first.c_str(), i.second.c_str());
+            });
+            if (!line->compare(copys))return;
+        }
+    }
+
+    void BeatmapLoader::handleEvents(std::string &line) {
+        depth = 0;
+        const char *dataptr = line.c_str();
+        for (int i = 0, s = line.size(); s > i && (dataptr[i] == ' ' || dataptr[i] == '_'); ++i) {
+            depth++;
+        }
+        line = line.substr(depth);
+        while (depth < commandStack.size()) {
+            commandStack.top()->calcEndTime();
+            commandStack.pop();
+        }
+        decodeVariables(&line);
+        if (depth == 0) {
+            if (currentEventContainer != nullptr) {
+                storyboard->addEventCommandContainer(currentEventContainer);
+            }
+            Event *event = parseEvent(line);
+            storyboard->addEvent(event);
+            currentEvent = event;
+            currentEventContainer = new CompoundCommand();
+            currentEventContainer->setParent(currentEvent);
+            commandStack.push(currentEventContainer);
+        } else {
+            Command *command = parseCommand(line);
+            command->setParent(currentEvent);
+            commandStack.top()->addCommand(command);
+            if (command->isCompound()) {
+                commandStack.push(static_cast<CompoundCommand *>(command));
+            }
+        }
+    }
+
+    Event *BeatmapLoader::parseEvent(std::string &line) {
+        std::vector<std::string> data = split(line, ",");
+        EventType type = parseEventType(data[0]);
+        switch (type) {
+            case EventType::ETAnimation:
+                return new Animation(data);
+            case EventType::ETBreak:
+                return new Break(data);
+            case EventType::ETBackground:
+                return new Background(data);
+            case EventType::ETSample:
+                return new Sample(data);
+            case EventType::ETSprite:
+                return new Sprite(data);
+            case EventType::ETVideo:
+                return new Video(data);
+        }
+    }
+
+    Command *BeatmapLoader::parseCommand(std::string &line) {
+        std::vector<std::string> data = split(line, ",");
+        CommandType type = parseCommandType(data[0]);
+        switch (type) {
+            case CTColour :
+                return new Colour(data);
+            case CTFade :
+                return new Fade(data);
+            case CTLoop :
+                return new Loop(data);
+            case CTMove :
+                return new Move(data);
+            case CTMoveX :
+                return new MoveX(data);
+            case CTMoveY :
+                return new MoveY(data);
+            case CTRotate :
+                return new Rotate(data);
+            case CTScale :
+                return new Scale(data);
+            case CTTrigger :
+                return new Trigger(data);
+            case CTVectorScale :
+                return new VectorScale(data);
+        }
     }
 }

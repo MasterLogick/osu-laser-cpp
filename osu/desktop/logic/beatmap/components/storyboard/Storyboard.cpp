@@ -6,4 +6,11 @@
 
 namespace osu {
 
+    void Storyboard::addEvent(Event *event) {
+
+    }
+
+    void Storyboard::addEventCommandContainer(CompoundCommand *container) {
+
+    }
 }

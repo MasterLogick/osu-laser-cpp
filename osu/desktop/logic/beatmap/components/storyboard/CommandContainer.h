@@ -2,13 +2,13 @@
 // Created by MasterLogick on 20/06/2020.
 //
 
-#ifndef OSU_LASER_CPP_COMMANDSCONTAINER_H
-#define OSU_LASER_CPP_COMMANDSCONTAINER_H
+#ifndef OSU_LASER_CPP_COMMANDCONTAINER_H
+#define OSU_LASER_CPP_COMMANDCONTAINER_H
 
 #include "commands/Command.h"
 
 namespace osu {
-    class CommandsContainer {
+    class CommandContainer {
     public:
         void add(Command *c);
 
@@ -18,4 +18,4 @@ namespace osu {
     };
 }
 
-#endif //OSU_LASER_CPP_COMMANDSCONTAINER_H
+#endif //OSU_LASER_CPP_COMMANDCONTAINER_H

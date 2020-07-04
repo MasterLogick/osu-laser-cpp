@@ -14,7 +14,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::MoveY;
+        type = CommandType::CTMoveY;
         startY = boost::lexical_cast<float>(s[4]);
         endY = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startY;
     }

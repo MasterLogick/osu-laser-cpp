@@ -3,7 +3,6 @@
 //
 
 #include "Background.h"
-#include "../../../utill/StringUtills.h"
 #include <boost/lexical_cast.hpp>
 
 namespace osu {

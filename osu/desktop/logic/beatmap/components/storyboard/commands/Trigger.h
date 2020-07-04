@@ -5,20 +5,17 @@
 #ifndef OSU_LASER_CPP_TRIGGER_H
 #define OSU_LASER_CPP_TRIGGER_H
 
-#include "Command.h"
+#include "CompoundCommand.h"
 #include "TriggerType.h"
-#include "../CommandsContainer.h"
 #include <vector>
 #include <string>
 
 namespace osu {
-    class Trigger : public Command {
-    private:
-        CommandsContainer c;
+    class Trigger : public CompoundCommand {
     public:
-        int endTime;
         TriggerType triggerType;
         int groupNumber;
+        int activeEndTime;
 
         explicit Trigger(std::vector<std::string> &s);
     };

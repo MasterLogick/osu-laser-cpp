@@ -2,19 +2,19 @@
 // Created by MasterLogick on 20/06/2020.
 //
 
-#include "CommandsContainer.h"
+#include "CommandContainer.h"
 
 namespace osu {
 
-    void CommandsContainer::add(Command *c) {
+    void CommandContainer::add(Command *c) {
         //todo implement
     }
 
-    int CommandsContainer::getStartTime() {
+    int CommandContainer::getStartTime() {
         return 0;//todo implement
     }
 
-    int CommandsContainer::getEndTime() {
+    int CommandContainer::getEndTime() {
         return 0;//todo implement
     }
 }

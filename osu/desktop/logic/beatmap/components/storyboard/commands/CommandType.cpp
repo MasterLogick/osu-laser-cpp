@@ -10,33 +10,33 @@ namespace osu {
         if (s.size() > 2) {
             //todo throw unknown_type error
             //todo delete all allocated vars
-            return Colour;
+            return CTColour;
         }
         sswitch(s) {
             scase("C"):
-                return Colour;
+                return CTColour;
                 scase("F"):
-                return Fade;
+                return CTFade;
                 scase("L"):
-                return Loop;
+                return CTLoop;
                 scase("M"):
-                return Move;
+                return CTMove;
                 scase("MX"):
-                return MoveX;
+                return CTMoveX;
                 scase("MY"):
-                return MoveY;
+                return CTMoveY;
                 scase("R"):
-                return Rotate;
+                return CTRotate;
                 scase("S"):
-                return Scale;
+                return CTScale;
                 scase("T"):
-                return Trigger;
+                return CTTrigger;
                 scase("V"):
-                return VectorScale;
+                return CTVectorScale;
 
         }
         //todo throw unknown_type error
         //todo delete all allocated vars
-        return Colour;
+        return CTColour;
     }
 }

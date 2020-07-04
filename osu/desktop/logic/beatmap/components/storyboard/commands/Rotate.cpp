@@ -14,7 +14,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::Rotate;
+        type = CommandType::CTRotate;
         startAngle = boost::lexical_cast<float>(s[4]);
         endAngle = s.size() > 5 ? boost::lexical_cast<int>(s[5]) : startAngle;
     }

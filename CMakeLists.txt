@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(osu-laser-cpp VERSION 0.0.1 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 
-option(COMPILE_WITH_ALL_FONTS_OPTION "Enable compilation using all osu-resources fonts" OFF)
+option(COMPILE_WITH_ALL_FONTS "Enable compilation using all osu-resources fonts" OFF)
 
 #define libconfig name
 if (CMAKE_HOST_WIN32)
@@ -94,13 +94,13 @@ add_library(${CMAKE_PROJECT_NAME}_lib ${SOURCE_FILES} ${GLAD_SOURCES})
 
 #declare compilation defines
 target_compile_definitions(${CMAKE_PROJECT_NAME}_lib PUBLIC GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
-if (COMPILE_WITH_ALL_FONTS_OPTION)
+if (COMPILE_WITH_ALL_FONTS)
     target_compile_definitions(${CMAKE_PROJECT_NAME}_lib PRIVATE COMPILE_WITH_ALL_FONTS)
     message(STATUS "Compiling with all fonts")
 else ()
     message(STATUS "Compiling with minimal fonts")
 endif ()
-unset(COMPILE_WITH_ALL_FONTS_OPTION CACHE)
+unset(COMPILE_WITH_ALL_FONTS CACHE)
 
 #include cmake generated headers
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${CMAKE_BINARY_DIR})

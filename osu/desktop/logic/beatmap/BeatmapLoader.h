@@ -7,12 +7,17 @@
 
 #include <string>
 #include <vector>
+#include <stack>
 #include "Beatmap.h"
 #include "components/BeatmapMetadata.h"
 #include "components/TimingPoint.h"
 #include "components/TimingPointSet.h"
 #include "components/ColorSchema.h"
 #include "../modes/HitObjectParser.h"
+#include "components/storyboard/Event.h"
+#include "components/storyboard/commands/Command.h"
+#include "components/storyboard/Storyboard.h"
+#include "components/storyboard/commands/CompoundCommand.h"
 
 namespace osu {
     class BeatmapLoader {
@@ -39,6 +44,12 @@ namespace osu {
         int globalOffset;
         SectionToken currentToken{None};
 
+        int depth{0};
+        Event *currentEvent;
+        CompoundCommand *currentEventContainer;
+        std::stack<CompoundCommand *> commandStack;
+        Storyboard *storyboard;
+
         void handleSection(std::string &line);
 
         void handleGeneral(std::string &line);
@@ -61,6 +72,10 @@ namespace osu {
 
         void decodeVariables(std::string *line);
 
+        Event *parseEvent(std::string &line);
+
+        Command *parseCommand(std::string &line);
+
         int getOffsetTime(int time);
 
         double getOffsetTime();
@@ -75,7 +90,7 @@ namespace osu {
 
         void loadLegacyBeatmap(std::ifstream &stream);
 
-        void loadLegacyStoryBoardFromFile(std::istream &stream);
+        void loadLegacyStoryboardFromFile(std::istream &stream);
 
         Beatmap *buildBeatmap();
 

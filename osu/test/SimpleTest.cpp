@@ -1,14 +1,14 @@
 //
 // Created by MasterLogick on 2/9/20.
 //
-#include "logic/utill/StringUtills.h"
-#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <boost/dll/runtime_symbol_info.hpp>
 #include <logic/beatmap/BeatmapLoader.h>
+#include <TestResourcesPaths.h>
 
 int main(int argc, const char **argv, const char **envp) {
+    std::cout << TEST_OSB_PATH << std::endl;
 #ifndef NDEBUG
     for (int i = 0; i < argc; i++) {
         std::cout << argv[i] << std::endl;

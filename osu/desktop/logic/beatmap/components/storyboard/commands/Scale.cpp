@@ -13,7 +13,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::Scale;
+        type = CommandType::CTScale;
         startScale = boost::lexical_cast<float>(s[4]);
         endScale = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startScale;
     }

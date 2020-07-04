@@ -5,6 +5,7 @@
 #ifndef OSU_LASER_CPP_COMMAND_H
 #define OSU_LASER_CPP_COMMAND_H
 
+#include "../Event.h"
 #include "CommandType.h"
 
 namespace osu {
@@ -12,11 +13,11 @@ namespace osu {
     public:
         CommandType type;
         int startTime;
-        int parent;
+        Event *parent;
 
-        void setParent(int parent) {
-            this->parent = parent;
-        }
+        void setParent(Event *parent);
+
+        bool isCompound();
     };
 }
 

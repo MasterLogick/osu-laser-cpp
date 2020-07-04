@@ -5,22 +5,17 @@
 #ifndef OSU_LASER_CPP_LOOP_H
 #define OSU_LASER_CPP_LOOP_H
 
-#include "Command.h"
-#include "../CommandsContainer.h"
+#include "../CommandContainer.h"
+#include "CompoundCommand.h"
 #include <vector>
 #include <string>
 
 namespace osu {
-    class Loop : public Command {
-    private:
-        CommandsContainer c;
+    class Loop : public CompoundCommand {
     public:
         int loopCount;
-        int endTime;
 
         explicit Loop(std::vector<std::string> &s);
-
-        int calcEndTime();
     };
 }
 

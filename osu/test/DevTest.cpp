@@ -4,10 +4,16 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <logic/beatmap/BeatmapLoader.h>
+#include <TestResourcesPaths.h>
+
+using namespace osu;
 
 int main(int argc, const char **argv, const char **envp) {
-    std::string s{"aaa"};
-    std::string a = s.substr(1);
-    s.data()[1] = 'b';
-    std::cout << a << std::endl;
+    BeatmapLoader bl{14};
+    std::ifstream in{};
+    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    in.open(TEST_OSB_PATH);
+    bl.loadLegacyStoryboardFromFile(in);
 }

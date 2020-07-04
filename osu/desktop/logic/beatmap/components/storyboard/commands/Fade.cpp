@@ -13,8 +13,8 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::Fade;
+        type = CommandType::CTFade;
         startOpacity = boost::lexical_cast<float>(s[4]);
-        endOpacity = s.size() > 5 ? boost::lexical_cast<int>(s[5]) : startOpacity;
+        endOpacity = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startOpacity;
     }
 }

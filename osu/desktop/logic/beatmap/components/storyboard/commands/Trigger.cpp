@@ -14,10 +14,10 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::Loop;
+        type = CommandType::CTLoop;
         triggerType = TriggerType(s[1]);
         startTime = boost::lexical_cast<int>(s[2]);
-        endTime = boost::lexical_cast<int>(s[3]);
+        activeEndTime = boost::lexical_cast<int>(s[3]);
         groupNumber = s.size() == 4 ? 0 : boost::lexical_cast<int>(s[4]);
     }
 }

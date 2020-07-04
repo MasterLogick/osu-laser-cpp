@@ -5,19 +5,29 @@
 #ifndef OSU_LASER_CPP_STORYBOARD_H
 #define OSU_LASER_CPP_STORYBOARD_H
 
-#include <vector>
-#include "commands/Command.h"
 #include "Sprite.h"
 #include "Animation.h"
 #include "Sample.h"
 #include "Event.h"
+#include "commands/CompoundCommand.h"
 #include <list>
+#include <vector>
 
 namespace osu {
+    struct SBTimePoint {
+        int time;
+        CompoundCommand *ptr;
+    };
+
     class Storyboard {
     private:
-        std::vector<std::pair<int, std::list<Command *>>> timeBorders;
+        std::vector<SBTimePoint> timePoints;
         std::vector<Event *> events;
+    public:
+
+        void addEvent(Event *event);
+
+        void addEventCommandContainer(CompoundCommand *container);
     };
 }
 

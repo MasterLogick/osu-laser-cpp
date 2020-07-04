@@ -9,7 +9,8 @@
 
 namespace osu {
     enum CommandType {
-        Colour, Fade, Loop, Move, MoveX, MoveY, Rotate, Scale, Trigger, VectorScale
+        CTColour, CTFade, CTLoop, CTMove, CTMoveX, CTMoveY, CTRotate, CTScale, CTTrigger, CTVectorScale,
+        CTEventContainer //only event command container can have this CommandType
     };
 
     CommandType parseCommandType(std::string &s);

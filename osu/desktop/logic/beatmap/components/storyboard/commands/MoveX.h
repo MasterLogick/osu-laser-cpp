@@ -9,6 +9,7 @@
 
 namespace osu {
     class MoveX : public SimpleCommand {
+    public:
         float startX;
         float endX;
 

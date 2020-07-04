@@ -14,7 +14,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::Colour;
+        type = CommandType::CTColour;
         start.red = boost::lexical_cast<int>(s[4]);
         start.green = boost::lexical_cast<int>(s[5]);
         start.blue = boost::lexical_cast<int>(s[6]);

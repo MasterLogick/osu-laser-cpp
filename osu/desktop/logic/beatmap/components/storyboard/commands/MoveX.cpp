@@ -13,7 +13,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::MoveX;
+        type = CommandType::CTMoveX;
         startX = boost::lexical_cast<float>(s[4]);
         endX = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startX;
     }
