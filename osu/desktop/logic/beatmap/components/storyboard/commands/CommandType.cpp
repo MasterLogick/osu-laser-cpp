@@ -33,6 +33,8 @@ namespace osu {
                 return CTTrigger;
                 scase("V"):
                 return CTVectorScale;
+                scase("P"):
+                return CTParameter;
 
         }
         //todo throw unknown_type error

@@ -13,15 +13,13 @@ namespace osu {
     protected:
         CommandContainer c;
     public:
-        int endTime;
-
-        void calcEndTime();
-
-//        bool isCompound();
+        virtual void commit();
 
         void addCommand(Command *command);
 
         explicit CompoundCommand();
+
+        bool isCompound() override;
     };
 }
 

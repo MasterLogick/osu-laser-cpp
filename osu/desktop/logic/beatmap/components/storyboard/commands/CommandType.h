@@ -9,7 +9,7 @@
 
 namespace osu {
     enum CommandType {
-        CTColour, CTFade, CTLoop, CTMove, CTMoveX, CTMoveY, CTRotate, CTScale, CTTrigger, CTVectorScale,
+        CTColour, CTFade, CTLoop, CTMove, CTMoveX, CTMoveY, CTRotate, CTScale, CTTrigger, CTVectorScale, CTParameter,
         CTEventContainer //only event command container can have this CommandType
     };
 

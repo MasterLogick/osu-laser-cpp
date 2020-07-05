@@ -20,4 +20,9 @@ namespace osu {
         activeEndTime = boost::lexical_cast<int>(s[3]);
         groupNumber = s.size() == 4 ? 0 : boost::lexical_cast<int>(s[4]);
     }
+
+    void Trigger::commit() {
+        CompoundCommand::commit();
+        endTime = activeEndTime + c.getEndTime();
+    }
 }

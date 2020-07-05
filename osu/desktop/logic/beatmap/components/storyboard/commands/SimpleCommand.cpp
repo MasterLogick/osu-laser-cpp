@@ -21,4 +21,8 @@ namespace osu {
     SimpleCommand::SimpleCommand() {
 
     }
+
+    bool SimpleCommand::isCompound() {
+        return false;
+    }
 }

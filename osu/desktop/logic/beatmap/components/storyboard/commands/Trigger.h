@@ -17,6 +17,8 @@ namespace osu {
         int groupNumber;
         int activeEndTime;
 
+        void commit() override;
+
         explicit Trigger(std::vector<std::string> &s);
     };
 }

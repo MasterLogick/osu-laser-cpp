@@ -2,17 +2,12 @@
 // Created by MasterLogick on 7/1/20.
 //
 
-#include <climits>
 #include "CompoundCommand.h"
 
 namespace osu {
 
-    /*bool CompoundCommand::isCompound() {
+    bool CompoundCommand::isCompound() {
         return true;
-    }*/
-
-    void CompoundCommand::calcEndTime() {
-        //todo implement
     }
 
     CompoundCommand::CompoundCommand() {
@@ -20,6 +15,10 @@ namespace osu {
     }
 
     void CompoundCommand::addCommand(Command *command) {
-        //todo implement
+        c.add(command);
+    }
+
+    void CompoundCommand::commit() {
+        c.commit();
     }
 }

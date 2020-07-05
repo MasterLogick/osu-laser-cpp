@@ -14,7 +14,8 @@ namespace osu {
     class SimpleCommand : public Command {
     public:
         Easing easing;
-        int endTime;
+
+        bool isCompound() override;
 
         explicit SimpleCommand(std::vector<std::string> &s);
 

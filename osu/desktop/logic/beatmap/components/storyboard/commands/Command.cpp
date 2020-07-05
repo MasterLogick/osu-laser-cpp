@@ -9,8 +9,4 @@ namespace osu {
     void Command::setParent(Event *parent) {
         this->parent = parent;
     }
-
-    bool Command::isCompound() {
-        return type == CTTrigger || type == CTLoop;
-    }
 }

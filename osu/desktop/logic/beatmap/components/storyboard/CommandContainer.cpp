@@ -3,18 +3,30 @@
 //
 
 #include "CommandContainer.h"
+#include <algorithm>
 
 namespace osu {
 
     void CommandContainer::add(Command *c) {
-        //todo implement
+        push_back(c);
     }
 
     int CommandContainer::getStartTime() {
-        return 0;//todo implement
+        return startTime;
     }
 
     int CommandContainer::getEndTime() {
-        return 0;//todo implement
+        return endTime;
+    }
+
+    void CommandContainer::commit() {
+        sort([](Command *a, Command *b) -> bool {
+            return a->startTime < b->startTime || (a->startTime == b->endTime && a->endTime < b->endTime);
+        });
+        std::for_each(begin(), end(), [this](Command *c) {
+            if (c->endTime > this->endTime) {
+                this->endTime = c->endTime;
+            }
+        });
     }
 }

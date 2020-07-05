@@ -13,11 +13,12 @@ namespace osu {
     public:
         CommandType type;
         int startTime;
+        int endTime;
         Event *parent;
 
         void setParent(Event *parent);
 
-        bool isCompound();
+        virtual bool isCompound() = 0;
     };
 }
 

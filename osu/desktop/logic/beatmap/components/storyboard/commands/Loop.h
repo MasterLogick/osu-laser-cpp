@@ -15,6 +15,8 @@ namespace osu {
     public:
         int loopCount;
 
+        void commit() override;
+
         explicit Loop(std::vector<std::string> &s);
     };
 }

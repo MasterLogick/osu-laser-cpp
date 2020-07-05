@@ -32,6 +32,7 @@
 #include "components/storyboard/commands/Scale.h"
 #include "components/storyboard/commands/Trigger.h"
 #include "components/storyboard/commands/Rotate.h"
+#include "components/storyboard/commands/Parameter.h"
 
 namespace osu {
 
@@ -461,7 +462,7 @@ namespace osu {
         }
         line = line.substr(depth);
         while (depth < commandStack.size()) {
-            commandStack.top()->calcEndTime();
+            commandStack.top()->commit();
             commandStack.pop();
         }
         decodeVariables(&line);
@@ -528,6 +529,8 @@ namespace osu {
                 return new Trigger(data);
             case CTVectorScale :
                 return new VectorScale(data);
+            case CTParameter:
+                return new Parameter(data);
         }
     }
 }

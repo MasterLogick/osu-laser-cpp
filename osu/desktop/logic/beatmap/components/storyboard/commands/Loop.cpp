@@ -18,4 +18,9 @@ namespace osu {
         startTime = boost::lexical_cast<int>(s[1]);
         loopCount = boost::lexical_cast<int>(s[2]);
     }
+
+    void Loop::commit() {
+        CompoundCommand::commit();
+        endTime = startTime + loopCount * c.getEndTime();
+    }
 }
