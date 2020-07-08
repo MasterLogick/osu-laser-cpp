@@ -45,8 +45,8 @@ namespace osu {
         SectionToken currentToken{None};
 
         int depth{0};
-        Event *currentEvent;
-        CompoundCommand *currentEventContainer;
+        Event *currentEvent{nullptr};
+        CompoundCommand *currentEventContainer{nullptr};
         std::stack<CompoundCommand *> commandStack;
         Storyboard *storyboard;
 

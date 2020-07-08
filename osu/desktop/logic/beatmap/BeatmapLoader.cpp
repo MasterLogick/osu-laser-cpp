@@ -2,8 +2,6 @@
 // Created by MasterLogick on 4/3/20.
 //
 #include <fstream>
-#include <sstream>
-#include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <utility>
@@ -12,6 +10,7 @@
 #include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
 #include "../utill/str_switch.h"
+#include "../utill/IOUtills.h"
 #include "components/BeatmapMetadata.h"
 #include "components/BeatmapEnums.h"
 #include "components/TimingPoint.h"
@@ -21,7 +20,6 @@
 #include "components/storyboard/Sample.h"
 #include "components/storyboard/Sprite.h"
 #include "components/storyboard/Video.h"
-#include "../utill/IOUtills.h"
 #include "components/storyboard/commands/Colour.h"
 #include "components/storyboard/commands/Fade.h"
 #include "components/storyboard/commands/Loop.h"
@@ -36,6 +34,38 @@
 
 namespace osu {
 
+    BeatmapLoader::BeatmapLoader(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {
+        metadata = new BeatmapMetadata();
+        timingPointSet = new TimingPointSet();
+        colorSchema = new ColorSchema();
+        storyboard = new Storyboard();
+    }
+
+    void BeatmapLoader::loadLegacyStoryboardFromFile(std::istream &stream) {
+        currentToken = None;
+        std::string line;
+        while (!stream.eof()) {
+            readLineMultiplatform(stream, line);
+            if (line.empty() || startsWith(line, "//")) {
+                continue;
+            }
+            if (line.front() == '[' && line.back() == ']') {
+                handleSection(line);
+            } else {
+                switch (currentToken) {
+                    case Events:
+                        handleEvents(line);
+                        break;
+                    case Variables:
+                        handleVariables(line);
+                        break;
+                    case None:
+                        //todo through exception
+                        break;
+                }
+            }
+        }
+    }
 
     void BeatmapLoader::loadLegacyBeatmap(std::ifstream &stream) {
         std::string line;
@@ -43,7 +73,7 @@ namespace osu {
             readLineMultiplatform(stream, line);
 #ifndef NDEBUG
             if (line.empty()) {
-                //todo catch exception in readLineMultiplatform
+                //todo replace with catch exception in readLineMultiplatform
                 return;
             }
 #else
@@ -91,6 +121,19 @@ namespace osu {
                 }
             }
         }
+    }
+
+    Beatmap *BeatmapLoader::buildBeatmap() {
+        Beatmap *beatmap = new Beatmap();
+        std::sort(hitObjects.begin(), hitObjects.end(),
+                  [](HitObject *a, HitObject *b) -> bool {
+                      return a->time < b->time;
+                  });
+        beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
+        beatmap->metadata = metadata;
+        beatmap->colorSchema = colorSchema;
+        beatmap->timingPointSet = timingPointSet;
+        return beatmap;
     }
 
     void BeatmapLoader::handleSection(std::string &line) {
@@ -359,99 +402,8 @@ namespace osu {
         hitObjects.push_back(hitObject);
     }
 
-    int BeatmapLoader::getOffsetTime(int time) {
-        return time + globalOffset;
-    }
-
-    double BeatmapLoader::getOffsetTime() {
-        return globalOffset;
-    }
-
-    double BeatmapLoader::getOffsetTime(double time) {
-        return time + globalOffset;
-    }
-
-    void BeatmapLoader::addControlPoint(TimingPoint timingPoint) {
-        timingPointSet->timingPointQueue.push_back(timingPoint);
-    }
-
-    BeatmapLoader::BeatmapLoader(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {
-        metadata = new BeatmapMetadata();
-        timingPointSet = new TimingPointSet();
-        colorSchema = new ColorSchema();
-    }
-
-    Beatmap *BeatmapLoader::buildBeatmap() {
-        Beatmap *beatmap = new Beatmap();
-        std::sort(hitObjects.begin(), hitObjects.end(),
-                  [](HitObject *a, HitObject *b) -> bool {
-                      return a->time < b->time;
-                  });
-        beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
-        beatmap->metadata = metadata;
-        beatmap->colorSchema = colorSchema;
-        beatmap->timingPointSet = timingPointSet;
-        return beatmap;
-    }
-
-    void BeatmapLoader::prepare() {
-        currentToken = None;
-        metadata = new BeatmapMetadata();
-        timingPointSet = new TimingPointSet();
-        colorSchema = new ColorSchema();
-        hitObjectParser = nullptr;
-        variables.clear();
-        hitObjects.clear();
-    }
-
-    void BeatmapLoader::setVersion(int version) {
-        formatVersion = version;
-        globalOffset = version < 5 ? 24 : 0;
-    }
-
-    BeatmapLoader::~BeatmapLoader() {
-        //todo implement
-    }
-
-    void BeatmapLoader::loadLegacyStoryboardFromFile(std::istream &stream) {
-        currentToken = None;
-        std::string line;
-        while (!stream.eof()) {
-            readLineMultiplatform(stream, line);
-            if (line.empty() || startsWith(line, "//")) {
-                continue;
-            }
-            if (line.front() == '[' && line.back() == ']') {
-                handleSection(line);
-            } else {
-                switch (currentToken) {
-                    case Events:
-                        handleEvents(line);
-                        break;
-                    case Variables:
-                        handleVariables(line);
-                        break;
-                    case None:
-                        //todo through exception
-                        break;
-                }
-            }
-        }
-    }
-
     void BeatmapLoader::handleVariables(std::string &line) {
         variables.push_back(splitKeyValPair(line, '='));
-    }
-
-    void BeatmapLoader::decodeVariables(std::string *line) {
-        while (line->find('$') != std::string::npos) {
-            char copys[line->length()];
-            line->copy(copys, line->length());
-            std::for_each(variables.begin(), variables.end(), [line](std::pair<std::string, std::string> &i) {
-                boost::replace_all(*line, i.first.c_str(), i.second.c_str());
-            });
-            if (!line->compare(copys))return;
-        }
     }
 
     void BeatmapLoader::handleEvents(std::string &line) {
@@ -483,6 +435,52 @@ namespace osu {
             if (command->isCompound()) {
                 commandStack.push(static_cast<CompoundCommand *>(command));
             }
+        }
+    }
+
+    int BeatmapLoader::getOffsetTime(int time) {
+        return time + globalOffset;
+    }
+
+    double BeatmapLoader::getOffsetTime() {
+        return globalOffset;
+    }
+
+    double BeatmapLoader::getOffsetTime(double time) {
+        return time + globalOffset;
+    }
+
+    void BeatmapLoader::addControlPoint(TimingPoint timingPoint) {
+        timingPointSet->timingPointQueue.push_back(timingPoint);
+    }
+
+    void BeatmapLoader::prepare() {
+        currentToken = None;
+        metadata = new BeatmapMetadata();
+        timingPointSet = new TimingPointSet();
+        colorSchema = new ColorSchema();
+        hitObjectParser = nullptr;
+        variables.clear();
+        hitObjects.clear();
+    }
+
+    void BeatmapLoader::setVersion(int version) {
+        formatVersion = version;
+        globalOffset = version < 5 ? 24 : 0;
+    }
+
+    BeatmapLoader::~BeatmapLoader() {
+        //todo implement
+    }
+
+    void BeatmapLoader::decodeVariables(std::string *line) {
+        while (line->find('$') != std::string::npos) {
+            char copys[line->length()];
+            line->copy(copys, line->length());
+            std::for_each(variables.begin(), variables.end(), [line](std::pair<std::string, std::string> &i) {
+                boost::replace_all(*line, i.first.c_str(), i.second.c_str());
+            });
+            if (!line->compare(copys))return;
         }
     }
 
