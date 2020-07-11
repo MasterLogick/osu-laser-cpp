@@ -1,68 +1,89 @@
 //
-// Created by MasterLogick on 3/8/20.
+// Created by MasterLogick on 7/8/20.
 //
 
-#ifndef OSU_LASER_C_AUDIOSTATE_H
-#define OSU_LASER_C_AUDIOSTATE_H
+#ifndef OSU_LASER_CPP_AUDIOSTATE_H
+#define OSU_LASER_CPP_AUDIOSTATE_H
 
-#include <chrono>
+#include <memory>
 #include <vector>
-#include "al.h"
-#include "alc.h"
-#include "MovieState.h"
+#include <chrono>
+#include <al.h>
 #include "PacketQueue.h"
+#include "MovieState.h"
 
 extern "C" {
-#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
-struct SwrContext;
 }
-
-
 namespace osu {
-    class MovieState;
+    struct AVCodecCtxDeleter {
+        void operator()(AVCodecContext *ptr) { avcodec_free_context(&ptr); }
+    };
+
+    using AVCodecCtxPtr = std::unique_ptr<AVCodecContext, AVCodecCtxDeleter>;
+
+    struct AVFrameDeleter {
+        void operator()(AVFrame *ptr) { av_frame_free(&ptr); }
+    };
+
+    using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
+
+    struct SwrContextDeleter {
+        void operator()(SwrContext *ptr) { swr_free(&ptr); }
+    };
+
+    using SwrContextPtr = std::unique_ptr<SwrContext, SwrContextDeleter>;
 
     class AudioState {
-        MovieState *mMovie;
+        MovieState &mMovie;
 
-        // Used for clock difference average computation
+        AVStream *mStream{nullptr};
+        AVCodecCtxPtr mCodecCtx;
+
+        PacketQueue mPackets{2 * 1024 * 1024};
+
+        /* Used for clock difference average computation */
         std::chrono::duration<double> mClockDiffAvg{0};
-        // Time of the next sample to be buffered
+
+        /* Time of the next sample to be buffered */
         std::chrono::nanoseconds mCurrentPts{0};
 
-        // Device clock time that the stream started at.
+        /* Device clock time that the stream started at. */
         std::chrono::nanoseconds mDeviceStartTime{std::chrono::nanoseconds::min()};
 
-        // Decompressed sample frame, and swresample context for conversion
-        AVFrame *mDecodedFrame;
+        /* Decompressed sample frame, and swresample context for conversion */
+        AVFramePtr mDecodedFrame;
+        SwrContextPtr mSwresCtx;
 
-        SwrContext *mSwresCtx;
-
-        // Conversion format, for what gets fed to OpenAL
+        /* Conversion format, for what gets fed to OpenAL */
         uint64_t mDstChanLayout{0};
-
         AVSampleFormat mDstSampleFmt{AV_SAMPLE_FMT_NONE};
-        // Storage of converted samples
+
+        /* Storage of converted samples */
         uint8_t *mSamples{nullptr};
-
-        int mSamplesLen{0}; // In samples
+        int mSamplesLen{0}; /* In samples */
         int mSamplesPos{0};
-
         int mSamplesMax{0};
-        // OpenAL format
+
+        /* OpenAL format */
         ALenum mFormat{AL_NONE};
         ALuint mFrameSize{0};
+
         std::mutex mSrcMutex;
-
         std::condition_variable mSrcCond;
-        bool mConnected{true};
-
+        std::atomic_flag mConnected;
         ALuint mSource{0};
         std::vector<ALuint> mBuffers;
         ALuint mBufferIdx{0};
 
+        explicit AudioState(MovieState &movie);
+
+        ~AudioState();
+
         std::chrono::nanoseconds getClockNoLock();
+
+        std::chrono::nanoseconds getClock();
 
         void startPlayback();
 
@@ -73,21 +94,9 @@ namespace osu {
         bool readAudio(uint8_t *samples, unsigned int length, int *sample_skip);
 
     public:
-
         int handler();
-
-        ~AudioState();
-
-        std::chrono::nanoseconds getClock();
-
-        explicit AudioState(MovieState *movie) : mMovie{movie} { mConnected = true; }
-
-        AVStream *mStream{nullptr};
-
-        AVCodecContext *mCodecCtx;
-
-        PacketQueue mPackets{2 * 1024 * 1024};
     };
 }
 
-#endif //OSU_LASER_C_AUDIOSTATE_H
+
+#endif //OSU_LASER_CPP_AUDIOSTATE_H

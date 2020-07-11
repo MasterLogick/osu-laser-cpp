@@ -1,7 +1,7 @@
 //
-// Created by MasterLogick on 3/8/20.
+// Created by MasterLogick on 7/8/20.
 //
-#include <iostream>
+
 #include "PacketQueue.h"
 
 namespace osu {
@@ -33,8 +33,9 @@ namespace osu {
 
         const int ret{avcodec_send_packet(codecctx, pkt)};
         if (ret != AVERROR(EAGAIN)) {
-            if (ret < 0)
-                std::cerr << "Failed to send packet: " << ret << std::endl;
+            if (ret < 0) {
+                //std::cerr << "Failed to send packet: " << ret << std::endl; todo through exception
+            }
             pop();
         }
         return ret;
@@ -66,7 +67,7 @@ namespace osu {
         return true;
     }
 
-    PacketQueue::PacketQueue(size_t limit) {
-        SizeLimit = limit;
+    PacketQueue::PacketQueue(size_t SizeLimits) {
+        this->SizeLimit = SizeLimits;
     }
 }

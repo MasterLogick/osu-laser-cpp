@@ -1,26 +1,53 @@
 //
-// Created by MasterLogick on 3/8/20.
+// Created by MasterLogick on 7/8/20.
 //
-#include <alext.h>
-#include <iostream>
-#include <chrono>
-#include <algorithm>
-#include "al.h"
-#include "alc.h"
-#include "AudioState.h"
-#include "../audio/AudioSystem.h"
 
-extern "C" {
-#include <libavutil/time.h>
-}
+#include <alext.h>
+#include <algorithm>
+#include <iostream>
+#include "../audio/AudioSystem.h"
+#include "AudioState.h"
 
 namespace osu {
-    static std::chrono::microseconds get_avtime() { return std::chrono::microseconds{av_gettime()}; }
 
-    // Per-buffer size, in time
+    const std::chrono::seconds AVNoSyncThreshold{10};
+    const std::chrono::duration<double> AudioSyncThreshold{0.03};
+    const std::chrono::milliseconds AudioSampleCorrectionMax{50};
+    ALenum DirectOutMode{AL_FALSE};
+    bool EnableWideStereo{false};
+/* Averaging filter coefficient for audio sync. */
+#define AUDIO_DIFF_AVG_NB 20
+    const double AudioAvgFilterCoeff{std::pow(0.01, 1.0 / AUDIO_DIFF_AVG_NB)};
+/* Per-buffer size, in time */
     const std::chrono::milliseconds AudioBufferTime{20};
-// Buffer total size, in time (should be divisible by the buffer time)
+/* Buffer total size, in time (should be divisible by the buffer time) */
     const std::chrono::milliseconds AudioBufferTotalTime{800};
+
+
+    /* Duplicates the sample at in to out, count times. The frame size is a
+ * multiple of the template type size.
+ */
+    template<typename T>
+    static void sample_dup(uint8_t *out, const uint8_t *in, unsigned int count, size_t frame_size) {
+        auto *sample = reinterpret_cast<const T *>(in);
+        auto *dst = reinterpret_cast<T *>(out);
+        if (frame_size == sizeof(T))
+            std::fill_n(dst, count, *sample);
+        else {
+            /* NOTE: frame_size is a multiple of sizeof(T). */
+            size_t type_mult{frame_size / sizeof(T)};
+            size_t i{0};
+            std::generate_n(dst, count * type_mult,
+                            [sample, type_mult, &i]() -> T {
+                                T ret = sample[i];
+                                i = (i + 1) % type_mult;
+                                return ret;
+                            }
+            );
+        }
+    }
+
+    AudioState::AudioState(MovieState &movie) : mMovie(movie) { mConnected.test_and_set(std::memory_order_relaxed); }
 
     AudioState::~AudioState() {
         if (mSource)
@@ -56,31 +83,31 @@ namespace osu {
             return device_time - mDeviceStartTime - latency;
         }
 
-        // The source-based clock is based on 4 components:
-//         * 1 - The timestamp of the next sample to buffer (mCurrentPts)
-//         * 2 - The length of the source's buffer queue
-//         *     (AudioBufferTime*AL_BUFFERS_QUEUED)
-//         * 3 - The offset OpenAL is currently at in the source (the first value
-//         *     from AL_SAMPLE_OFFSET_LATENCY_SOFT)
-//         * 4 - The latency between OpenAL and the DAC (the second value from
-//         *     AL_SAMPLE_OFFSET_LATENCY_SOFT)
-//         *
-//         * Subtracting the length of the source queue from the next sample's
-//         * timestamp gives the timestamp of the sample at the start of the source
-//         * queue. Adding the source offset to that results in the timestamp for the
-//         * sample at OpenAL's current position, and subtracting the source latency
-//         * from that gives the timestamp of the sample currently at the DAC.
-
+        /* The source-based clock is based on 4 components:
+         * 1 - The timestamp of the next sample to buffer (mCurrentPts)
+         * 2 - The length of the source's buffer queue
+         *     (AudioBufferTime*AL_BUFFERS_QUEUED)
+         * 3 - The offset OpenAL is currently at in the source (the first value
+         *     from AL_SAMPLE_OFFSET_LATENCY_SOFT)
+         * 4 - The latency between OpenAL and the DAC (the second value from
+         *     AL_SAMPLE_OFFSET_LATENCY_SOFT)
+         *
+         * Subtracting the length of the source queue from the next sample's
+         * timestamp gives the timestamp of the sample at the start of the source
+         * queue. Adding the source offset to that results in the timestamp for the
+         * sample at OpenAL's current position, and subtracting the source latency
+         * from that gives the timestamp of the sample currently at the DAC.
+         */
         std::chrono::nanoseconds pts{mCurrentPts};
         if (mSource) {
             ALint64SOFT offset[2];
 
-            // NOTE: The source state must be checked last, in case an underrun
-            //    * occurs and the source stops between retrieving the offset+latency
-            //    * and getting the state.
-            if (AudioSystem::alGetSourcei64vSOFT) {
+            /* NOTE: The source state must be checked last, in case an underrun
+             * occurs and the source stops between retrieving the offset+latency
+             * and getting the state. */
+            if (AudioSystem::alGetSourcei64vSOFT)
                 AudioSystem::alGetSourcei64vSOFT(mSource, AL_SAMPLE_OFFSET_LATENCY_SOFT, offset);
-            } else {
+            else {
                 ALint ioffset;
                 alGetSourcei(mSource, AL_SAMPLE_OFFSET, &ioffset);
                 offset[0] = ALint64SOFT{ioffset} << 32;
@@ -90,17 +117,17 @@ namespace osu {
             alGetSourcei(mSource, AL_BUFFERS_QUEUED, &queued);
             alGetSourcei(mSource, AL_SOURCE_STATE, &status);
 
-            // If the source is AL_STOPPED, then there was an underrun and all
-            //* buffers are processed, so ignore the source queue. The audio thread
-            //   * will put the source into an AL_INITIAL state and clear the queue
-            //     * when it starts recovery.
+            /* If the source is AL_STOPPED, then there was an underrun and all
+             * buffers are processed, so ignore the source queue. The audio thread
+             * will put the source into an AL_INITIAL state and clear the queue
+             * when it starts recovery. */
             if (status != AL_STOPPED) {
                 pts -= AudioBufferTime * queued;
                 pts += std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::duration<int64_t, std::ratio<1, (((long long int) 1) << 32)>>{
+                        std::chrono::duration<int64_t, std::ratio<1, (1ull << 32)>>{
                                 offset[0] / mCodecCtx->sample_rate});
             }
-            // Don't offset by the latency if the source isn't playing.
+            /* Don't offset by the latency if the source isn't playing. */
             if (status == AL_PLAYING)
                 pts -= std::chrono::nanoseconds{offset[1]};
         }
@@ -118,7 +145,7 @@ namespace osu {
             AudioSystem::alGetSourcei64vSOFT(mSource, AL_SAMPLE_OFFSET_CLOCK_SOFT, srctimes);
             auto device_time = std::chrono::nanoseconds{srctimes[1]};
             auto src_offset = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    std::chrono::duration<int64_t, std::ratio<1, ((int64_t) 1 << 32)>>{srctimes[0]}) /
+                    std::chrono::duration<int64_t, std::ratio<1, (1ull << 32)>>{srctimes[0]}) /
                               mCodecCtx->sample_rate;
 
             // The mixer may have ticked and incremented the device time and sample
@@ -131,14 +158,35 @@ namespace osu {
     }
 
     int AudioState::getSync() {
-        return 0;
+        if (mMovie.mAVSyncType == SyncMaster::Audio)
+            return 0;
+
+        auto ref_clock = mMovie.getMasterClock();
+        auto diff = ref_clock - getClockNoLock();
+
+        if (!(diff < AVNoSyncThreshold && diff > -AVNoSyncThreshold)) {
+            /* Difference is TOO big; reset accumulated average */
+            mClockDiffAvg = std::chrono::duration<double>::zero();
+            return 0;
+        }
+
+        /* Accumulate the diffs */
+        mClockDiffAvg = mClockDiffAvg * AudioAvgFilterCoeff + diff;
+        auto avg_diff = mClockDiffAvg * (1.0 - AudioAvgFilterCoeff);
+        if (avg_diff < AudioSyncThreshold / 2.0 && avg_diff > -AudioSyncThreshold)
+            return 0;
+
+        /* Constrain the per-update difference to avoid exceedingly large skips */
+        diff = std::min<std::chrono::nanoseconds>(diff, AudioSampleCorrectionMax);
+        return static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
+                diff * mCodecCtx->sample_rate).count());
     }
 
     int AudioState::decodeFrame() {
-        while (!mMovie->mQuit) {
+        while (!mMovie.mQuit.load(std::memory_order_relaxed)) {
             int ret;
-            while ((ret = avcodec_receive_frame(mCodecCtx, mDecodedFrame)) == AVERROR(EAGAIN))
-                mPackets.sendTo(mCodecCtx);
+            while ((ret = avcodec_receive_frame(mCodecCtx.get(), mDecodedFrame.get())) == AVERROR(EAGAIN))
+                mPackets.sendTo(mCodecCtx.get());
             if (ret != 0) {
                 if (ret == AVERROR_EOF) break;
                 std::cerr << "Failed to receive frame: " << ret << std::endl;
@@ -148,7 +196,7 @@ namespace osu {
             if (mDecodedFrame->nb_samples <= 0)
                 continue;
 
-            // If provided, update w/ pts
+            /* If provided, update w/ pts */
             if (mDecodedFrame->best_effort_timestamp != AV_NOPTS_VALUE)
                 mCurrentPts = std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::duration<double>{av_q2d(mStream->time_base) * mDecodedFrame->best_effort_timestamp}
@@ -162,46 +210,22 @@ namespace osu {
                 );
                 mSamplesMax = mDecodedFrame->nb_samples;
             }
-            // Return the amount of sample frames converted
-            int data_size{swr_convert(mSwresCtx, &mSamples, mDecodedFrame->nb_samples,
+            /* Return the amount of sample frames converted */
+            int data_size{swr_convert(mSwresCtx.get(), &mSamples, mDecodedFrame->nb_samples,
                                       const_cast<const uint8_t **>(mDecodedFrame->data), mDecodedFrame->nb_samples)};
 
-            av_frame_unref(mDecodedFrame);
+            av_frame_unref(mDecodedFrame.get());
             return data_size;
         }
 
         return 0;
     }
 
-// Duplicates the sample at in to out, count times. The frame size is a
-// * multiple of the template type size.
-
-    template<typename T>
-    static void sample_dup(uint8_t *out, const uint8_t *in, unsigned int count, size_t frame_size) {
-        auto *sample = reinterpret_cast<const T *>(in);
-        auto *dst = reinterpret_cast<T *>(out);
-        if (frame_size == sizeof(T))
-            std::fill_n(dst, count, *sample);
-        else {
-            // NOTE: frame_size is a multiple of sizeof(T).
-            size_t type_mult{frame_size / sizeof(T)};
-            size_t i{0};
-            std::generate_n(dst, count * type_mult,
-                            [sample, type_mult, &i]() -> T {
-                                T ret = sample[i];
-                                i = (i + 1) % type_mult;
-                                return ret;
-                            }
-            );
-        }
-    }
-
-
     bool AudioState::readAudio(uint8_t *samples, unsigned int length, int *sample_skip) {
         unsigned int audio_size{0};
 
-        // Read the next chunk of data, refill the buffer, and queue it
-//         * on the source
+        /* Read the next chunk of data, refill the buffer, and queue it
+         * on the source */
         length /= mFrameSize;
         while (audio_size < length) {
             if (mSamplesLen <= 0 || mSamplesPos >= mSamplesLen) {
@@ -230,7 +254,7 @@ namespace osu {
             } else {
                 rem = std::min(rem, static_cast<unsigned int>(-mSamplesPos));
 
-                // Add samples by copying the first sample
+                /* Add samples by copying the first sample */
                 if ((mFrameSize & 7) == 0)
                     sample_dup<uint64_t>(samples, mSamples, rem, mFrameSize);
                 else if ((mFrameSize & 3) == 0)
@@ -269,7 +293,7 @@ namespace osu {
         ALenum ambi_scale{AL_FUMA_SOFT};
 #endif
 
-        // Find a suitable format for OpenAL.
+        /* Find a suitable format for OpenAL. */
         mDstChanLayout = 0;
         mFormat = AL_NONE;
         if ((mCodecCtx->sample_fmt == AV_SAMPLE_FMT_FLT || mCodecCtx->sample_fmt == AV_SAMPLE_FMT_FLTP) &&
@@ -296,20 +320,20 @@ namespace osu {
                 mFrameSize *= 1;
                 mFormat = AL_FORMAT_MONO_FLOAT32;
             }
-            // Assume 3D B-Format (ambisonics) if the channel layout is blank and
-//             * there's 4 or more channels. FFmpeg/libavcodec otherwise seems to
-//             * have no way to specify if the source is actually B-Format (let alone
-//             * if it's 2D or 3D).
-
+            /* Assume 3D B-Format (ambisonics) if the channel layout is blank and
+             * there's 4 or more channels. FFmpeg/libavcodec otherwise seems to
+             * have no way to specify if the source is actually B-Format (let alone
+             * if it's 2D or 3D).
+             */
             if (mCodecCtx->channel_layout == 0 && mCodecCtx->channels >= 4 &&
                 alIsExtensionPresent("AL_EXT_BFORMAT") &&
                 (fmt = alGetEnumValue("AL_FORMAT_BFORMAT3D_FLOAT32")) != AL_NONE && fmt != -1) {
                 int order{static_cast<int>(std::sqrt(mCodecCtx->channels)) - 1};
                 if ((order + 1) * (order + 1) == mCodecCtx->channels ||
                     (order + 1) * (order + 1) + 2 == mCodecCtx->channels) {
-                    // OpenAL only supports first-order with AL_EXT_BFORMAT, which
-//                     * is 4 channels for 3D buffers.
-
+                    /* OpenAL only supports first-order with AL_EXT_BFORMAT, which
+                     * is 4 channels for 3D buffers.
+                     */
                     mFrameSize *= 4;
                     mFormat = fmt;
                 }
@@ -407,31 +431,32 @@ namespace osu {
         mSamplesPos = 0;
         mSamplesLen = 0;
 
-        mDecodedFrame = av_frame_alloc();
+        mDecodedFrame.reset(av_frame_alloc());
         if (!mDecodedFrame) {
             std::cerr << "Failed to allocate audio frame" << std::endl;
-            av_freep(&samples);
-            return 0;
+            goto finish;
         }
 
         if (!mDstChanLayout) {
-            // OpenAL only supports first-order ambisonics with AL_EXT_BFORMAT, so
-//             * we have to drop any extra channels.
-            mSwresCtx = swr_alloc_set_opts(nullptr,
-                                           ((int64_t) 1 << 4) - 1, mDstSampleFmt, mCodecCtx->sample_rate,
-                                           ((int64_t) 1 << mCodecCtx->channels) - 1, mCodecCtx->sample_fmt, mCodecCtx->sample_rate,
-                                           0, nullptr);
+            /* OpenAL only supports first-order ambisonics with AL_EXT_BFORMAT, so
+             * we have to drop any extra channels.
+             */
+            mSwresCtx.reset(swr_alloc_set_opts(nullptr,
+                                               (1ull << 4) - 1, mDstSampleFmt, mCodecCtx->sample_rate,
+                                               (1ull << mCodecCtx->channels) - 1, mCodecCtx->sample_fmt,
+                                               mCodecCtx->sample_rate,
+                                               0, nullptr));
 
-            // Note that ffmpeg/libavcodec has no method to check the ambisonic
-//             * channel order and normalization, so we can only assume AmbiX as the
-//             * defacto-standard. This is not true for .amb files, which use FuMa.
-
+            /* Note that ffmpeg/libavcodec has no method to check the ambisonic
+             * channel order and normalization, so we can only assume AmbiX as the
+             * defacto-standard. This is not true for .amb files, which use FuMa.
+             */
             std::vector<double> mtx(64 * 64, 0.0);
 #ifdef AL_SOFT_bformat_ex
             ambi_layout = AL_ACN_SOFT;
             ambi_scale = AL_SN3D_SOFT;
             if (has_bfmt_ex) {
-                // An identity matrix that doesn't remix any channels.
+                /* An identity matrix that doesn't remix any channels. */
                 std::cout << "Found AL_SOFT_bformat_ex" << std::endl;
                 mtx[0 + 0 * 64] = 1.0;
                 mtx[1 + 1 * 64] = 1.0;
@@ -441,37 +466,44 @@ namespace osu {
 #endif
             {
                 std::cout << "Found AL_EXT_BFORMAT" << std::endl;
-                // Without AL_SOFT_bformat_ex, OpenAL only supports FuMa channel
-//                 * ordering and normalization, so a custom matrix is needed to
-//                 * scale and reorder the source from AmbiX.
-
+                /* Without AL_SOFT_bformat_ex, OpenAL only supports FuMa channel
+                 * ordering and normalization, so a custom matrix is needed to
+                 * scale and reorder the source from AmbiX.
+                 */
                 mtx[0 + 0 * 64] = std::sqrt(0.5);
                 mtx[3 + 1 * 64] = 1.0;
                 mtx[1 + 2 * 64] = 1.0;
                 mtx[2 + 3 * 64] = 1.0;
             }
-            swr_set_matrix(mSwresCtx, mtx.data(), 64);
+            swr_set_matrix(mSwresCtx.get(), mtx.data(), 64);
         } else
-            mSwresCtx = swr_alloc_set_opts(nullptr,
-                                           static_cast<int64_t>(mDstChanLayout), mDstSampleFmt, mCodecCtx->sample_rate,
-                                           mCodecCtx->channel_layout ? static_cast<int64_t>(mCodecCtx->channel_layout) :
-                                           av_get_default_channel_layout(mCodecCtx->channels),
-                                           mCodecCtx->sample_fmt, mCodecCtx->sample_rate,
-                                           0, nullptr);
-        if (!mSwresCtx || swr_init(mSwresCtx) != 0) {
+            mSwresCtx.reset(swr_alloc_set_opts(nullptr,
+                                               static_cast<int64_t>(mDstChanLayout), mDstSampleFmt,
+                                               mCodecCtx->sample_rate,
+                                               mCodecCtx->channel_layout
+                                               ? static_cast<int64_t>(mCodecCtx->channel_layout) :
+                                               av_get_default_channel_layout(mCodecCtx->channels),
+                                               mCodecCtx->sample_fmt, mCodecCtx->sample_rate,
+                                               0, nullptr));
+        if (!mSwresCtx || swr_init(mSwresCtx.get()) != 0) {
             std::cerr << "Failed to initialize audio converter" << std::endl;
-            av_freep(&samples);
-            return 0;
+            goto finish;
         }
 
         mBuffers.assign(AudioBufferTotalTime / AudioBufferTime, 0);
         alGenBuffers(static_cast<ALsizei>(mBuffers.size()), mBuffers.data());
         alGenSources(1, &mSource);
 
-        if (alGetError() != AL_NO_ERROR) {
-            av_freep(&samples);
-            return 0;
+        if (DirectOutMode)
+            alSourcei(mSource, AL_DIRECT_CHANNELS_SOFT, DirectOutMode);
+        if (EnableWideStereo) {
+            const float angles[2]{static_cast<float>((3.14159265358979323846) / 3.0),
+                                  static_cast<float>(-(3.14159265358979323846) / 3.0)};
+            alSourcefv(mSource, AL_STEREO_ANGLES, angles);
         }
+
+        if (alGetError() != AL_NO_ERROR)
+            goto finish;
 
 #ifdef AL_SOFT_bformat_ex
         if (has_bfmt_ex) {
@@ -483,9 +515,9 @@ namespace osu {
 #endif
         samples = av_malloc(static_cast<ALuint>(buffer_len));
 
-        // Prefill the codec buffer.
+        /* Prefill the codec buffer. */
         do {
-            const int ret{mPackets.sendTo(mCodecCtx)};
+            const int ret{mPackets.sendTo(mCodecCtx.get())};
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 break;
         } while (1);
@@ -494,15 +526,14 @@ namespace osu {
         if (AudioSystem::alcGetInteger64vSOFT) {
             int64_t devtime{};
             AudioSystem::alcGetInteger64vSOFT(alcGetContextsDevice(alcGetCurrentContext()), ALC_DEVICE_CLOCK_SOFT,
-                                              1, &devtime);
+                                 1, &devtime);
             mDeviceStartTime = std::chrono::nanoseconds{devtime} - mCurrentPts;
         }
-        while (alGetError() == AL_NO_ERROR && !mMovie->mQuit &&
-               mConnected) {
-            mConnected = true;
+        while (alGetError() == AL_NO_ERROR && !mMovie.mQuit.load(std::memory_order_relaxed) &&
+               mConnected.test_and_set(std::memory_order_relaxed)) {
             ALint processed, queued, state;
 
-            // First remove any processed buffers.
+            /* First remove any processed buffers. */
             alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
             while (processed > 0) {
                 std::array<ALuint, 4> bids;
@@ -511,14 +542,14 @@ namespace osu {
                 processed -= todq;
             }
 
-            // Refill the buffer queue.
+            /* Refill the buffer queue. */
             int sync_skip{getSync()};
             alGetSourcei(mSource, AL_BUFFERS_QUEUED, &queued);
             while (static_cast<ALuint>(queued) < mBuffers.size()) {
                 const ALuint bufid{mBuffers[mBufferIdx]};
-                // Read the next chunk of data, filling the buffer, and queue it on
-//                 * the source.
-
+                /* Read the next chunk of data, filling the buffer, and queue it on
+                 * the source.
+                 */
                 {
                     auto ptr = static_cast<uint8_t *>(samples);
                     if (!readAudio(ptr, static_cast<unsigned int>(buffer_len), &sync_skip))
@@ -533,28 +564,28 @@ namespace osu {
             if (queued == 0)
                 break;
 
-            // Check that the source is playing.
+            /* Check that the source is playing. */
             alGetSourcei(mSource, AL_SOURCE_STATE, &state);
             if (state == AL_STOPPED) {
-                // AL_STOPPED means there was an underrun. Clear the buffer queue
-//                 * since this likely means we're late, and rewind the source to get
-//                 * it back into an AL_INITIAL state.
-
+                /* AL_STOPPED means there was an underrun. Clear the buffer queue
+                 * since this likely means we're late, and rewind the source to get
+                 * it back into an AL_INITIAL state.
+                 */
                 alSourceRewind(mSource);
                 alSourcei(mSource, AL_BUFFER, 0);
                 if (AudioSystem::alcGetInteger64vSOFT) {
-                    // Also update the device start time with the current device
-//                     * clock, so the decoder knows we're running behind.
-
+                    /* Also update the device start time with the current device
+                     * clock, so the decoder knows we're running behind.
+                     */
                     int64_t devtime{};
                     AudioSystem::alcGetInteger64vSOFT(alcGetContextsDevice(alcGetCurrentContext()),
-                                                      ALC_DEVICE_CLOCK_SOFT, 1, &devtime);
+                                         ALC_DEVICE_CLOCK_SOFT, 1, &devtime);
                     mDeviceStartTime = std::chrono::nanoseconds{devtime} - mCurrentPts;
                 }
                 continue;
             }
 
-            // (re)start the source if needed, and wait for a buffer to finish
+            /* (re)start the source if needed, and wait for a buffer to finish */
             if (state != AL_PLAYING && state != AL_PAUSED)
                 startPlayback();
 
@@ -564,7 +595,10 @@ namespace osu {
         alSourceRewind(mSource);
         alSourcei(mSource, AL_BUFFER, 0);
         srclock.unlock();
+
+        finish:
         av_freep(&samples);
+
         return 0;
     }
 }

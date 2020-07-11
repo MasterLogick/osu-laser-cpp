@@ -7,7 +7,6 @@
 
 #include "alext.h"
 #include "alc.h"
-#include "../video/MediaFile.h"
 
 namespace osu {
     class AudioSystem {

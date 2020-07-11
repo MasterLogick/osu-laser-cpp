@@ -1,23 +1,21 @@
 //
-// Created by MasterLogick on 3/21/20.
+// Created by MasterLogick on 7/10/20.
 //
 
-#ifndef OSU_LASER_C_VIDEOPLAYER_H
-#define OSU_LASER_C_VIDEOPLAYER_H
+#ifndef OSU_LASER_CPP_VIDEOPLAYER_H
+#define OSU_LASER_CPP_VIDEOPLAYER_H
 
-#include "MediaFile.h"
+#include <memory>
+#include <string>
+#include "MovieState.h"
 
 namespace osu {
     class VideoPlayer {
-        static MediaFile *mf;
-
-        static void initAL();
-
+        std::unique_ptr<MovieState> movState;
     public:
-        static void initialise();
-
-        static void draw(int x, int y);
+        explicit VideoPlayer(std::string filePath);
     };
 }
 
-#endif //OSU_LASER_C_VIDEOPLAYER_H
+
+#endif //OSU_LASER_CPP_VIDEOPLAYER_H

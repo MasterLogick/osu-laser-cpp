@@ -1,18 +1,20 @@
 //
-// Created by MasterLogick on 3/8/20.
+// Created by MasterLogick on 7/8/20.
 //
 
-#ifndef OSU_LASER_C_PACKETQUEUE_H
-#define OSU_LASER_C_PACKETQUEUE_H
+#ifndef OSU_LASER_CPP_PACKETQUEUE_H
+#define OSU_LASER_CPP_PACKETQUEUE_H
 
+#include <cstdlib>
 #include <mutex>
 #include <condition_variable>
 #include <deque>
-extern "C"{
-#include <libavcodec/avcodec.h>
-}
-namespace osu{
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavcodec/packet.h>
+}
+namespace osu {
     class PacketQueue {
         std::mutex mMutex;
         std::condition_variable mCondVar;
@@ -26,9 +28,9 @@ namespace osu{
         void pop();
 
     public:
-        ~PacketQueue();
+        explicit PacketQueue(size_t SizeLimits);
 
-        PacketQueue(size_t limit);
+        ~PacketQueue();
 
         int sendTo(AVCodecContext *codecctx);
 
@@ -39,4 +41,4 @@ namespace osu{
 }
 
 
-#endif //OSU_LASER_C_PACKETQUEUE_H
+#endif //OSU_LASER_CPP_PACKETQUEUE_H
