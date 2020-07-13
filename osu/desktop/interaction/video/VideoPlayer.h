@@ -11,9 +11,23 @@
 
 namespace osu {
     class VideoPlayer {
+        std::string filePath;
         std::unique_ptr<MovieState> movState;
+        std::thread mainLoop;
     public:
         explicit VideoPlayer(std::string filePath);
+
+        void initialise();
+
+        void start();
+
+        void stop();
+
+        void pause();
+
+        void setDirectOutMode(bool flag);
+
+        void setWideStereo(bool flag);
     };
 }
 

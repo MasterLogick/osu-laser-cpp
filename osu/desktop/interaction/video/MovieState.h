@@ -14,19 +14,12 @@
 #include "AudioState.h"
 #include "VideoState.h"
 #include "SyncMaster.h"
+#include "UniquePtrs.h"
 
 namespace osu {
-    struct AVIOContextDeleter {
-        void operator()(AVIOContext *ptr) { avio_closep(&ptr); }
-    };
+    class AudioState;
 
-    using AVIOContextPtr = std::unique_ptr<AVIOContext, AVIOContextDeleter>;
-
-    struct AVFormatCtxDeleter {
-        void operator()(AVFormatContext *ptr) { avformat_close_input(&ptr); }
-    };
-
-    using AVFormatCtxPtr = std::unique_ptr<AVFormatContext, AVFormatCtxDeleter>;
+    class VideoState;
 
     class MovieState {
         AVIOContextPtr mIOContext;
@@ -34,25 +27,14 @@ namespace osu {
 
         std::chrono::microseconds mClockBase{std::chrono::microseconds::min()};
 
-        AudioState mAudio;
-
-        VideoState mVideo;
-
         std::thread mParseThread;
+
         std::thread mAudioThread;
 
         std::thread mVideoThread;
         std::string mFilename;
 
-        MovieState(std::string fname, SyncMaster syncType);
-
-        ~MovieState();
-
         static int decode_interrupt_cb(void *ctx);
-
-        bool prepare();
-
-        void setTitle(SDL_Window *window);
 
         std::chrono::nanoseconds getClock();
 
@@ -64,11 +46,21 @@ namespace osu {
 
     public:
 
+        AudioState mAudio;
+
+        VideoState mVideo;
+
         std::atomic<bool> mQuit{false};
+
         SyncMaster mAVSyncType;
 
         std::chrono::nanoseconds getMasterClock();
 
+        bool prepare();
+
+        MovieState(std::string fname, SyncMaster syncType);
+
+        ~MovieState();
     };
 }
 

@@ -9,7 +9,7 @@ namespace osu {
 
     void BackgroundRootContainer::initialise() {
         triangleBackground.initialise();
-        VideoPlayer::initialise();
+//        VideoPlayer::initialise();
     }
 
     void BackgroundRootContainer::draw() {
@@ -18,7 +18,7 @@ namespace osu {
 
     void BackgroundRootContainer::draw(int x, int y) {
         triangleBackground.draw(x, y);
-        VideoPlayer::draw(x, y);
+//        VideoPlayer::draw(x, y);
     }
 }
 

@@ -11,37 +11,18 @@
 #include <al.h>
 #include "PacketQueue.h"
 #include "MovieState.h"
+#include "UniquePtrs.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
 }
 namespace osu {
-    struct AVCodecCtxDeleter {
-        void operator()(AVCodecContext *ptr) { avcodec_free_context(&ptr); }
-    };
 
-    using AVCodecCtxPtr = std::unique_ptr<AVCodecContext, AVCodecCtxDeleter>;
-
-    struct AVFrameDeleter {
-        void operator()(AVFrame *ptr) { av_frame_free(&ptr); }
-    };
-
-    using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
-
-    struct SwrContextDeleter {
-        void operator()(SwrContext *ptr) { swr_free(&ptr); }
-    };
-
-    using SwrContextPtr = std::unique_ptr<SwrContext, SwrContextDeleter>;
+    class MovieState;
 
     class AudioState {
         MovieState &mMovie;
-
-        AVStream *mStream{nullptr};
-        AVCodecCtxPtr mCodecCtx;
-
-        PacketQueue mPackets{2 * 1024 * 1024};
 
         /* Used for clock difference average computation */
         std::chrono::duration<double> mClockDiffAvg{0};
@@ -77,13 +58,7 @@ namespace osu {
         std::vector<ALuint> mBuffers;
         ALuint mBufferIdx{0};
 
-        explicit AudioState(MovieState &movie);
-
-        ~AudioState();
-
         std::chrono::nanoseconds getClockNoLock();
-
-        std::chrono::nanoseconds getClock();
 
         void startPlayback();
 
@@ -94,7 +69,22 @@ namespace osu {
         bool readAudio(uint8_t *samples, unsigned int length, int *sample_skip);
 
     public:
+
         int handler();
+
+        ALenum DirectOutMode{AL_FALSE};
+
+        bool EnableWideStereo{false};
+
+        explicit AudioState(MovieState &movie);
+
+        ~AudioState();
+
+        std::chrono::nanoseconds getClock();
+
+        AVStream *mStream{nullptr};
+        AVCodecCtxPtr mCodecCtx;
+        PacketQueue mPackets{2 * 1024 * 1024};
     };
 }
 

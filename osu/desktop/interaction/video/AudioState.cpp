@@ -13,8 +13,7 @@ namespace osu {
     const std::chrono::seconds AVNoSyncThreshold{10};
     const std::chrono::duration<double> AudioSyncThreshold{0.03};
     const std::chrono::milliseconds AudioSampleCorrectionMax{50};
-    ALenum DirectOutMode{AL_FALSE};
-    bool EnableWideStereo{false};
+
 /* Averaging filter coefficient for audio sync. */
 #define AUDIO_DIFF_AVG_NB 20
     const double AudioAvgFilterCoeff{std::pow(0.01, 1.0 / AUDIO_DIFF_AVG_NB)};

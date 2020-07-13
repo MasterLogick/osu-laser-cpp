@@ -8,8 +8,6 @@
 #include <libavutil/time.h>
 
 namespace osu {
-    bool DisableVideo{false};
-
     MovieState::MovieState(std::string fname, SyncMaster syncType) : mAudio(*this), mVideo(*this),
                                                                      mFilename(std::move(fname)) {}
 
@@ -52,15 +50,6 @@ namespace osu {
 
         mParseThread = std::thread{std::mem_fn(&MovieState::parse_handler), this};
         return true;
-    }
-
-    void MovieState::setTitle(SDL_Window *window) {
-        auto pos1 = mFilename.rfind('/');
-        auto pos2 = mFilename.rfind('\\');
-        auto fpos = ((pos1 == std::string::npos) ? pos2 :
-                     (pos2 == std::string::npos) ? pos1 :
-                     std::max(pos1, pos2)) + 1;
-        SDL_SetWindowTitle(window, (mFilename.substr(fpos) + " - " + AppName).c_str());
     }
 
     std::chrono::nanoseconds MovieState::getClock() {
@@ -133,7 +122,7 @@ namespace osu {
         /* Find the first video and audio streams */
         for (unsigned int i{0u}; i < mFormatCtx->nb_streams; i++) {
             auto codecpar = mFormatCtx->streams[i]->codecpar;
-            if (codecpar->codec_type == AVMEDIA_TYPE_VIDEO && !DisableVideo && video_index < 0)
+            if (codecpar->codec_type == AVMEDIA_TYPE_VIDEO && video_index < 0)
                 video_index = streamComponentOpen(i);
             else if (codecpar->codec_type == AVMEDIA_TYPE_AUDIO && audio_index < 0)
                 audio_index = streamComponentOpen(i);
@@ -184,11 +173,6 @@ namespace osu {
         while (!mVideo.mFinalUpdate)
             mVideo.mPictQCond.wait(lock);
         lock.unlock();
-
-        SDL_Event evt{};
-        evt.user.type = FF_MOVIE_DONE_EVENT;
-        SDL_PushEvent(&evt);
-
         return 0;
     }
 }

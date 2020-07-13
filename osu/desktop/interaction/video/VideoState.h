@@ -9,43 +9,24 @@
 #include <memory>
 #include <atomic>
 #include <chrono>
+#include "PacketQueue.h"
+#include "glad/glad.h"
+#include "MovieState.h"
+#include "UniquePtrs.h"
 
 extern "C" {
-#include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
-#include <libswscale/swscale.h>
+#include "libavformat/avformat.h"
+#include "libswresample/swresample.h"
+#include "libswscale/swscale.h"
 struct SwsContext;
 }
-
-#include "PacketQueue.h"
-#include "MovieState.h"
-
+#define VIDEO_PICTURE_QUEUE_SIZE 24
+#define PBO_AMOUNT 3
 namespace osu {
-    struct AVCodecCtxDeleter {
-        void operator()(AVCodecContext *ptr) { avcodec_free_context(&ptr); }
-    };
-
-    using AVCodecCtxPtr = std::unique_ptr<AVCodecContext, AVCodecCtxDeleter>;
-
-    struct SwsContextDeleter {
-        void operator()(SwsContext *ptr) { sws_freeContext(ptr); }
-    };
-
-    using SwsContextPtr = std::unique_ptr<SwsContext, SwsContextDeleter>;
-
-    struct AVFrameDeleter {
-        void operator()(AVFrame *ptr) { av_frame_free(&ptr); }
-    };
-
-    using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
+    class MovieState;
 
     class VideoState {
         MovieState &mMovie;
-
-        AVStream *mStream{nullptr};
-        AVCodecCtxPtr mCodecCtx;
-
-        PacketQueue mPackets{14 * 1024 * 1024};
 
         /* The pts of the currently displayed frame, and the time (av_gettime) it
          * was last updated - used to have running video pts
@@ -63,28 +44,40 @@ namespace osu {
         };
         std::array<Picture, VIDEO_PICTURE_QUEUE_SIZE> mPictQ;
         std::atomic<size_t> mPictQRead{0u}, mPictQWrite{1u};
-        std::mutex mPictQMutex;
-        std::condition_variable mPictQCond;
-
-        SDL_Texture *mImage{nullptr};
-        int mWidth{0}, mHeight{0}; /* Logical image size (actual size may be larger) */
+        GLuint yPlaneTexture;
+        GLuint uPlaneTexture;
+        GLuint vPlaneTexture;
+        GLuint unpackPBO[PBO_AMOUNT];
+        uint8_t *mappedPBO[PBO_AMOUNT];
+        GLuint drawVAO;
+        GLuint drawVBO;
+        std::mutex pboLock;
         bool mFirstUpdate{true};
+        bool redraw{true};
 
-        std::atomic<bool> mEOS{false};
-        std::atomic<bool> mFinalUpdate{false};
+    public:
 
-        VideoState(MovieState &movie);
+        int handler();
+
+        void draw(float x, float y);
+
+        void initialise();
+
+        explicit VideoState(MovieState &movie);
 
         ~VideoState();
 
         std::chrono::nanoseconds getClock();
 
-        void display(SDL_Window *screen, SDL_Renderer *renderer);
+        AVStream *mStream{nullptr};
+        AVCodecCtxPtr mCodecCtx;
+        PacketQueue mPackets{14 * 1024 * 1024};
+        std::atomic<bool> mFinalUpdate{false};
+        std::condition_variable mPictQCond;
+        std::atomic<bool> mEOS{false};
+        std::mutex mPictQMutex;
 
-        void updateVideo(SDL_Window *screen, SDL_Renderer *renderer, bool redraw);
-
-    public:
-        int handler();
+        void updateVideo();
     };
 }
 
