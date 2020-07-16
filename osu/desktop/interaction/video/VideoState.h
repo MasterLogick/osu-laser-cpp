@@ -11,7 +11,6 @@
 #include <chrono>
 #include "PacketQueue.h"
 #include "glad/glad.h"
-#include "MovieState.h"
 #include "UniquePtrs.h"
 
 extern "C" {
@@ -26,7 +25,7 @@ namespace osu {
     class MovieState;
 
     class VideoState {
-        MovieState &mMovie;
+        MovieState *mMovie;
 
         /* The pts of the currently displayed frame, and the time (av_gettime) it
          * was last updated - used to have running video pts
@@ -63,7 +62,7 @@ namespace osu {
 
         void initialise();
 
-        explicit VideoState(MovieState &movie);
+        explicit VideoState(MovieState *movie);
 
         ~VideoState();
 

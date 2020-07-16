@@ -13,6 +13,8 @@ namespace osu {
     private:
         static void loadSounds();
 
+        static bool initialised;
+
     public:
         static LPALGETSOURCEI64VSOFT alGetSourcei64vSOFT;
         static LPALCGETINTEGER64VSOFT alcGetInteger64vSOFT;
@@ -20,9 +22,9 @@ namespace osu {
 
         static ALCcontext *context;
 
-        static void initialise();
+        static bool isInitialised();
 
-        static void start();
+        static void initialise();
     };
 }
 //}

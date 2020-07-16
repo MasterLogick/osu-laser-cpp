@@ -7,7 +7,7 @@
 #include "../interaction/Properties.h"
 #include "../graphics/Graphics.h"
 #include "Logic.h"
-#include "../interaction/Interaction.h"
+#include "../interaction/audio/AudioSystem.h"
 
 namespace osu {
     extern bool shouldClose;
@@ -17,14 +17,13 @@ namespace osu {
         static void initialise() {
             std::locale::global(std::locale("en_US.UTF-8"));
             Properties::initialise();
+            AudioSystem::initialise();
             Graphics::initialise();
             Logic::initialise();
-            Interaction::initialise();
         }
 
         static void start() {
             Logic::start();
-            Interaction::start();
             Graphics::start();
 #ifndef NDEBUG
             std::cout << "Join to drawingThread" << std::endl;

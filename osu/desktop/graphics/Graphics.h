@@ -7,7 +7,6 @@
 #include <chrono>
 #include <thread>
 #include "GLFWWindow.h"
-#include "../interaction/Interaction.h"
 #include "../interaction/FPSCounter.h"
 
 namespace osu {

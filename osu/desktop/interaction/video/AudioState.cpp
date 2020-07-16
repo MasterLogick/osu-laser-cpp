@@ -7,6 +7,7 @@
 #include <iostream>
 #include "../audio/AudioSystem.h"
 #include "AudioState.h"
+#include "MovieState.h"
 
 namespace osu {
 
@@ -46,7 +47,7 @@ namespace osu {
         }
     }
 
-    AudioState::AudioState(MovieState &movie) : mMovie(movie) { mConnected.test_and_set(std::memory_order_relaxed); }
+    AudioState::AudioState(MovieState *movie) : mMovie(movie) { mConnected.test_and_set(std::memory_order_relaxed); }
 
     AudioState::~AudioState() {
         if (mSource)
@@ -157,10 +158,10 @@ namespace osu {
     }
 
     int AudioState::getSync() {
-        if (mMovie.mAVSyncType == SyncMaster::Audio)
+        if (mMovie->mAVSyncType == SyncMaster::Audio)
             return 0;
 
-        auto ref_clock = mMovie.getMasterClock();
+        auto ref_clock = mMovie->getMasterClock();
         auto diff = ref_clock - getClockNoLock();
 
         if (!(diff < AVNoSyncThreshold && diff > -AVNoSyncThreshold)) {
@@ -182,7 +183,7 @@ namespace osu {
     }
 
     int AudioState::decodeFrame() {
-        while (!mMovie.mQuit.load(std::memory_order_relaxed)) {
+        while (!mMovie->mQuit.load(std::memory_order_relaxed)) {
             int ret;
             while ((ret = avcodec_receive_frame(mCodecCtx.get(), mDecodedFrame.get())) == AVERROR(EAGAIN))
                 mPackets.sendTo(mCodecCtx.get());
@@ -488,21 +489,21 @@ namespace osu {
             std::cerr << "Failed to initialize audio converter" << std::endl;
             goto finish;
         }
-
         mBuffers.assign(AudioBufferTotalTime / AudioBufferTime, 0);
         alGenBuffers(static_cast<ALsizei>(mBuffers.size()), mBuffers.data());
         alGenSources(1, &mSource);
 
-        if (DirectOutMode)
+        if (DirectOutMode) {
             alSourcei(mSource, AL_DIRECT_CHANNELS_SOFT, DirectOutMode);
+        }
         if (EnableWideStereo) {
             const float angles[2]{static_cast<float>((3.14159265358979323846) / 3.0),
                                   static_cast<float>(-(3.14159265358979323846) / 3.0)};
             alSourcefv(mSource, AL_STEREO_ANGLES, angles);
         }
-
-        if (alGetError() != AL_NO_ERROR)
+        if (alGetError() != AL_NO_ERROR) {
             goto finish;
+        }
 
 #ifdef AL_SOFT_bformat_ex
         if (has_bfmt_ex) {
@@ -519,16 +520,16 @@ namespace osu {
             const int ret{mPackets.sendTo(mCodecCtx.get())};
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 break;
-        } while (1);
+        } while (true);
 
         srclock.lock();
         if (AudioSystem::alcGetInteger64vSOFT) {
             int64_t devtime{};
             AudioSystem::alcGetInteger64vSOFT(alcGetContextsDevice(alcGetCurrentContext()), ALC_DEVICE_CLOCK_SOFT,
-                                 1, &devtime);
+                                              1, &devtime);
             mDeviceStartTime = std::chrono::nanoseconds{devtime} - mCurrentPts;
         }
-        while (alGetError() == AL_NO_ERROR && !mMovie.mQuit.load(std::memory_order_relaxed) &&
+        while (alGetError() == AL_NO_ERROR && !mMovie->mQuit.load(std::memory_order_relaxed) &&
                mConnected.test_and_set(std::memory_order_relaxed)) {
             ALint processed, queued, state;
 
@@ -578,7 +579,7 @@ namespace osu {
                      */
                     int64_t devtime{};
                     AudioSystem::alcGetInteger64vSOFT(alcGetContextsDevice(alcGetCurrentContext()),
-                                         ALC_DEVICE_CLOCK_SOFT, 1, &devtime);
+                                                      ALC_DEVICE_CLOCK_SOFT, 1, &devtime);
                     mDeviceStartTime = std::chrono::nanoseconds{devtime} - mCurrentPts;
                 }
                 continue;

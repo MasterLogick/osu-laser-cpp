@@ -5,10 +5,12 @@
 #include "MovieState.h"
 #include <functional>
 #include <iostream>
-#include <libavutil/time.h>
 
+extern "C" {
+#include <libavutil/time.h>
+}
 namespace osu {
-    MovieState::MovieState(std::string fname, SyncMaster syncType) : mAudio(*this), mVideo(*this),
+    MovieState::MovieState(std::string fname, SyncMaster syncType) : mAudio(this), mVideo(this),
                                                                      mFilename(std::move(fname)) {}
 
     MovieState::~MovieState() {
@@ -47,9 +49,11 @@ namespace osu {
             std::cerr << mFilename << ": failed to find stream info" << std::endl;
             return false;
         }
-
-        mParseThread = std::thread{std::mem_fn(&MovieState::parse_handler), this};
         return true;
+    }
+
+    void MovieState::start() {
+        mParseThread = std::thread{std::mem_fn(&MovieState::parse_handler), this};
     }
 
     std::chrono::nanoseconds MovieState::getClock() {
@@ -115,9 +119,6 @@ namespace osu {
 
         int video_index{-1};
         int audio_index{-1};
-
-        /* Dump information about file onto standard error */
-        av_dump_format(mFormatCtx.get(), 0, mFilename.c_str(), 0);
 
         /* Find the first video and audio streams */
         for (unsigned int i{0u}; i < mFormatCtx->nb_streams; i++) {

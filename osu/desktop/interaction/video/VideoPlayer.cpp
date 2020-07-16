@@ -4,8 +4,10 @@
 
 #include "alext.h"
 #include "VideoPlayer.h"
+#include "../audio/AudioSystem.h"
 
 #include <memory>
+#include <iostream>
 
 namespace osu {
 
@@ -39,20 +41,19 @@ namespace osu {
     }
 
     void VideoPlayer::initialise() {
-
-    }
-
-    void VideoPlayer::start() {
 /* Register all formats and codecs */
 #if !(LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(58, 9, 100))
         av_register_all();
 #endif
+        av_log_set_level(AV_LOG_ERROR);
         movState = std::make_unique<MovieState>(filePath, SyncMaster::Default);
         if (!movState->prepare()) {
-//            std::cerr << "Could not start a video" << std::endl;
-//            return;
+            std::cerr << "Could not start a video" << std::endl;
+            return;
         }
+        movState->mVideo.initialise();
         mainLoop = std::thread([this] {
+            movState->start();
             /* Default to going to the next movie at the end of one. */
 //        enum class EomAction {
 //            Next, Quit
@@ -180,5 +181,9 @@ namespace osu {
 //            std::cout << "Found AL_EXT_STEREO_ANGLES" << std::endl;
             movState->mAudio.EnableWideStereo = true;
         }
+    }
+
+    void VideoPlayer::draw(int x, int y) {
+        movState->mVideo.draw(x, y);
     }
 }

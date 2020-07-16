@@ -7,6 +7,7 @@
 
 #include "TriangleBackground.h"
 #include "Component.h"
+#include "../../interaction/video/VideoPlayer.h"
 
 #define TRIANGLES_AMOUNT 1000
 namespace osu {
@@ -16,9 +17,11 @@ namespace osu {
         void draw(int x, int y) override;
 
         TriangleBackground triangleBackground;
+        VideoPlayer p;
     public:
 
-        BackgroundRootContainer() : triangleBackground(TRIANGLES_AMOUNT) {
+        BackgroundRootContainer() : triangleBackground(TRIANGLES_AMOUNT),
+                                    p("/home/user/Videos/2020-02-12 16-11-32.flv") {
 
         }
 

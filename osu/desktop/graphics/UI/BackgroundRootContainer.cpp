@@ -3,13 +3,12 @@
 //
 
 #include "BackgroundRootContainer.h"
-#include "../../interaction/video/VideoPlayer.h"
 
 namespace osu {
 
     void BackgroundRootContainer::initialise() {
         triangleBackground.initialise();
-//        VideoPlayer::initialise();
+        p.initialise();
     }
 
     void BackgroundRootContainer::draw() {
@@ -18,7 +17,7 @@ namespace osu {
 
     void BackgroundRootContainer::draw(int x, int y) {
         triangleBackground.draw(x, y);
-//        VideoPlayer::draw(x, y);
+        p.draw(x, y);
     }
 }
 

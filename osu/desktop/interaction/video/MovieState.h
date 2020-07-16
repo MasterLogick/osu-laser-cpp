@@ -9,8 +9,6 @@
 #include <atomic>
 #include <memory>
 #include <thread>
-#include <libavformat/avio.h>
-#include <libavformat/avformat.h>
 #include "AudioState.h"
 #include "VideoState.h"
 #include "SyncMaster.h"
@@ -57,6 +55,8 @@ namespace osu {
         std::chrono::nanoseconds getMasterClock();
 
         bool prepare();
+
+        void start();
 
         MovieState(std::string fname, SyncMaster syncType);
 

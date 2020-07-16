@@ -10,7 +10,6 @@
 #include <chrono>
 #include <al.h>
 #include "PacketQueue.h"
-#include "MovieState.h"
 #include "UniquePtrs.h"
 
 extern "C" {
@@ -22,7 +21,7 @@ namespace osu {
     class MovieState;
 
     class AudioState {
-        MovieState &mMovie;
+        MovieState *mMovie;
 
         /* Used for clock difference average computation */
         std::chrono::duration<double> mClockDiffAvg{0};
@@ -76,7 +75,7 @@ namespace osu {
 
         bool EnableWideStereo{false};
 
-        explicit AudioState(MovieState &movie);
+        explicit AudioState(MovieState *movie);
 
         ~AudioState();
 

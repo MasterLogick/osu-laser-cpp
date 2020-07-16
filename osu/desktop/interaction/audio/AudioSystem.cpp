@@ -13,8 +13,10 @@ namespace osu {
     ALCcontext *AudioSystem::context = nullptr;
     LPALGETSOURCEI64VSOFT  AudioSystem::alGetSourcei64vSOFT = nullptr;
     LPALCGETINTEGER64VSOFT AudioSystem::alcGetInteger64vSOFT = nullptr;
+    bool AudioSystem::initialised = false;
 
     void AudioSystem::initialise() {
+        if (initialised)return;
         if (!device && !InitAL(device, context, nullptr)) {
             std::cerr << "Failed to set up audio device" << std::endl;
             exit(-1);
@@ -30,16 +32,14 @@ namespace osu {
             );
         }
         loadSounds();
-//        MediaFile("/home/user/CLionProjects/osu-laser-cpp/osu-resources/osu.Game.Resources/Textures/Menu/logo-triangles.mp4");
-//        MediaFile("/home/user/CLionProjects/osu-laser-cpp/osu-resources/osu.Game.Resources/Textures/Menu/logo-triangles.mp4");
-//        MediaFile("/home/user/CLionProjects/osu-laser-cpp/osu-resources/osu.Game.Resources/Samples/seeya.mp3");
-    }
-
-    void AudioSystem::start() {
-
+        initialised = true;
     }
 
     void AudioSystem::loadSounds() {
 
+    }
+
+    bool AudioSystem::isInitialised() {
+        return initialised;
     }
 }

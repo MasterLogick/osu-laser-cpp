@@ -19,11 +19,11 @@ namespace osu {
 
         void initialise();
 
-        void start();
-
         void stop();
 
         void pause();
+
+        void draw(int x, int y);
 
         void setDirectOutMode(bool flag);
 

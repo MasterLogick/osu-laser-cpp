@@ -6,6 +6,7 @@
 #include "../../graphics/opengl/Shader.h"
 #include <iostream>
 #include <algorithm>
+#include "MovieState.h"
 
 extern "C" {
 #include "libavutil/time.h"
@@ -24,7 +25,7 @@ namespace osu {
 //        mImage = nullptr;
     }
 
-    VideoState::VideoState(MovieState &movie) : mMovie(movie) {}
+    VideoState::VideoState(MovieState *movie) : mMovie(movie) {}
 
     std::chrono::nanoseconds VideoState::getClock() {
         /* NOTE: This returns incorrect times while not playing. */
@@ -43,7 +44,7 @@ namespace osu {
         size_t read_idx{mPictQRead.load(std::memory_order_relaxed)};
         Picture *vp{&mPictQ[read_idx]};
 
-        auto clocktime = mMovie.getMasterClock();
+        auto clocktime = mMovie->getMasterClock();
         bool updated{false};
         while (true) {
             size_t next_idx{(read_idx + 1) % mPictQ.size()};
@@ -57,7 +58,7 @@ namespace osu {
             updated = true;
             read_idx = next_idx;
         }
-        if (mMovie.mQuit.load(std::memory_order_relaxed)) {
+        if (mMovie->mQuit.load(std::memory_order_relaxed)) {
             if (mEOS)
                 mFinalUpdate = true;
             mPictQRead.store(read_idx, std::memory_order_release);
@@ -80,7 +81,6 @@ namespace osu {
             }
             AVFrame *frame{vp->mFrame.get()};
             int pict_linesize[3];
-            int w{mCodecCtx->width};
             int h{mCodecCtx->height};
             pict_linesize[0] = VIDEO_FRAME_WIDTH;
             pict_linesize[1] = VIDEO_FRAME_WIDTH / 2;
@@ -89,8 +89,6 @@ namespace osu {
             sws_scale(mSwscaleCtx.get(), frame->data, frame->linesize, 0, h, mappedPBO, pict_linesize);
             pboLock.unlock();
             redraw = true;
-        }
-        if (updated) {
             auto disp_time = std::chrono::microseconds{av_gettime()};
             std::lock_guard<std::mutex> _{mDispPtsMutex};
             mDisplayPts = vp->mPts;
@@ -114,7 +112,7 @@ namespace osu {
             const int ret{mPackets.sendTo(mCodecCtx.get())};
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 break;
-        } while (1);
+        } while (true);
 
         {
             std::lock_guard<std::mutex> _{mDispPtsMutex};
@@ -122,7 +120,7 @@ namespace osu {
         }
 
         auto current_pts = std::chrono::nanoseconds::zero();
-        while (!mMovie.mQuit.load(std::memory_order_relaxed)) {
+        while (!mMovie->mQuit.load(std::memory_order_relaxed)) {
             size_t write_idx{mPictQWrite.load(std::memory_order_relaxed)};
             Picture *vp{&mPictQ[write_idx]};
 
@@ -163,7 +161,7 @@ namespace osu {
                 /* Wait until we have space for a new pic */
                 std::unique_lock<std::mutex> lock{mPictQMutex};
                 while (write_idx == mPictQRead.load(std::memory_order_acquire) &&
-                       !mMovie.mQuit.load(std::memory_order_relaxed))
+                       !mMovie->mQuit.load(std::memory_order_relaxed))
                     mPictQCond.wait(lock);
             }
         }
