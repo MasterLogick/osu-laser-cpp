@@ -15,6 +15,8 @@ namespace osu {
         Color end;
 
         explicit Colour(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

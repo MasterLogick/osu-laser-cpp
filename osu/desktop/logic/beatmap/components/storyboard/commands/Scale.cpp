@@ -17,4 +17,8 @@ namespace osu {
         startScale = boost::lexical_cast<float>(s[4]);
         endScale = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startScale;
     }
+
+    void Scale::process(int time) {
+        //todo
+    }
 }

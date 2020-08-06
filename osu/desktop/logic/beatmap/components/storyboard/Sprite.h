@@ -18,7 +18,7 @@ namespace osu {
         Layer layer;
         Origin origin;
         std::string file;
-        Point pos;
+        PointF pos;
 
         explicit Sprite(std::vector<std::string> &data);
     };

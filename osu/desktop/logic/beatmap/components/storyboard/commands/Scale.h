@@ -14,6 +14,8 @@ namespace osu {
         float endScale;
 
         explicit Scale(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

@@ -18,7 +18,16 @@ namespace osu {
         c.add(command);
     }
 
-    void CompoundCommand::commit() {
-        c.commit();
+    void CompoundCommand::pack() {
+        c.pack();
+    }
+
+    void CompoundCommand::process(int time) {
+        Command *command;
+        Command *old = nullptr;
+        while ((command = c.get(time)) != old) {
+            old = command;
+            command->process(time);
+        }
     }
 }

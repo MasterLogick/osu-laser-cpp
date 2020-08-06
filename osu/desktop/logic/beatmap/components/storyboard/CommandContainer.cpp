@@ -4,6 +4,7 @@
 
 #include "CommandContainer.h"
 #include <algorithm>
+#include <climits>
 
 namespace osu {
 
@@ -19,14 +20,29 @@ namespace osu {
         return endTime;
     }
 
-    void CommandContainer::commit() {
+    void CommandContainer::pack() {
         sort([](Command *a, Command *b) -> bool {
-            return a->startTime < b->startTime || (a->startTime == b->endTime && a->endTime < b->endTime);
+            return a->startTime < b->startTime || (a->startTime == b->startTime && a->endTime < b->endTime);
         });
         std::for_each(begin(), end(), [this](Command *c) {
             if (c->endTime > this->endTime) {
                 this->endTime = c->endTime;
             }
         });
+        next = begin();
+        current = *next;
+        nextTime = (*(next++))->startTime;
+    }
+
+    Command *CommandContainer::get(int time) {
+        if (nextTime <= time) {
+            current = *next;
+            if ((next++) == end()) {
+                nextTime = INT_MAX;
+            } else {
+                nextTime = (*(next))->startTime;
+            }
+        }
+        return current;
     }
 }

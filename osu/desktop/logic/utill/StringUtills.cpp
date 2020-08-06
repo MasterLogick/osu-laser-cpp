@@ -4,47 +4,13 @@
 
 #include "StringUtills.h"
 #include <algorithm>
-#include <cctype>
-#include <locale>
 #include <boost/algorithm/string.hpp>
 
 namespace osu {
-    void ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-            return !std::isspace(ch);
-        }));
-    }
-
-    void rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-            return !std::isspace(ch);
-        }).base(), s.end());
-    }
-
-    void trim(std::string &s) {
-        ltrim(s);
-        rtrim(s);
-    }
-
-    std::string ltrim_copy(std::string &s) {
-        ltrim(s);
-        return s;
-    }
-
-    std::string rtrim_copy(std::string &s) {
-        rtrim(s);
-        return s;
-    }
-
-    std::string trim_copy(std::string &s) {
-        trim(s);
-        return s;
-    }
 
     std::pair<std::string, std::string> splitKeyValPair(std::string &kpVar, char separator) {
         size_t pos = kpVar.find(separator);
         std::string val{kpVar.substr(pos + 1)};
-        ltrim(val);
         return std::pair<std::string, std::string>(kpVar.substr(0, pos), val);
     }
 
@@ -55,13 +21,18 @@ namespace osu {
         }
         pos = kpVar.find(separator, pos + 1);
         std::string val{kpVar.substr(pos + 1)};
-        ltrim(val);
         return std::pair<std::string, std::string>(kpVar.substr(0, pos), val);
     }
 
-    std::vector<std::string> split(std::string &str, std::string separator) {
+    std::vector<std::string> split(std::string &str, std::string separators) {
         std::vector<std::string> result;
-        boost::split(result, str, boost::is_any_of(separator));
+        boost::split(result, str, boost::is_any_of(separators));
+        return result;
+    }
+
+    std::vector<std::string> split(std::string &str, char separator) {
+        std::vector<std::string> result;
+        boost::split(result, str, [separator](char c) { return c == separator; });
         return result;
     }
 

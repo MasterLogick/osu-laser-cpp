@@ -11,7 +11,7 @@
 namespace osu {
 
     HitObject *OsuHitObjectParser::parseHitObject(std::string &line) {
-        std::vector<std::string> data = split(line, ",");
+        std::vector<std::string> data = split(line, ',');
         int type = boost::lexical_cast<int>(data[3]);
         if (type & HitObjectType::Circle) {
             //0 1 2    3    4        5
@@ -41,7 +41,7 @@ namespace osu {
                 return nullptr;
             }
             OsuSlider *tmp = new OsuSlider();
-            std::vector<std::string> path = split(data[5], "|");
+            std::vector<std::string> path = split(data[5], '|');
             tmp->curveType = (CurveType) path[0][0];
             tmp->curvePoints = new Point[path.size()];
             tmp->curvePoints[0].x = boost::lexical_cast<int>(data[0]);
@@ -55,8 +55,8 @@ namespace osu {
             tmp->slides = boost::lexical_cast<int>(data[6]);
             tmp->length = boost::lexical_cast<double>(data[7]);
             if (data.size() >= 10) {
-                std::vector<std::string> edgeHitSounds = split(data[8], "|");
-                std::vector<std::string> edgeHitSets = split(data[9], "|");
+                std::vector<std::string> edgeHitSounds = split(data[8], '|');
+                std::vector<std::string> edgeHitSets = split(data[9], '|');
                 if (edgeHitSounds.size() != edgeHitSets.size()) {
                     //todo throw incompatible_hitsound_sets error
                     //todo delete all allocated vars

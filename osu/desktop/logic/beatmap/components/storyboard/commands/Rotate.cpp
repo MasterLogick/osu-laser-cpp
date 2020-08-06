@@ -16,6 +16,10 @@ namespace osu {
         }
         type = CommandType::CTRotate;
         startAngle = boost::lexical_cast<float>(s[4]);
-        endAngle = s.size() > 5 ? boost::lexical_cast<int>(s[5]) : startAngle;
+        endAngle = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startAngle;
+    }
+
+    void Rotate::process(int time) {
+        //todo
     }
 }

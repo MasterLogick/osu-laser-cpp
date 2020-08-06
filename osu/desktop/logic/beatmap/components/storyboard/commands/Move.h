@@ -15,6 +15,8 @@ namespace osu {
         PointF end;
 
         explicit Move(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

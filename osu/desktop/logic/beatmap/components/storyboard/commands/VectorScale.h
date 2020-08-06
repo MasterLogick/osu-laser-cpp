@@ -15,6 +15,8 @@ namespace osu {
         PointF end;
 
         explicit VectorScale(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

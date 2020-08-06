@@ -18,8 +18,12 @@ namespace osu {
         start.red = boost::lexical_cast<int>(s[4]);
         start.green = boost::lexical_cast<int>(s[5]);
         start.blue = boost::lexical_cast<int>(s[6]);
-        end.red = s.size() > 5 ? boost::lexical_cast<float>(s[7]) : start.red;
-        end.green = s.size() > 5 ? boost::lexical_cast<float>(s[8]) : start.green;
-        end.blue = s.size() > 5 ? boost::lexical_cast<float>(s[9]) : start.blue;
+        end.red = s.size() > 7 ? boost::lexical_cast<float>(s[7]) : start.red;
+        end.green = s.size() > 8 ? boost::lexical_cast<float>(s[8]) : start.green;
+        end.blue = s.size() > 9 ? boost::lexical_cast<float>(s[9]) : start.blue;
+    }
+
+    void Colour::process(int time) {
+        //todo
     }
 }

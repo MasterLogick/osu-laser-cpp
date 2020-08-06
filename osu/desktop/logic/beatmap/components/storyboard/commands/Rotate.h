@@ -14,6 +14,8 @@ namespace osu {
         float endAngle;
 
         explicit Rotate(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

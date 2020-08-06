@@ -17,8 +17,8 @@ namespace osu {
         origin = parseOrigin(data[2]);
         file = data[3].substr(data[3].front() == '"' ? 1 : 0,
                               data[3].size() - (data[3].front() == '"' ? 1 : 0) - (data[3].back() == '"' ? 1 : 0));
-        pos.x = boost::lexical_cast<int>(data[4]);
-        pos.y = boost::lexical_cast<int>(data[5]);
+        pos.x = boost::lexical_cast<float>(data[4]);
+        pos.y = boost::lexical_cast<float>(data[5]);
         eventType = EventType::ETSprite;
     }
 }

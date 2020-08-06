@@ -11,7 +11,7 @@ namespace osu {
     void GLFWWindow::printPrimaryMonitorVideoModes() {
         int count = 0;
         const GLFWvidmode *vidMode = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
-        std::cout << "Available video modes" << std::endl;
+        std::cout << "Available video modes:" << std::endl;
         for (int i = 0; i < count; ++i) {
             GLFWvidmode mode = vidMode[i];
             std::cout << mode.width << "x" << mode.height << "@" << mode.refreshRate << std::endl;

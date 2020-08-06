@@ -13,7 +13,9 @@ namespace osu {
     private:
         int startTime;
         int endTime;
-        std::list<Command *>::iterator iterator;
+        std::list<Command *>::iterator next;
+        Command *current;
+        int nextTime;
     public:
         void add(Command *c);
 
@@ -21,7 +23,9 @@ namespace osu {
 
         int getEndTime();
 
-        void commit();
+        void pack();
+
+        Command *get(int time);
     };
 }
 

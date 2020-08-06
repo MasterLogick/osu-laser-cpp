@@ -17,4 +17,8 @@ namespace osu {
         startOpacity = boost::lexical_cast<float>(s[4]);
         endOpacity = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startOpacity;
     }
+
+    void Fade::process(int time) {
+        //todo
+    }
 }

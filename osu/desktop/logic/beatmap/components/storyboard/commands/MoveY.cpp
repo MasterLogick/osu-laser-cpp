@@ -18,4 +18,8 @@ namespace osu {
         startY = boost::lexical_cast<float>(s[4]);
         endY = s.size() > 5 ? boost::lexical_cast<float>(s[5]) : startY;
     }
+
+    void MoveY::process(int time) {
+        //todo
+    }
 }

@@ -18,6 +18,8 @@ namespace osu {
 
         void setParent(Event *parent);
 
+        virtual void process(int time) = 0;
+
         virtual bool isCompound() = 0;
     };
 }

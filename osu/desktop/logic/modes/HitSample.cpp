@@ -9,7 +9,7 @@ namespace osu {
     HitSample HitSample::DefaultHitsample = HitSample();
 
     HitSample::HitSample(std::string sample) {
-        std::vector<std::string> options = split(sample, ":");
+        std::vector<std::string> options = split(sample, ',');
         if (options[0].size() != 0)
             normalSet = boost::lexical_cast<int>(options[0]);
         else

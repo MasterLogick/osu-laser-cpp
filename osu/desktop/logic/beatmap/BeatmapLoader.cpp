@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <utility>
 #include <string>
+#include <boost/algorithm/string/trim.hpp>
 #include "BeatmapLoader.h"
 #include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
@@ -31,6 +32,7 @@
 #include "components/storyboard/commands/Trigger.h"
 #include "components/storyboard/commands/Rotate.h"
 #include "components/storyboard/commands/Parameter.h"
+#include "../utill/BufferedReader.h"
 
 namespace osu {
 
@@ -41,11 +43,15 @@ namespace osu {
         storyboard = new Storyboard();
     }
 
-    void BeatmapLoader::loadLegacyStoryboardFromFile(std::istream &stream) {
+    BeatmapLoader::~BeatmapLoader() {
+        //todo implement
+    }
+
+    void BeatmapLoader::loadLegacyStoryboard(std::istream &stream) {
         currentToken = None;
         std::string line;
-        while (!stream.eof()) {
-            readLineMultiplatform(stream, line);
+        BufferedReader bf(stream);
+        while (bf.readLine(line)) {
             if (line.empty() || startsWith(line, "//")) {
                 continue;
             }
@@ -69,20 +75,11 @@ namespace osu {
 
     void BeatmapLoader::loadLegacyBeatmap(std::ifstream &stream) {
         std::string line;
-        while (!stream.eof()) {
-            readLineMultiplatform(stream, line);
-#ifndef NDEBUG
-            if (line.empty()) {
-                //todo replace with catch exception in readLineMultiplatform
-                return;
-            }
-#else
-#error catch exception in readLineMultiplatform
-#endif
-            trim(line);
-            std::size_t pos = line.find("//");
-            if (line.size() <= 1 || pos == 0) {
-                continue;
+        BufferedReader bf{stream};
+        while (bf.readLine(line)) {
+            boost::trim(line);
+            if (line.empty() || startsWith(line, "//")) {
+
             }
             if (line[0] == '[' && line[line.size() - 1] == ']') {
                 handleSection(line);
@@ -133,6 +130,7 @@ namespace osu {
         beatmap->metadata = metadata;
         beatmap->colorSchema = colorSchema;
         beatmap->timingPointSet = timingPointSet;
+        beatmap->storyboard = storyboard;
         return beatmap;
     }
 
@@ -339,24 +337,26 @@ namespace osu {
     }
 
     void BeatmapLoader::handleTimingPoints(std::string &line) {
-        std::vector<std::string> vals = split(line, ",");
+        std::vector<std::string> vals = split(line, ',');
         size_t valsCount = vals.size();
         TimingPoint point{metadata->General.SampleSet};
-        point.time = getOffsetTime(boost::lexical_cast<int>(trim_copy(vals[0])));
+        point.time = getOffsetTime(boost::lexical_cast<int>(boost::trim_copy(vals[0])));
         if (valsCount >= 3) {
             point.timeSignature =
-                    vals[2][0] == '0' ? Quadruple : (TimeSignatures) boost::lexical_cast<int>(trim_copy(vals[2]));
+                    vals[2][0] == '0' ? Quadruple : (TimeSignatures) boost::lexical_cast<int>(
+                            boost::trim_copy(vals[2]));
             if (valsCount >= 4) {
                 point.sampleSet =
-                        vals[3][0] == '0' ? point.sampleSet : (SampleSets) boost::lexical_cast<int>(trim_copy(vals[3]));
+                        vals[3][0] == '0' ? point.sampleSet : (SampleSets) boost::lexical_cast<int>(
+                                boost::trim_copy(vals[3]));
                 if (valsCount >= 5) {
-                    point.sampleIndex = boost::lexical_cast<int>(trim_copy(vals[4]));
+                    point.sampleIndex = boost::lexical_cast<int>(boost::trim_copy(vals[4]));
                     if (valsCount >= 6) {
-                        point.sampleVolume = boost::lexical_cast<int>(trim_copy(vals[5]));
+                        point.sampleVolume = boost::lexical_cast<int>(boost::trim_copy(vals[5]));
                         if (valsCount >= 7) {
-                            point.uninherited = boost::lexical_cast<bool>(trim_copy(vals[6]));
+                            point.uninherited = boost::lexical_cast<bool>(boost::trim_copy(vals[6]));
                             if (valsCount >= 8) {
-                                int bitField = boost::lexical_cast<int>(trim_copy(vals[7]));
+                                int bitField = boost::lexical_cast<int>(boost::trim_copy(vals[7]));
                                 point.kiaiMode = bitField & TimingPoint::KIAI_MODE;
                                 point.omitFirstBarSignature = bitField & TimingPoint::OMIT_FIRST_BAR_SIGNATURE;
                             }
@@ -371,25 +371,25 @@ namespace osu {
     void BeatmapLoader::handleColours(std::string &line) {
         std::pair<std::string, std::string> data = splitKeyValPair(line);
         if (data.first.find("Combo") == 0) {
-            std::vector<std::string> colorData = split(data.second, ",");
-            Color c((uint8_t) boost::lexical_cast<int>(trim_copy(colorData[0])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[1])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[2])),
-                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[3])) : 255);
+            std::vector<std::string> colorData = split(data.second, ',');
+            Color c((uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[0])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[1])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[2])),
+                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[3])) : 255);
             colorSchema->ComboColors.push_back(c);
         } else if (data.first.find("SliderTrackOverride") == 0) {
-            std::vector<std::string> colorData = split(data.second, ",");
-            Color c((uint8_t) boost::lexical_cast<int>(trim_copy(colorData[0])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[1])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[2])),
-                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[3])) : 255);
+            std::vector<std::string> colorData = split(data.second, ',');
+            Color c((uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[0])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[1])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[2])),
+                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[3])) : 255);
             colorSchema->SliderTrackOverride = c;
         } else if (data.first.find("SliderBorder") == 0) {
-            std::vector<std::string> colorData = split(data.second, ",");
-            Color c((uint8_t) boost::lexical_cast<int>(trim_copy(colorData[0])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[1])),
-                    (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[2])),
-                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(trim_copy(colorData[3])) : 255);
+            std::vector<std::string> colorData = split(data.second, ',');
+            Color c((uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[0])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[1])),
+                    (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[2])),
+                    colorData.size() == 4 ? (uint8_t) boost::lexical_cast<int>(boost::trim_copy(colorData[3])) : 255);
             colorSchema->SliderBorder = c;
         }
     }
@@ -414,7 +414,7 @@ namespace osu {
         }
         line = line.substr(depth);
         while (depth < commandStack.size()) {
-            commandStack.top()->commit();
+            commandStack.top()->pack();
             commandStack.pop();
         }
         decodeVariables(&line);
@@ -469,10 +469,6 @@ namespace osu {
         globalOffset = version < 5 ? 24 : 0;
     }
 
-    BeatmapLoader::~BeatmapLoader() {
-        //todo implement
-    }
-
     void BeatmapLoader::decodeVariables(std::string *line) {
         while (line->find('$') != std::string::npos) {
             char copys[line->length()];
@@ -485,7 +481,7 @@ namespace osu {
     }
 
     Event *BeatmapLoader::parseEvent(std::string &line) {
-        std::vector<std::string> data = split(line, ",");
+        std::vector<std::string> data = split(line, ',');
         EventType type = parseEventType(data[0]);
         switch (type) {
             case EventType::ETAnimation:
@@ -501,11 +497,16 @@ namespace osu {
             case EventType::ETVideo:
                 return new Video(data);
         }
+        return nullptr;
     }
 
     Command *BeatmapLoader::parseCommand(std::string &line) {
-        std::vector<std::string> data = split(line, ",");
+        std::vector<std::string> data = split(line, ',');
         CommandType type = parseCommandType(data[0]);
+        if (data.size() >= 4 && data[3].empty()) {
+            data[3] = data[2];
+        }
+
         switch (type) {
             case CTColour :
                 return new Colour(data);
@@ -530,5 +531,6 @@ namespace osu {
             case CTParameter:
                 return new Parameter(data);
         }
+        return nullptr;
     }
 }

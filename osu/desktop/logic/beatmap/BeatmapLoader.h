@@ -90,7 +90,7 @@ namespace osu {
 
         void loadLegacyBeatmap(std::ifstream &stream);
 
-        void loadLegacyStoryboardFromFile(std::istream &stream);
+        void loadLegacyStoryboard(std::istream &stream);
 
         Beatmap *buildBeatmap();
 

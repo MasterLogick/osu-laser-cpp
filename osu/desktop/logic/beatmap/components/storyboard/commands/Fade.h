@@ -14,6 +14,8 @@ namespace osu {
         float endOpacity;
 
         explicit Fade(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

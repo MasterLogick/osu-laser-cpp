@@ -14,15 +14,19 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        type = CommandType::CTLoop;
+        type = CommandType::CTTrigger;
         triggerType = TriggerType(s[1]);
         startTime = boost::lexical_cast<int>(s[2]);
         activeEndTime = boost::lexical_cast<int>(s[3]);
         groupNumber = s.size() == 4 ? 0 : boost::lexical_cast<int>(s[4]);
     }
 
-    void Trigger::commit() {
-        CompoundCommand::commit();
+    void Trigger::pack() {
+        CompoundCommand::pack();
         endTime = activeEndTime + c.getEndTime();
+    }
+
+    void Trigger::process(int time) {
+        //todo
     }
 }

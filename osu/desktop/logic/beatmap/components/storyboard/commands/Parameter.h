@@ -17,6 +17,8 @@ namespace osu {
         } ptype;
 
         explicit Parameter(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

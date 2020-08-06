@@ -9,7 +9,6 @@
 #include <string>
 
 namespace osu {
-    void readLineMultiplatform(std::istream &stream, std::string &line);
 }
 
 

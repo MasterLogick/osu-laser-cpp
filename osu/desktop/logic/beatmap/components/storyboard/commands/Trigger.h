@@ -17,9 +17,11 @@ namespace osu {
         int groupNumber;
         int activeEndTime;
 
-        void commit() override;
+        void pack() override;
 
         explicit Trigger(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 

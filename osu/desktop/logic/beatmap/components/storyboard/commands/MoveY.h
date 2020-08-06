@@ -14,6 +14,8 @@ namespace osu {
         float endY;
 
         explicit MoveY(std::vector<std::string> &s);
+
+        void process(int time);
     };
 }
 
