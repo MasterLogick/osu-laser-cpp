@@ -18,6 +18,16 @@ namespace osu {
     }
 
     void Storyboard::cacheSprites() {
-        boost::filesystem::path
+        for (int i = 0, j = events.size(); i < j; ++i) {
+            Event *e = events[i];
+            if (e->eventType == EventType::ETAnimation) {
+                Animation *anim = static_cast<Animation *>(e);
+
+            }
+        }
+    }
+
+    void Storyboard::setDirectory(std::string dir) {
+        this->dir = dir;
     }
 }

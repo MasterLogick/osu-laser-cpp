@@ -18,12 +18,15 @@ namespace osu {
     private:
         std::vector<CompoundCommand *> containers;
         std::vector<Event *> events;
+        std::string dir;
     public:
         void addEvent(Event *event);
 
         void addEventCommandContainer(CompoundCommand *container);
 
         void cacheSprites();
+
+        void setDirectory(std::string dir);
     };
 }
 

@@ -7,6 +7,7 @@
 #include <utility>
 #include <string>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/filesystem.hpp>
 #include "BeatmapLoader.h"
 #include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
@@ -47,7 +48,13 @@ namespace osu {
         //todo implement
     }
 
-    void BeatmapLoader::loadLegacyStoryboard(std::istream &stream) {
+    void BeatmapLoader::loadLegacyStoryboard(std::string &path) {
+        std::ifstream stream;
+        stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        stream.open(path);
+        if (!stream.is_open()) {
+            //todo throw IO_exception
+        }
         currentToken = None;
         std::string line;
         BufferedReader bf(stream);
@@ -73,13 +80,22 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::loadLegacyBeatmap(std::ifstream &stream) {
+    void BeatmapLoader::loadLegacyBeatmap(std::string &path) {
+        std::ifstream stream;
+        stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        stream.open(path);
+        if (!stream.is_open()) {
+            //todo throw IO_exception
+        }
+        boost::filesystem::path dirPath(path);
+        storyboard->setDirectory(dirPath.parent_path());
+        currentToken = None;
         std::string line;
         BufferedReader bf{stream};
         while (bf.readLine(line)) {
             boost::trim(line);
             if (line.empty() || startsWith(line, "//")) {
-
+                continue;
             }
             if (line[0] == '[' && line[line.size() - 1] == ']') {
                 handleSection(line);
