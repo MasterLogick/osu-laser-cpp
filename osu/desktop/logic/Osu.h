@@ -14,22 +14,9 @@ namespace osu {
 
     class Osu {
     public:
-        static void initialise() {
-            std::locale::global(std::locale("en_US.UTF-8"));
-            Properties::initialise();
-            AudioSystem::initialise();
-            Graphics::initialise();
-            Logic::initialise();
-        }
+        static void initialise();
 
-        static void start() {
-            Logic::start();
-            Graphics::start();
-#ifndef NDEBUG
-            std::cout << "Join to drawingThread" << std::endl;
-#endif
-            Graphics::drawingThread->join();
-        }
+        static void start();
     };
 }
 

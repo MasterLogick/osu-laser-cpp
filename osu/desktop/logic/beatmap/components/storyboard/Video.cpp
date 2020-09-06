@@ -18,5 +18,6 @@ namespace osu {
             xoff = boost::lexical_cast<int>(data[3]);
             yoff = boost::lexical_cast<int>(data[4]);
         }
+        eventType = EventType::ETVideo;
     }
 }

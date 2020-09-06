@@ -265,8 +265,7 @@ namespace osu {
                 glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
                 glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             } else {
-                std::cerr << "texture loading error" << std::endl;
-                exit(-1);
+                //todo throw bad_texture_format exception
             }
             stbi_image_free(data);
             pages[i].id = texture;

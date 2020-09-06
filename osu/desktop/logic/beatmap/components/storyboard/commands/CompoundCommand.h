@@ -21,7 +21,7 @@ namespace osu {
 
         bool isCompound() override;
 
-        void process(int time);
+        void process(int time) override;
     };
 }
 

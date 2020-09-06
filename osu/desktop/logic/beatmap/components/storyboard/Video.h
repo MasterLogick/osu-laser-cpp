@@ -11,7 +11,6 @@
 namespace osu {
     class Video : public Event {
     public:
-        int startTime;
         std::string path;
         int xoff;
         int yoff;

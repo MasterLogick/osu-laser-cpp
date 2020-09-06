@@ -13,7 +13,7 @@ namespace osu {
             //todo throw unknown_type error
             //todo delete all allocated vars
         }
-        time = boost::lexical_cast<int>(data[1]);
+        startTime = boost::lexical_cast<int>(data[1]);
         layer = parseLayer(data[2]);//todo catch exception
         file = data[3].substr(data[3].front() == '"' ? 1 : 0,
                               data[3].size() - (data[3].front() == '"' ? 1 : 0) - (data[3].back() == '"' ? 1 : 0));

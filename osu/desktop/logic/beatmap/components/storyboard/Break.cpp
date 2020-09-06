@@ -16,5 +16,6 @@ namespace osu {
         }
         startTime = boost::lexical_cast<int>(data[1]);
         endTime = boost::lexical_cast<int>(data[2]);
+        eventType = EventType::ETBreak;
     }
 }

@@ -10,7 +10,7 @@
 #include "components/ColorSchema.h"
 #include "../modes/HitObject.h"
 #include <deque>
-#include <logic/beatmap/components/storyboard/Storyboard.h>
+#include "components/storyboard/Storyboard.h"
 
 namespace osu {
 

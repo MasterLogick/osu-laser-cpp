@@ -9,6 +9,7 @@
 #include "../../../../graphics/UI/Origin.h"
 #include "../../../utill/Point.h"
 #include "Event.h"
+#include "../../../../graphics/UI/Texture.h"
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@ namespace osu {
         enum LoopType {
             LoopOnce, LoopForever
         } type;
+        Texture *textureArray;
 
         explicit Animation(std::vector<std::string> &data);
     };

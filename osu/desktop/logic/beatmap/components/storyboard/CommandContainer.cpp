@@ -22,7 +22,7 @@ namespace osu {
 
     void CommandContainer::pack() {
         sort([](Command *a, Command *b) -> bool {
-            return a->startTime < b->startTime || (a->startTime == b->startTime && a->endTime < b->endTime);
+            return a->startTime < b->startTime;
         });
         std::for_each(begin(), end(), [this](Command *c) {
             if (c->endTime > this->endTime) {

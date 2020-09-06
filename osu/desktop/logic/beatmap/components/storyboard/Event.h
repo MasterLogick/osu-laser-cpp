@@ -11,6 +11,7 @@ namespace osu {
     class Event {
     public:
         EventType eventType;
+        int startTime;
     };
 }
 #endif //OSU_LASER_CPP_EVENT_H

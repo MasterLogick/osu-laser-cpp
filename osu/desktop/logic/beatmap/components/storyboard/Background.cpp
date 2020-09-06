@@ -23,5 +23,6 @@ namespace osu {
             xoff = 0;
             yoff = 0;
         }
+        eventType = EventType::ETBackground;
     }
 }

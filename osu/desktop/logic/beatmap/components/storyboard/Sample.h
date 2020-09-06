@@ -13,7 +13,6 @@
 namespace osu {
     class Sample : public Event {
     public:
-        int time;
         Layer layer;
         std::string file;
         int volume;

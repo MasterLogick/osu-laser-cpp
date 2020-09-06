@@ -12,7 +12,6 @@
 #include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
 #include "../utill/str_switch.h"
-#include "../utill/IOUtills.h"
 #include "components/BeatmapMetadata.h"
 #include "components/BeatmapEnums.h"
 #include "components/TimingPoint.h"
@@ -41,7 +40,7 @@ namespace osu {
         metadata = new BeatmapMetadata();
         timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();
-        storyboard = new Storyboard();
+        storyboardBuilder = new StoryboardBuilder(boost::filesystem::path());
     }
 
     BeatmapLoader::~BeatmapLoader() {
@@ -88,7 +87,7 @@ namespace osu {
             //todo throw IO_exception
         }
         boost::filesystem::path dirPath(path);
-        storyboard->setDirectory(dirPath.parent_path());
+        storyboardBuilder->setRootPath(dirPath.parent_path());
         currentToken = None;
         std::string line;
         BufferedReader bf{stream};
@@ -146,7 +145,7 @@ namespace osu {
         beatmap->metadata = metadata;
         beatmap->colorSchema = colorSchema;
         beatmap->timingPointSet = timingPointSet;
-        beatmap->storyboard = storyboard;
+        beatmap->storyboard = storyboardBuilder->build();
         return beatmap;
     }
 
@@ -436,10 +435,10 @@ namespace osu {
         decodeVariables(&line);
         if (depth == 0) {
             if (currentEventContainer != nullptr) {
-                storyboard->addEventCommandContainer(currentEventContainer);
+                storyboardBuilder->addEventCommandContainer(currentEventContainer);
             }
             Event *event = parseEvent(line);
-            storyboard->addEvent(event);
+            storyboardBuilder->addEvent(event);
             currentEvent = event;
             currentEventContainer = new CompoundCommand();
             currentEventContainer->setParent(currentEvent);
@@ -506,6 +505,9 @@ namespace osu {
                 return new Break(data);
             case EventType::ETBackground:
                 return new Background(data);
+            case EventType::ETColour:
+                //todo
+                break;
             case EventType::ETSample:
                 return new Sample(data);
             case EventType::ETSprite:

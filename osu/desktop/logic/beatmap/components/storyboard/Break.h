@@ -11,7 +11,6 @@
 namespace osu {
     class Break : public Event {
     public:
-        int startTime;
         int endTime;
 
         explicit Break(std::vector<std::string> &data);

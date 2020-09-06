@@ -20,6 +20,7 @@ namespace osu {
 
     void CompoundCommand::pack() {
         c.pack();
+        parent->startTime = startTime;
     }
 
     void CompoundCommand::process(int time) {

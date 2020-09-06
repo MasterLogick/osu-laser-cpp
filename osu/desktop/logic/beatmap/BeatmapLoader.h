@@ -16,7 +16,7 @@
 #include "../modes/HitObjectParser.h"
 #include "components/storyboard/Event.h"
 #include "components/storyboard/commands/Command.h"
-#include "components/storyboard/Storyboard.h"
+#include "components/storyboard/StoryboardBuilder.h"
 #include "components/storyboard/commands/CompoundCommand.h"
 
 namespace osu {
@@ -48,7 +48,7 @@ namespace osu {
         Event *currentEvent{nullptr};
         CompoundCommand *currentEventContainer{nullptr};
         std::stack<CompoundCommand *> commandStack;
-        Storyboard *storyboard;
+        StoryboardBuilder *storyboardBuilder;
 
         void handleSection(std::string &line);
 
