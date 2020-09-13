@@ -8,11 +8,11 @@
 
 namespace osu {
 
-    void Timeline::insert(CompoundCommand *c) {
+    void Timeline::insert(Command *c) {
         if (tl.empty()) {
             Node front;
-            front.data.push_back(c);
             front.timestamp = c->startTime;
+            front.data.push_back(c);
             tl.push_back(front);
             if (c->startTime != c->endTime) {
                 Node back;
@@ -21,89 +21,25 @@ namespace osu {
                 tl.push_back(back);
             }
         } else {
-            int startTime = c->startTime, endTime = c->endTime;
-            int leftIndex = 0, rightIndex = tl.size(), middleIndex = (rightIndex + leftIndex) / 2;
-            std::list<Node>::iterator left = tl.begin(), right = tl.end(), middle = tl.begin(), start, end;
-            std::advance(middle, (rightIndex + leftIndex) / 2);
-            while (leftIndex < rightIndex) {
-                if (middle->timestamp > startTime) {
-                    std::advance(right, middleIndex - rightIndex);
-                    rightIndex = middleIndex;
-                    std::advance(middle, (leftIndex + rightIndex) / 2 - middleIndex);
-                } else {
-                    std::advance(left, middleIndex + 1 - leftIndex);
-                    leftIndex = middleIndex + 1;
-                    std::advance(middle, (leftIndex + rightIndex) / 2 - middleIndex);
+            int leftPos = getTimePoint(0, tl.size(), c->startTime);
+            int rightPos = getTimePoint(leftPos, tl.size(), c->endTime);
+            if (leftPos == rightPos) {
+                if (leftPos < 0) {
+                    leftPos = -leftPos - 1;
+                    insertNode(leftPos, c->startTime);
                 }
-                middleIndex = (leftIndex + rightIndex) / 2;
-            }
-            if (middle == tl.end()) {
-                Node front;
-                front.data.push_back(c);
-                front.timestamp = c->startTime;
-                tl.push_back(front);
-                if (c->startTime != c->endTime) {
-                    Node back;
-                    back.timestamp = c->endTime;
-                    back.data.push_back(c);
-                    tl.push_back(back);
-                }
-            } else if (middle->timestamp != startTime) {
-                Node &next = *(middle++);
-                middle--;
-                Node front;
-                front.timestamp = startTime;
-                for (CompoundCommand *c : middle->data) {
-                    if (std::find(next.data.begin(), next.data.end(), c) != next.data.end()) {
-                        front.data.push_back(c);
-                        continue;
-                    }
-                }
-                middle++;
-                tl.insert(middle, front);
-                middle--;
+                tl[leftPos].data.push_back(c);
             } else {
-                start = middle;
-                right = tl.end();
-                rightIndex = tl.size();
-                std::advance(middle, (leftIndex + rightIndex) / 2 - middleIndex);
-                middleIndex = middleIndex = (rightIndex + leftIndex) / 2;
-                while (leftIndex + 1 != rightIndex) {
-                    if (middle->timestamp > endTime) {
-                        std::advance(right, middleIndex - rightIndex);
-                        rightIndex = middleIndex;
-                        std::advance(middle, (leftIndex + rightIndex) / 2 - middleIndex);
-                    } else {
-                        std::advance(left, middleIndex - leftIndex);
-                        leftIndex = middleIndex;
-                        std::advance(middle, (leftIndex + rightIndex) / 2 - middleIndex);
-                    }
+                if (leftPos < 0) {
+                    leftPos = -leftPos - 1;
+                    insertNode(leftPos, c->startTime);
                 }
-                if (end == tl.end()) {
-                    Node back;
-                    back.timestamp = endTime;
-                    back.data.push_back(c);
-                    tl.push_back(back);
-                    end++;
-                } else if (middle->timestamp != endTime) {
-                    ++middle;
-                    Node &next = *(middle);
-                    middle--;
-                    Node back;
-                    back.timestamp = endTime;
-                    for (CompoundCommand *c : middle->data) {
-                        if (std::find(next.data.begin(), next.data.end(), c) != next.data.end()) {
-                            back.data.push_back(c);
-                            continue;
-                        }
-                    }
-                    middle++;
-                    tl.insert(middle, back);
-                    end = middle;
-                } else {
-                    end = ++middle;
+                if (rightPos < 0) {
+                    rightPos = -rightPos - 1;
+                    insertNode(rightPos, c->endTime);
                 }
-                std::for_each(start, end, [c](Node &n) {
+                rightPos++;
+                std::for_each(tl.begin() + leftPos, tl.begin() + rightPos, [c](Node &n) {
                     n.data.push_back(c);
                 });
             }
@@ -114,9 +50,45 @@ namespace osu {
         return tl.size();
     }
 
-    void Timeline::print() {
+    void Timeline::printTimestampsInfo() {
         for (Node &n:tl) {
             std::cout << n.timestamp << " " << n.data.size() << std::endl;
         }
+    }
+
+    int Timeline::getTimePoint(int left, int right, int timestamp) {
+        if (tl.size() == 0) {
+            return -1;
+        }
+        int middle;
+        while (left < right) {
+            middle = (left + right) / 2;
+            if (tl[middle].timestamp == timestamp) {
+                return middle;
+            } else if (tl[middle].timestamp > timestamp) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+        return -(left + 1);
+    }
+
+    void Timeline::insertNode(int pos, int timestamp) {
+        Node node;
+        node.timestamp = timestamp;
+        if (pos != 0 && pos != tl.size()) {
+            auto leftI = tl.begin() + (pos - 1);
+            auto rightI = ++std::vector<Node>::iterator(leftI);
+            for (Command *c1: leftI->data) {
+                for (Command *c2: rightI->data) {
+                    if (c2 == c1) {
+                        node.data.push_back(c1);
+                        break;
+                    }
+                }
+            }
+        }
+        tl.insert(tl.begin() + pos, node);
     }
 }

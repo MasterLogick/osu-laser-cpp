@@ -7,23 +7,27 @@
 
 #include <list>
 #include <vector>
-#include "commands/CompoundCommand.h"
+#include "commands/Command.h"
 
 namespace osu {
     class Timeline {
         struct Node {
             int timestamp;
-            std::vector<CompoundCommand *> data;
+            std::vector<Command *> data;
         };
+//        std::vector<Command *> cache;
+        std::vector<Node> tl;
 
-        std::list<Node> tl;
+        int getTimePoint(int left, int right, int timestamp);
+
+        void insertNode(int pos, int timestamp);
 
     public:
-        void insert(CompoundCommand *c);
+        void insert(Command *c);
 
         size_t size();
 
-        void print();
+        void printTimestampsInfo();
     };
 }
 
