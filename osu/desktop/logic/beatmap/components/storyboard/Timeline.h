@@ -7,27 +7,23 @@
 
 #include <list>
 #include <vector>
+#include <climits>
 #include "commands/Command.h"
 
 namespace osu {
     class Timeline {
-        struct Node {
-            int timestamp;
-            std::vector<Command *> data;
-        };
-//        std::vector<Command *> cache;
-        std::vector<Node> tl;
-
-        int getTimePoint(int left, int right, int timestamp);
-
-        void insertNode(int pos, int timestamp);
-
+        std::vector<Command *> cache;
+        std::vector<int> timestamps;
+        std::vector<int>::iterator nextTimestamp;
+        std::vector<Command *>::iterator left;
+        std::vector<Command *>::iterator right;
+        int lastProcessTime = INT_MIN;
     public:
         void insert(Command *c);
 
-        size_t size();
+        void pack();
 
-        void printTimestampsInfo();
+        void process(int time);
     };
 }
 
