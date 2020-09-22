@@ -6,16 +6,13 @@
 #define OSU_LASER_CPP_COMMANDCONTAINER_H
 
 #include "commands/Command.h"
-#include <list>
+#include <vector>
 
 namespace osu {
-    class CommandContainer : private std::list<Command *> {
+    class CommandContainer : private std::vector<Command *> {
     private:
         int startTime;
         int endTime;
-        std::list<Command *>::iterator next;
-        Command *current;
-        int nextTime;
     public:
         void add(Command *c);
 
@@ -25,7 +22,9 @@ namespace osu {
 
         void pack();
 
-        Command *get(int time);
+        void process(int time);
+
+        bool empty();
     };
 }
 

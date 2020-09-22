@@ -38,7 +38,7 @@ namespace osu {
         TimingPointSet *timingPointSet;
         ColorSchema *colorSchema;
         HitObjectParser *hitObjectParser;
-        std::list<std::pair<std::string, std::string>> variables;
+        std::vector<std::pair<std::string, std::string>> variables;
         std::vector<HitObject *> hitObjects;
         int formatVersion;
         int globalOffset;
@@ -86,11 +86,11 @@ namespace osu {
 
     public:
 
-        explicit BeatmapLoader(int version);
+        explicit BeatmapLoader();
 
-        void loadLegacyBeatmap(std::string &path);
+        void loadLegacyBeatmap(char *path);
 
-        void loadLegacyStoryboard(std::string &path);
+        void loadLegacyStoryboard(char *path);
 
         Beatmap *buildBeatmap();
 

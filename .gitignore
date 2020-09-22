@@ -1,5 +1,6 @@
 /cmake-build-debug/
 /cmake-build-release/
+/cmake-build-debug-coverage/
 *.sln
 *.vcproj
 /osu-laser-cpp.sublime-workspace

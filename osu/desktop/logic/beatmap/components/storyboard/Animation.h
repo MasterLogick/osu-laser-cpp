@@ -9,23 +9,22 @@
 #include "../../../../graphics/UI/Origin.h"
 #include "../../../utill/Point.h"
 #include "Event.h"
-#include "../../../../graphics/UI/Texture.h"
+#include "DrawableEvent.h"
 #include <string>
 #include <vector>
 
 namespace osu {
-    class Animation : public Event {
+    class Animation : public DrawableEvent {
     public:
         Layer layer;
         Origin origin;
-        std::string file;
+        std::string path;
         Point pos;
         int frameCount;
-        int frameDelay;
+        float frameDelay;
         enum LoopType {
             LoopOnce, LoopForever
         } type;
-        Texture *textureArray;
 
         explicit Animation(std::vector<std::string> &data);
     };

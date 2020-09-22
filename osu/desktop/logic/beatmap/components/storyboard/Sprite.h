@@ -9,15 +9,16 @@
 #include "../../../../graphics/UI/Origin.h"
 #include "../../../utill/Point.h"
 #include "Event.h"
+#include "DrawableEvent.h"
 #include <string>
 #include <vector>
 
 namespace osu {
-    class Sprite : public Event {
+    class Sprite : public DrawableEvent {
     public:
         Layer layer;
         Origin origin;
-        std::string file;
+        std::string path;
         PointF pos;
 
         explicit Sprite(std::vector<std::string> &data);

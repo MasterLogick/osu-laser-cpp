@@ -11,6 +11,8 @@
 #include "Event.h"
 #include "commands/CompoundCommand.h"
 #include "Storyboard.h"
+#include "PreCachedImage.h"
+#include "Timeline.h"
 #include <list>
 #include <vector>
 #include <boost/filesystem/path.hpp>
@@ -20,11 +22,15 @@ namespace osu {
 
     class StoryboardBuilder {
     private:
-        std::vector<CompoundCommand *> commandContainers;
+        Timeline timeline;
+//        std::vector<CompoundCommand *> commandContainers;
         std::vector<Event *> events;
+        std::vector<PreCachedImage> texturePaths;
         path dir;
 
     public:
+        StoryboardBuilder();
+
         StoryboardBuilder(path dir);
 
         void addEvent(Event *event);
@@ -34,6 +40,8 @@ namespace osu {
         Storyboard *build();
 
         void setRootPath(path dir);
+
+        path getRootPath();
     };
 }
 

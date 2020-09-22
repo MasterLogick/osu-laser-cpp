@@ -18,6 +18,8 @@ namespace osu {
         ETAnimation = 6
     };
 
+    bool isDrawable(EventType e);
+
     EventType parseEventType(std::string &s);
 }
 

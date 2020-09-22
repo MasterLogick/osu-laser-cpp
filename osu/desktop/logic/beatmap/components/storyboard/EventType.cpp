@@ -13,21 +13,20 @@ namespace osu {
             return ETBackground;
         }
         if (s.length() > 1) {
-            sswitch(s)
-            {
+            sswitch(s) {
                 scase("Background"):
                     return ETBackground;
-                scase("Video"):
+                    scase("Video"):
                     return ETVideo;
-                scase("Break"):
+                    scase("Break"):
                     return ETBreak;
-                scase("Colour"):
+                    scase("Colour"):
                     return ETColour;
-                scase("Sprite"):
+                    scase("Sprite"):
                     return ETSprite;
-                scase("Sample"):
+                    scase("Sample"):
                     return ETSample;
-                scase("Animation"):
+                    scase("Animation"):
                     return ETAnimation;
             }
             //todo throw unknown_type error
@@ -36,5 +35,9 @@ namespace osu {
         } else {
             return (EventType) (s.front() - '0');
         }
+    }
+
+    bool isDrawable(EventType e) {
+        return e == EventType::ETSprite || e == EventType::ETAnimation || e == EventType::ETBackground;
     }
 }

@@ -36,23 +36,27 @@
 
 namespace osu {
 
-    BeatmapLoader::BeatmapLoader(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {
+    BeatmapLoader::BeatmapLoader() {
         metadata = new BeatmapMetadata();
         timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();
-        storyboardBuilder = new StoryboardBuilder(boost::filesystem::path());
+        storyboardBuilder = new StoryboardBuilder();
     }
 
     BeatmapLoader::~BeatmapLoader() {
         //todo implement
     }
 
-    void BeatmapLoader::loadLegacyStoryboard(std::string &path) {
+    void BeatmapLoader::loadLegacyStoryboard(char *path) {
         std::ifstream stream;
         stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         stream.open(path);
         if (!stream.is_open()) {
             //todo throw IO_exception
+        }
+        if (storyboardBuilder->getRootPath().empty()) {
+            boost::filesystem::path dirPath(path);
+            storyboardBuilder->setRootPath(dirPath.parent_path());
         }
         currentToken = None;
         std::string line;
@@ -79,18 +83,26 @@ namespace osu {
         }
     }
 
-    void BeatmapLoader::loadLegacyBeatmap(std::string &path) {
+    void BeatmapLoader::loadLegacyBeatmap(char *path) {
         std::ifstream stream;
         stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         stream.open(path);
         if (!stream.is_open()) {
             //todo throw IO_exception
         }
-        boost::filesystem::path dirPath(path);
-        storyboardBuilder->setRootPath(dirPath.parent_path());
+        if (storyboardBuilder->getRootPath().empty()) {
+            boost::filesystem::path dirPath(path);
+            storyboardBuilder->setRootPath(dirPath.parent_path());
+        }
         currentToken = None;
         std::string line;
         BufferedReader bf{stream};
+        if (bf.readLine(line)) {
+            line.erase(0, 17);
+            setVersion(boost::lexical_cast<int>(line));
+        } else {
+            //todo throw bad_format_exception
+        }
         while (bf.readLine(line)) {
             boost::trim(line);
             if (line.empty() || startsWith(line, "//")) {
@@ -428,15 +440,17 @@ namespace osu {
             depth++;
         }
         line = line.substr(depth);
-        while (depth < commandStack.size()) {
+        while (depth < commandStack.size() && commandStack.size() > 1) {
             commandStack.top()->pack();
+            commandStack.pop();
+        }
+        if (depth == 0 && commandStack.size() == 1) {
+            commandStack.top()->pack();
+            storyboardBuilder->addEventCommandContainer(commandStack.top());
             commandStack.pop();
         }
         decodeVariables(&line);
         if (depth == 0) {
-            if (currentEventContainer != nullptr) {
-                storyboardBuilder->addEventCommandContainer(currentEventContainer);
-            }
             Event *event = parseEvent(line);
             storyboardBuilder->addEvent(event);
             currentEvent = event;

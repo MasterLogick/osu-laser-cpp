@@ -11,7 +11,7 @@
 namespace osu {
     class ColorSchema {
     public:
-        std::list<Color> ComboColors;
+        std::vector<Color> ComboColors;
         Color SliderTrackOverride;
         Color SliderBorder;
 

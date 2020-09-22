@@ -7,14 +7,8 @@
 
 namespace osu {
 
-    Texture::Texture(std::string &path) {
-        data = stbi_load(path.c_str(), &width, &height, &channels, 4);
-
-    }
-
-    Texture::Texture(std::string &&path) {
-        data = stbi_load(path.c_str(), &width, &height, &channels, 4);
-
+    Texture::Texture(const char *path) {
+        data = stbi_load(path, &width, &height, &channels, 4);
     }
 
     void Texture::pushToVideoDrive() {

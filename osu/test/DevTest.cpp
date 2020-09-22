@@ -8,13 +8,16 @@
 #include <logic/beatmap/BeatmapLoader.h>
 #include <TestResourcesPaths.h>
 #include <boost/lexical_cast.hpp>
+#include <chrono>
+#include "ExecutionTimer.h"
 
 using namespace osu;
 
 int main(int argc, const char **argv, const char **envp) {
-    BeatmapLoader bl{14};
-    std::ifstream in{};
-    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    in.open("/home/user/.local/share/wineprefixes/osuWine/drive_c/users/user/osu/Songs/545737 REOL - YoiYoi Kokon/REOL - YoiYoi Kokon (DreaM117er).osb");
-    bl.loadLegacyStoryboard(in);
+    ExecutionTimer _timer;
+    BeatmapLoader bl;
+    bl.loadLegacyStoryboard(
+//            "/home/user/.local/share/wineprefixes/osuWine/drive_c/users/user/osu/Songs/171388 cillia - FIRST/cillia - FIRST (moph).osb");
+            "/home/user/.local/share/wineprefixes/osuWine/drive_c/users/user/osu/Songs/470977 Mili - worldexecute(me);/Mili - world.execute(me); (Exile-).osb");
+    bl.buildBeatmap();
 }

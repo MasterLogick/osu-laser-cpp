@@ -1,5 +1,6 @@
 #define test resources paths
-set(TEST_OSB_PATH "${PROJECT_SOURCE_DIR}/osu-test-resources/cillia - FIRST (moph).osb")
+set(SMALL_OSB "${PROJECT_SOURCE_DIR}/osu-test-resources/cillia - FIRST (moph).osb")
+set(BIG_OSB "${PROJECT_SOURCE_DIR}/osu-test-resources/Mili - world.execute(me); (Exile-).osb")
 
 #generate pre-compiled paths header
 configure_file(TestResourcesPaths.h.in ${PROJECT_BINARY_DIR}/TestResourcesPaths.h)

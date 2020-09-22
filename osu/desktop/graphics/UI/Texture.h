@@ -10,18 +10,16 @@
 
 namespace osu {
     class Texture {
-    private:
         int width;
         int height;
         int channels;
         unsigned char *data;
         GLuint texture;
     public:
+
         Texture();
 
-        explicit Texture(std::string &path);
-
-        explicit Texture(std::string &&path);
+        explicit Texture(const char *path);
 
         void pushToVideoDrive();
     };

@@ -6,7 +6,7 @@
 
 namespace osu {
     void Storyboard::cacheSprites() {
-        for (int i = 0, j = events.size(); i < j; ++i) {
+        /*for (int i = 0, j = events.size(); i < j; ++i) {
             Event *e = events[i];
             if (e->eventType == EventType::ETAnimation) {
                 Animation *anim = static_cast<Animation *>(e);
@@ -21,6 +21,6 @@ namespace osu {
             } else if (e->eventType == EventType::ETBackground) {
 
             }
-        }
+        }*/
     }
 }

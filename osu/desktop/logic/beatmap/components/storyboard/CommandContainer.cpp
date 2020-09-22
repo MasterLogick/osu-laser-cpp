@@ -21,28 +21,30 @@ namespace osu {
     }
 
     void CommandContainer::pack() {
-        sort([](Command *a, Command *b) -> bool {
-            return a->startTime < b->startTime;
-        });
-        std::for_each(begin(), end(), [this](Command *c) {
-            if (c->endTime > this->endTime) {
-                this->endTime = c->endTime;
-            }
-        });
-        next = begin();
-        current = *next;
-        nextTime = (*(next++))->startTime;
+        if (!empty()) {
+            std::sort(begin(), end(), [](Command *a, Command *b) -> bool {
+                return a->startTime < b->startTime;
+            });
+            std::for_each(begin(), end(), [this](Command *c) {
+                if (c->endTime > this->endTime) {
+                    this->endTime = c->endTime;
+                }
+            });
+            startTime = front()->startTime;
+        } else {
+            startTime = endTime = 0;
+        }
     }
 
-    Command *CommandContainer::get(int time) {
-        if (nextTime <= time) {
-            current = *next;
-            if ((next++) == end()) {
-                nextTime = INT_MAX;
-            } else {
-                nextTime = (*(next))->startTime;
+    void CommandContainer::process(int time) {
+        std::for_each(begin(), end(), [time](Command *c) {
+            if (c->startTime >= time && c->endTime <= time) {
+                c->process(time);
             }
-        }
-        return current;
+        });
+    }
+
+    bool CommandContainer::empty() {
+        return std::vector<Command *>::empty();
     }
 }

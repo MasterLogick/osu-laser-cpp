@@ -13,6 +13,7 @@ namespace osu {
 #define INVALIDATED -2
 #define UNMARKED -1
         std::istream &stream;
+        std::string buffer;
         size_t bufferSize{8192};
         char *cb;
         int nChars, nextChar;

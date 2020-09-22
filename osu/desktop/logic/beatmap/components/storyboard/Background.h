@@ -6,10 +6,11 @@
 #define OSU_LASER_CPP_BACKGROUND_H
 
 #include "Event.h"
+#include "DrawableEvent.h"
 #include <vector>
 
 namespace osu {
-    class Background : public Event {
+    class Background : public DrawableEvent {
     public:
         std::string path;
         int xoff;

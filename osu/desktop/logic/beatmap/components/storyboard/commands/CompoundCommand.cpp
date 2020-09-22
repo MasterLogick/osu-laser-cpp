@@ -20,15 +20,15 @@ namespace osu {
 
     void CompoundCommand::pack() {
         c.pack();
-        parent->startTime = startTime;
+        endTime = c.getEndTime();
+        parent->startTime = startTime = c.getStartTime();
     }
 
     void CompoundCommand::process(int time) {
-        Command *command;
-        Command *old = nullptr;
-        while ((command = c.get(time)) != old) {
-            old = command;
-            command->process(time);
-        }
+        c.process(time);
+    }
+
+    bool CompoundCommand::empty() {
+        return c.empty();
     }
 }

@@ -6,21 +6,25 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 #include <logic/beatmap/BeatmapLoader.h>
 #include <TestResourcesPaths.h>
+#include <logic/utill/BufferedReader.h>
+#include "ExecutionTimer.h"
+
+using namespace osu;
+
+void f(std::vector<int>::iterator e) {
+    e++;
+}
 
 int main(int argc, const char **argv, const char **envp) {
-    std::cout << TEST_OSB_PATH << std::endl;
-#ifndef NDEBUG
-    for (int i = 0; i < argc; i++) {
-        std::cout << argv[i] << std::endl;
-    }
-    std::cout << boost::dll::program_location() << std::endl;
-#endif
-    osu::BeatmapLoader bl(14);
-    std::ifstream in;
-    in.open("/home/user/Downloads/1171789 SPYAIR - Imagination (TV Size)/SPYAIR - Imagination (TV Size) (browiec) [Normal].osu");
-    bl.loadLegacyBeatmap(in);
-    osu::Beatmap *b = bl.buildBeatmap();
-    std::cout << b->metadata->Metadata.Title << std::endl;
-//    std::cout << sizeof(osuSample) << std::endl << sizeof(int);
+    ExecutionTimer _timer;
+    std::cout << sizeof(Timeline);
+    return 0;
+    std::vector<int> a{0, 1, 2, 3, 4, 5};
+    std::vector<int>::iterator b = a.begin();
+    f(b);
+    std::vector<int>::iterator c = std::vector<int>::iterator(b);
+    b++;
+//    std::cout << *c << " " << *b;
+    std::for_each(a.begin(), ++a.begin(), [](int e) { std::cout << e; });
     return 0;
 }
