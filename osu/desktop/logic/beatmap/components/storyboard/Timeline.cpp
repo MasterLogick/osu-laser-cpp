@@ -6,7 +6,6 @@
 #include <algorithm>
 
 namespace osu {
-
     void Timeline::insert(Command *c) {
         cache.push_back(c);
         timestamps.push_back(c->startTime);
@@ -38,22 +37,28 @@ namespace osu {
     }
 
     void Timeline::process(int time) {
-        if (lastProcessTime == INT_MIN) {
-            while ((*left)->startTime < time)left++;
-            while ((*right)->endTime <= time && right != cache.end())right++;
+        bool skipLastIteration = false;
+        while (*nextTimestamp <= time) {
+            while ((*left)->endTime < *nextTimestamp && left != cache.end())left++;
+            while ((*right)->startTime <= *nextTimestamp && right != cache.end())right++;
+            std::for_each(left, right, [this](Command *c) {
+                c->process(*nextTimestamp);
+            });
+            if (*nextTimestamp == time)skipLastIteration = true;
+            nextTimestamp++;
+        }
+        if (*nextTimestamp > time && !skipLastIteration) {
             std::for_each(left, right, [time](Command *c) {
                 c->process(time);
             });
-            lastProcessTime = time;
-        } else {
-            for (int i = lastProcessTime + 1; i <= time; ++i) {
-                while ((*left)->startTime < time)left++;
-                while ((*right)->endTime <= time && right != cache.end())right++;
-                std::for_each(left, right, [time](Command *c) {
-                    c->process(time);
-                });
-                lastProcessTime = time;
-            }
         }
+    }
+
+    int Timeline::getStartTime() {
+        return timestamps.front();
+    }
+
+    int Timeline::getEndTime() {
+        return timestamps.back();
     }
 }

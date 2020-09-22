@@ -17,11 +17,14 @@ namespace osu {
         std::vector<int>::iterator nextTimestamp;
         std::vector<Command *>::iterator left;
         std::vector<Command *>::iterator right;
-        int lastProcessTime = INT_MIN;
     public:
         void insert(Command *c);
 
         void pack();
+
+        int getStartTime();
+
+        int getEndTime();
 
         void process(int time);
     };
