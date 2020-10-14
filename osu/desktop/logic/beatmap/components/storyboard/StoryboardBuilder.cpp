@@ -80,9 +80,9 @@ namespace osu {
         }
     }
 
-    void StoryboardBuilder::addEventCommandContainer(CompoundCommand *container) {
+    void StoryboardBuilder::addEventContainer(CompoundCommand *container) {
 //        commandContainers.push_back(container);
-        timeline.insert(container);
+//        timeline.insert(container);
     }
 
     void StoryboardBuilder::setRootPath(path dir) {
@@ -98,7 +98,7 @@ namespace osu {
 //                  [](CompoundCommand *c1, CompoundCommand *c2) -> bool {
 //                      return c1->startTime < c2->startTime;
 //                  });
-        timeline.pack();
+//        timeline.pack();
 #ifndef NDEBUG
         std::cout << "Storyboard summary:" << std::endl;
         std::cout << "Events: " << events.size() << std::endl;

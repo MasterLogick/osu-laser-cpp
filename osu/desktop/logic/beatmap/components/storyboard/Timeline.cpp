@@ -4,61 +4,91 @@
 
 #include "Timeline.h"
 #include <algorithm>
+#include <iostream>
 
 namespace osu {
-    void Timeline::insert(Command *c) {
-        cache.push_back(c);
-        timestamps.push_back(c->startTime);
-        timestamps.push_back(c->endTime);
-    }
 
-    void Timeline::pack() {
-        std::sort(timestamps.begin(), timestamps.end());
-        int max = 0, curElem = INT_MIN, curMax = 0;
-        for (int i = 0; i < timestamps.size(); ++i) {
-            if (curElem == timestamps[i]) { curMax++; }
-            else {
-                if (curMax > max) { max = curMax; }
-                curMax = 1;
-                curElem = timestamps[i];
+    void Timeline::insert(Command *c) {
+        if (tl.empty()) {
+            Node front;
+            front.timestamp = c->startTime;
+            front.data.push_back(c);
+            tl.push_back(front);
+            if (c->startTime != c->endTime) {
+                Node back;
+                back.timestamp = c->endTime;
+                back.data.push_back(c);
+                tl.push_back(back);
+            }
+        } else {
+            int leftPos = getTimePoint(0, tl.size(), c->startTime);
+            int rightPos = getTimePoint(leftPos, tl.size(), c->endTime);
+            if (leftPos == rightPos) {
+                if (leftPos < 0) {
+                    leftPos = -leftPos - 1;
+                    insertNode(leftPos, c->startTime);
+                }
+                tl[leftPos].data.push_back(c);
+            } else {
+                if (leftPos < 0) {
+                    leftPos = -leftPos - 1;
+                    insertNode(leftPos, c->startTime);
+                }
+                if (rightPos < 0) {
+                    rightPos = -rightPos - 1;
+                    insertNode(rightPos, c->endTime);
+                }
+                rightPos++;
+                std::for_each(tl.begin() + leftPos, tl.begin() + rightPos, [c](Node &n) {
+                    n.data.push_back(c);
+                });
             }
         }
-        std::sort(cache.begin(), cache.end(),
-                  [](Command *c1, Command *c2) -> bool {
-                      return c1->startTime < c2->startTime ||
-                             (c1->startTime == c2->startTime &&
-                              c1->endTime < c2->endTime);
-                  });
-        auto i = std::unique(timestamps.begin(), timestamps.end());
-        timestamps.erase(i, timestamps.end());
-        left = cache.begin();
-        right = left;
-        nextTimestamp = timestamps.begin();
     }
 
-    void Timeline::process(int time) {
-        bool skipLastIteration = false;
-        while (*nextTimestamp <= time) {
-            while ((*left)->endTime < *nextTimestamp && left != cache.end())left++;
-            while ((*right)->startTime <= *nextTimestamp && right != cache.end())right++;
-            std::for_each(left, right, [this](Command *c) {
-                c->process(*nextTimestamp);
-            });
-            if (*nextTimestamp == time)skipLastIteration = true;
-            nextTimestamp++;
-        }
-        if (*nextTimestamp > time && !skipLastIteration) {
-            std::for_each(left, right, [time](Command *c) {
-                c->process(time);
-            });
+    size_t Timeline::size() {
+        return tl.size();
+    }
+
+    void Timeline::printTimestampsInfo() {
+        for (Node &n:tl) {
+            std::cout << n.timestamp << " " << n.data.size() << std::endl;
         }
     }
 
-    int Timeline::getStartTime() {
-        return timestamps.front();
+    int Timeline::getTimePoint(int left, int right, int timestamp) {
+        if (tl.size() == 0) {
+            return -1;
+        }
+        int middle;
+        while (left < right) {
+            middle = (left + right) / 2;
+            if (tl[middle].timestamp == timestamp) {
+                return middle;
+            } else if (tl[middle].timestamp > timestamp) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+        return -(left + 1);
     }
 
-    int Timeline::getEndTime() {
-        return timestamps.back();
+    void Timeline::insertNode(int pos, int timestamp) {
+        Node node;
+        node.timestamp = timestamp;
+        if (pos != 0 && pos != tl.size()) {
+            auto leftI = tl.begin() + (pos - 1);
+            auto rightI = ++std::vector<Node>::iterator(leftI);
+            for (Command *c1: leftI->data) {
+                for (Command *c2: rightI->data) {
+                    if (c2 == c1) {
+                        node.data.push_back(c1);
+                        break;
+                    }
+                }
+            }
+        }
+        tl.insert(tl.begin() + pos, node);
     }
 }

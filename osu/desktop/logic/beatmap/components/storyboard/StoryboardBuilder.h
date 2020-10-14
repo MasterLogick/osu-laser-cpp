@@ -35,7 +35,7 @@ namespace osu {
 
         void addEvent(Event *event);
 
-        void addEventCommandContainer(CompoundCommand *container);
+        void addEventContainer(CompoundCommand *container);
 
         Storyboard *build();
 

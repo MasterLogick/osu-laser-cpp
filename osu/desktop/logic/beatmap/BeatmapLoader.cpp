@@ -9,9 +9,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
 #include "BeatmapLoader.h"
-#include "../modes/osu/OsuHitObjectParser.h"
 #include "../utill/StringUtills.h"
-#include "../utill/str_switch.h"
 #include "components/BeatmapMetadata.h"
 #include "components/BeatmapEnums.h"
 #include "components/TimingPoint.h"
@@ -33,6 +31,7 @@
 #include "components/storyboard/commands/Rotate.h"
 #include "components/storyboard/commands/Parameter.h"
 #include "../utill/BufferedReader.h"
+#include "../modes/standart/OsuHitObjectParser.h"
 
 namespace osu {
 
@@ -108,7 +107,7 @@ namespace osu {
             if (line.empty() || startsWith(line, "//")) {
                 continue;
             }
-            if (line[0] == '[' && line[line.size() - 1] == ']') {
+            if (line.front() == '[' && line.back() == ']') {
                 handleSection(line);
             } else {
                 switch (currentToken) {
@@ -446,7 +445,7 @@ namespace osu {
         }
         if (depth == 0 && commandStack.size() == 1) {
             commandStack.top()->pack();
-            storyboardBuilder->addEventCommandContainer(commandStack.top());
+            storyboardBuilder->addEventContainer(commandStack.top());
             commandStack.pop();
         }
         decodeVariables(&line);
