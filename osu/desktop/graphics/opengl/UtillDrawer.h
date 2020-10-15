@@ -19,7 +19,7 @@ namespace osu {
     public:
         static void initialise();
 
-        static void drawRectSprite(glm::vec4 *p1, glm::vec4 *p2, float layer, GLuint spriteTexture);
+        static void drawRectSprite(float x1, float y1, float x2, float y2, float layer, GLuint spriteTexture);
     };
 }
 

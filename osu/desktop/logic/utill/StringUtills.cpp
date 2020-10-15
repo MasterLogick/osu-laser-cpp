@@ -11,7 +11,7 @@ namespace osu {
     std::pair<std::string, std::string> splitKeyValPair(std::string &kpVar, char separator) {
         size_t pos = kpVar.find(separator);
         std::string val{kpVar.substr(pos + 1)};
-        return std::pair<std::string, std::string>(kpVar.substr(0, pos), val);
+        return std::pair<std::string, std::string>(boost::trim_copy(kpVar.substr(0, pos)), boost::trim_copy(val));
     }
 
     std::pair<std::string, std::string> splitKeyValPair(std::string &kpVar, int skip, char separator) {

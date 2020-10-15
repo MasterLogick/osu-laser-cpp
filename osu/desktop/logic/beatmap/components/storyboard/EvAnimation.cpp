@@ -2,11 +2,11 @@
 // Created by MasterLogick on 6/9/20.
 //
 
-#include "Animation.h"
+#include "EvAnimation.h"
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
-    Animation::Animation(std::vector<std::string> &data) {
+    EvAnimation::EvAnimation(std::vector<std::string> &data) {
         //0         1       2        3            4   5   6            7            8
         //Animation,(layer),(origin),”(filepath)”,(x),(y),(frameCount),(frameDelay),(looptype)
 

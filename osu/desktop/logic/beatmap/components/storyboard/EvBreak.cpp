@@ -2,12 +2,12 @@
 // Created by MasterLogick on 28/06/2020.
 //
 
-#include "Break.h"
+#include "EvBreak.h"
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
 
-    Break::Break(std::vector<std::string> &data) {
+    EvBreak::EvBreak(std::vector<std::string> &data) {
         //0 1         2
         //2,startTime,endTime
         if (data.size() != 3) {

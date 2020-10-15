@@ -13,12 +13,13 @@
 #include "components/BeatmapMetadata.h"
 #include "components/BeatmapEnums.h"
 #include "components/TimingPoint.h"
-#include "components/storyboard/Animation.h"
-#include "components/storyboard/Break.h"
-#include "components/storyboard/Background.h"
-#include "components/storyboard/Sample.h"
-#include "components/storyboard/Sprite.h"
-#include "components/storyboard/Video.h"
+#include "components/storyboard/EvAnimation.h"
+#include "components/storyboard/EvBreak.h"
+#include "components/storyboard/EvBackground.h"
+#include "components/storyboard/EvSample.h"
+#include "components/storyboard/EvSprite.h"
+#include "components/storyboard/EvVideo.h"
+#include "components/storyboard/EvColour.h"
 #include "components/storyboard/commands/Colour.h"
 #include "components/storyboard/commands/Fade.h"
 #include "components/storyboard/commands/Loop.h"
@@ -31,11 +32,10 @@
 #include "components/storyboard/commands/Rotate.h"
 #include "components/storyboard/commands/Parameter.h"
 #include "../utill/BufferedReader.h"
-#include "../modes/standart/OsuHitObjectParser.h"
 
 namespace osu {
 
-    BeatmapLoader::BeatmapLoader() {
+    BeatmapLoader::BeatmapLoader() : hitObjectParser(0) {
         metadata = new BeatmapMetadata();
         timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();
@@ -149,7 +149,7 @@ namespace osu {
     Beatmap *BeatmapLoader::buildBeatmap() {
         Beatmap *beatmap = new Beatmap();
         std::sort(hitObjects.begin(), hitObjects.end(),
-                  [](HitObject *a, HitObject *b) -> bool {
+                  [](Circle *a, Circle *b) -> bool {
                       return a->time < b->time;
                   });
         beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
@@ -215,21 +215,6 @@ namespace osu {
                 break;
                 scase("Mode"):
                 metadata->General.Mode = static_cast<GameMode>(boost::lexical_cast<int>(data.second));
-                switch (metadata->General.Mode) {
-                    case Standard:
-                        hitObjectParser = new OsuHitObjectParser(formatVersion);
-                        //todo return standard parser
-                        break;
-                    case Taiko:
-                        //todo return taiko parser
-                        break;
-                    case Mania:
-                        //todo return mania parser
-                        break;
-                    case Catch:
-                        //todo return catch parser
-                        break;
-                }
                 break;
                 scase("OverlayPosition"):
                 sswitch(data.second) {
@@ -421,10 +406,7 @@ namespace osu {
     }
 
     void BeatmapLoader::handleHitObjects(std::string &line) {
-        if (hitObjectParser == nullptr) {
-            //todo catch undefined mode exception
-        }
-        HitObject *hitObject = hitObjectParser->parseHitObject(line);
+        Circle *hitObject = hitObjectParser.parseHitObject(line);
         hitObjects.push_back(hitObject);
     }
 
@@ -487,7 +469,6 @@ namespace osu {
         metadata = new BeatmapMetadata();
         timingPointSet = new TimingPointSet();
         colorSchema = new ColorSchema();
-        hitObjectParser = nullptr;
         variables.clear();
         hitObjects.clear();
     }
@@ -495,6 +476,7 @@ namespace osu {
     void BeatmapLoader::setVersion(int version) {
         formatVersion = version;
         globalOffset = version < 5 ? 24 : 0;
+        hitObjectParser = HitObjectParser(version);
     }
 
     void BeatmapLoader::decodeVariables(std::string *line) {
@@ -513,20 +495,19 @@ namespace osu {
         EventType type = parseEventType(data[0]);
         switch (type) {
             case EventType::ETAnimation:
-                return new Animation(data);
+                return new EvAnimation(data);
             case EventType::ETBreak:
-                return new Break(data);
+                return new EvBreak(data);
             case EventType::ETBackground:
-                return new Background(data);
+                return new EvBackground(data);
             case EventType::ETColour:
-                //todo
-                break;
+                return new EvColour(data);
             case EventType::ETSample:
-                return new Sample(data);
+                return new EvSample(data);
             case EventType::ETSprite:
-                return new Sprite(data);
+                return new EvSprite(data);
             case EventType::ETVideo:
-                return new Video(data);
+                return new EvVideo(data);
         }
         return nullptr;
     }

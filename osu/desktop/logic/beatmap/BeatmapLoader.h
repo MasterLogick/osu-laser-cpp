@@ -37,9 +37,9 @@ namespace osu {
         BeatmapMetadata *metadata;
         TimingPointSet *timingPointSet;
         ColorSchema *colorSchema;
-        HitObjectParser *hitObjectParser;
+        HitObjectParser hitObjectParser;
         std::vector<std::pair<std::string, std::string>> variables;
-        std::vector<HitObject *> hitObjects;
+        std::vector<Circle *> hitObjects;
         int formatVersion;
         int globalOffset;
         SectionToken currentToken{None};

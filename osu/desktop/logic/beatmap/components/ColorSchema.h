@@ -5,7 +5,7 @@
 #ifndef OSU_LASER_C_COLORSCHEMA_H
 #define OSU_LASER_C_COLORSCHEMA_H
 
-#include <list>
+#include <vector>
 #include "../../utill/Color.h"
 
 namespace osu {

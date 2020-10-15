@@ -3,17 +3,15 @@
 //
 
 #include <boost/lexical_cast.hpp>
-#include "OsuHitObjectParser.h"
-#include "../../utill/StringUtills.h"
-#include "../../utill/Point.h"
-#include "OsuHitObject.h"
+#include "HitObjectParser.h"
+#include "../utill/StringUtills.h"
 
 namespace osu {
 
-    HitObject *OsuHitObjectParser::parseHitObject(std::string &line) {
+    Circle *HitObjectParser::parseHitObject(std::string &line) {
         std::vector<std::string> data = split(line, ',');
         int type = boost::lexical_cast<int>(data[3]);
-        if (type & HitObjectType::Circle) {
+        if (type & HitObjectType::HTCircle) {
             //0 1 2    3    4        5
             //x,y,time,type,hitSound,hitSample
             if (data.size() < 5) {
@@ -21,7 +19,7 @@ namespace osu {
                 //todo delete all allocated vars
                 return nullptr;
             }
-            OsuCircle *tmp = new OsuCircle();
+            Circle *tmp = new Circle();
             tmp->pos.x = boost::lexical_cast<int>(data[0]);
             tmp->pos.y = boost::lexical_cast<int>(data[1]);
             tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
@@ -30,9 +28,9 @@ namespace osu {
                 tmp->hitSample = HitSample::DefaultHitsample;
             else
                 tmp->hitSample = HitSample(data[5]);
-            tmp->type = type;
+            tmp->type = (HitObjectType) type;
             return tmp;
-        } else if (type & HitObjectType::Slider) {
+        } else if (type & HitObjectType::HTSlider) {
             //0 1 2    3    4        5         x:y         6      7      8          9        10
             //x,y,time,type,hitSound,curveType|curvePoints,slides,length,edgeSounds,edgeSets,hitSample
             if (data.size() < 8) {
@@ -40,7 +38,7 @@ namespace osu {
                 //todo delete all allocated vars
                 return nullptr;
             }
-            OsuSlider *tmp = new OsuSlider();
+            Slider *tmp = new Slider();
             std::vector<std::string> path = split(data[5], '|');
             tmp->curveType = (CurveType) path[0][0];
             tmp->curvePoints = new Point[path.size()];
@@ -82,9 +80,9 @@ namespace osu {
                 tmp->hitSample = HitSample::DefaultHitsample;
             else
                 tmp->hitSample = HitSample(data[10]);
-            tmp->type = type;
+            tmp->type = (HitObjectType) type;
             return tmp;
-        } else if (type & HitObjectType::Spinner) {
+        } else if (type & HitObjectType::HTSpinner) {
             //0 1 2    3    4        5       6
             //x,y,time,type,hitSound,endTime,hitSample
             if (data.size() < 6) {
@@ -92,7 +90,7 @@ namespace osu {
                 //todo delete all allocated vars
                 return nullptr;
             }
-            OsuSpinner *tmp = new OsuSpinner();
+            Spinner *tmp = new Spinner();
             tmp->time = globalOffset + boost::lexical_cast<int>(data[2]);
             tmp->endTime = boost::lexical_cast<int>(data[5]);
             tmp->hitSoundBitField = boost::lexical_cast<int>(data[4]);
@@ -100,7 +98,7 @@ namespace osu {
                 tmp->hitSample = HitSample::DefaultHitsample;
             else
                 tmp->hitSample = HitSample(data[6]);
-            tmp->type = type;
+            tmp->type = (HitObjectType) type;
             return tmp;
         } else {
             //todo throw unknown_type error

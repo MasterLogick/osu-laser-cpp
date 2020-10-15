@@ -44,6 +44,7 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 set(RESOURCES ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources)
 set(CONFIG_PATH ${PROJECT_BINARY_DIR}/config.cfg)
 set(FONTS_PATH ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources/Fonts/)
+set(SKIN_PATH ${PROJECT_SOURCE_DIR}/osu-resources/osu.Game.Resources/Skins/Legacy/)
 
 #generate headers
 configure_file(osu/desktop/platformDependentDefines.h.in ${PROJECT_BINARY_DIR}/platformDependentDefines.h)
@@ -93,7 +94,7 @@ file(GLOB_RECURSE SOURCE_FILES "osu/desktop/*/*")
 add_library(${CMAKE_PROJECT_NAME}_lib ${SOURCE_FILES} ${GLAD_SOURCES})
 
 #declare compilation defines
-target_compile_definitions(${CMAKE_PROJECT_NAME}_lib PUBLIC GLFW_INCLUDE_NONE STB_IMAGE_IMPLEMENTATION)
+target_compile_definitions(${CMAKE_PROJECT_NAME}_lib PUBLIC GLFW_INCLUDE_NONE)
 if (COMPILE_WITH_ALL_FONTS)
     target_compile_definitions(${CMAKE_PROJECT_NAME}_lib PRIVATE COMPILE_WITH_ALL_FONTS)
     message(STATUS "Compiling with all fonts")

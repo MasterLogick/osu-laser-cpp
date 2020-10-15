@@ -17,7 +17,7 @@ namespace osu {
         int globalOffset;
 
     public:
-        virtual HitObject *parseHitObject(std::string &line) = 0;
+        Circle *parseHitObject(std::string &line);
 
         explicit HitObjectParser(int version) : formatVersion(version), globalOffset(version < 5 ? 24 : 0) {}
     };

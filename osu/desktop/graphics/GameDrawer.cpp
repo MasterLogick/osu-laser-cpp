@@ -5,9 +5,11 @@
 #include "GameDrawer.h"
 #include "UI/Font.h"
 #include "opengl/UtillDrawer.h"
+#include "UI/skin/SkinSprites.h"
 
 #define MSAA_LEVEL 4
 namespace osu {
+    GameScreenDrawable *GameDrawer::drawable = nullptr;
     PostProcessor GameDrawer::postProcessor = PostProcessor(MSAA_LEVEL);
 
     void GameDrawer::preProcessing() {
@@ -22,7 +24,8 @@ namespace osu {
     }
 
     void GameDrawer::drawGame() {
-
+        drawable->draw();
+        UtillDrawer::drawRectSprite(0, 0, 100, 100, -90, SkinSprites::CircleSprite);
     }
 
     void GameDrawer::postProcessing() {
@@ -34,6 +37,7 @@ namespace osu {
     }
 
     void GameDrawer::initialise() {
+        SkinSprites::loadSprites();
         Shader::initialise();
         Font::initialise();
         UtillDrawer::initialise();
@@ -49,5 +53,9 @@ namespace osu {
         UIManager::drawForeground();
         postProcessing();
         render();
+    }
+
+    void GameDrawer::useGameScreenDrawable(GameScreenDrawable *screenDrawable) {
+        drawable = screenDrawable;
     }
 }

@@ -9,12 +9,14 @@
 #include "opengl/PostProcessor.h"
 #include "UI/UIManager.h"
 #include "Graphics.h"
+#include "game_modes/standart/GameScreenDrawable.h"
 
 namespace osu {
 
     class GameDrawer {
     private:
         static PostProcessor postProcessor;
+        static GameScreenDrawable *drawable;
 
         static void preProcessing();
 
@@ -31,6 +33,8 @@ namespace osu {
         static void initialise();
 
         static void draw();
+
+        static void useGameScreenDrawable(GameScreenDrawable *screenDrawable);
     };
 }
 #endif

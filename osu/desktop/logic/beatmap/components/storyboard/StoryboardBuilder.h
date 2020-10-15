@@ -5,9 +5,9 @@
 #ifndef OSU_LASER_CPP_STORYBOARDBUILDER_H
 #define OSU_LASER_CPP_STORYBOARDBUILDER_H
 
-#include "Sprite.h"
-#include "Animation.h"
-#include "Sample.h"
+#include "EvSprite.h"
+#include "EvAnimation.h"
+#include "EvSample.h"
 #include "Event.h"
 #include "commands/CompoundCommand.h"
 #include "Storyboard.h"

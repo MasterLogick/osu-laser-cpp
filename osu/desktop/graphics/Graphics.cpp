@@ -4,10 +4,9 @@
 
 #include "Graphics.h"
 #include "GameDrawer.h"
-#include "UI/UIManager.h"
 #include "Callbacks.h"
 #include "../logic/Osu.h"
-#include "../interaction/FPSCounter.h"
+#include "opengl/GLInfo.h"
 #include <mutex>
 #include <condition_variable>
 #include <glad/glad.h>
@@ -70,6 +69,7 @@ namespace osu {
 #endif
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CCW);
+        GLInfo::loadInfo();
     }
 
     void runThread() {

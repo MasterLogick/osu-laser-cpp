@@ -2,8 +2,8 @@
 // Created by MasterLogick on 6/9/20.
 //
 
-#ifndef OSU_LASER_CPP_ANIMATION_H
-#define OSU_LASER_CPP_ANIMATION_H
+#ifndef OSU_LASER_CPP_EVANIMATION_H
+#define OSU_LASER_CPP_EVANIMATION_H
 
 #include "Layer.h"
 #include "../../../../graphics/UI/Origin.h"
@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace osu {
-    class Animation : public DrawableEvent {
+    class EvAnimation : public DrawableEvent {
     public:
         Layer layer;
         Origin origin;
@@ -26,8 +26,8 @@ namespace osu {
             LoopOnce, LoopForever
         } type;
 
-        explicit Animation(std::vector<std::string> &data);
+        explicit EvAnimation(std::vector<std::string> &data);
     };
 }
 
-#endif //OSU_LASER_CPP_ANIMATION_H
+#endif //OSU_LASER_CPP_EVANIMATION_H

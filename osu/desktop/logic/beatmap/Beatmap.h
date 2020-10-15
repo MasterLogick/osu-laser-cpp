@@ -9,7 +9,7 @@
 #include "components/TimingPointSet.h"
 #include "components/ColorSchema.h"
 #include "../modes/HitObject.h"
-#include <deque>
+#include <vector>
 #include "components/storyboard/Storyboard.h"
 
 namespace osu {
@@ -19,7 +19,7 @@ namespace osu {
         BeatmapMetadata *metadata;
         TimingPointSet *timingPointSet;
         ColorSchema *colorSchema;
-        std::deque<HitObject *> hitObjects;
+        std::vector<Circle *> hitObjects;
         Storyboard *storyboard;
     };
 }

@@ -71,7 +71,8 @@ namespace osu {
     }
 
     void osu::PostProcessor::postProcess(GLuint destinationFramebuffer) {
-        glBlitNamedFramebuffer(multiSampledFramebuffer, postProcessingFramebuffer, 0, 0, width, height, 0, 0, width, height,
+        glBlitNamedFramebuffer(multiSampledFramebuffer, postProcessingFramebuffer, 0, 0, width, height, 0, 0, width,
+                               height,
                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, destinationFramebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -89,7 +90,5 @@ namespace osu {
         glBindFramebuffer(GL_FRAMEBUFFER, multiSampledFramebuffer);
     }
 
-    PostProcessor::PostProcessor(GLuint msaaLevel) {
-        this->msaaLevel = msaaLevel;
-    }
+    PostProcessor::PostProcessor(GLuint msaaLevel) : msaaLevel(msaaLevel) {}
 }

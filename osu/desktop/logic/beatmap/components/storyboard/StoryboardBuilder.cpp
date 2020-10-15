@@ -3,7 +3,7 @@
 //
 
 #include "StoryboardBuilder.h"
-#include "Background.h"
+#include "EvBackground.h"
 #include "Timeline.h"
 #include "../../../../../test/ExecutionTimer.h"
 #include <iostream>
@@ -22,7 +22,7 @@ namespace osu {
         if (isDrawable(event->eventType)) {//todo replace with DrawableEvent::loadTextures call
             DrawableEvent *e = static_cast<DrawableEvent *>(event);
             if (e->eventType == EventType::ETBackground) {
-                std::string p = (dir / static_cast<Background *>(e)->path).string();
+                std::string p = (dir / static_cast<EvBackground *>(e)->path).string();
                 auto iterator = std::find_if(texturePaths.begin(), texturePaths.end(),
                                              [p](PreCachedImage &ref) -> bool {
                                                  return ref.framesPaths.front() == p;
@@ -36,7 +36,7 @@ namespace osu {
                     (*iterator).events.push_back(e);
                 }
             } else if (e->eventType == EventType::ETAnimation) {
-                Animation *anim = static_cast<Animation *>(e);
+                EvAnimation *anim = static_cast<EvAnimation *>(e);
                 path p = dir / anim->path;
                 std::string stem = const_cast<std::string &>((p.parent_path() / p.stem()).string());
                 std::string extension = const_cast<std::string &>(p.extension().string());
@@ -63,7 +63,7 @@ namespace osu {
                     pImage.events.push_back(e);
                 }
             } else if (e->eventType == EventType::ETSprite) {
-                std::string p = (dir / static_cast<Sprite *>(e)->path).string();
+                std::string p = (dir / static_cast<EvSprite *>(e)->path).string();
                 auto iterator = std::find_if(texturePaths.begin(), texturePaths.end(),
                                              [p](PreCachedImage &ref) -> bool {
                                                  return ref.framesPaths.front() == p;

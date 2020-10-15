@@ -2,11 +2,11 @@
 // Created by MasterLogick on 6/9/20.
 //
 
-#include "Sample.h"
+#include "EvSample.h"
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
-    Sample::Sample(std::vector<std::string> &data) {
+    EvSample::EvSample(std::vector<std::string> &data) {
         //0      1    2     3          4
         //Sample,time,layer,"filepath",volume
         if (data.size() < 4) {

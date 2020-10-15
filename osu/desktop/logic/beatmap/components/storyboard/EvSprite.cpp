@@ -2,11 +2,11 @@
 // Created by MasterLogick on 6/9/20.
 //
 
-#include "Sprite.h"
+#include "EvSprite.h"
 #include <boost/lexical_cast.hpp>
 
 namespace osu {
-    Sprite::Sprite(std::vector<std::string> &data) {
+    EvSprite::EvSprite(std::vector<std::string> &data) {
         //0      1       2        3            4   5
         //Sprite,(layer),(origin),”(filepath)”,(x),(y)
         if (data.size() != 6) {

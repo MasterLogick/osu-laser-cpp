@@ -2,8 +2,8 @@
 // Created by MasterLogick on 6/9/20.
 //
 
-#ifndef OSU_LASER_CPP_SPRITE_H
-#define OSU_LASER_CPP_SPRITE_H
+#ifndef OSU_LASER_CPP_EVSPRITE_H
+#define OSU_LASER_CPP_EVSPRITE_H
 
 #include "Layer.h"
 #include "../../../../graphics/UI/Origin.h"
@@ -14,16 +14,16 @@
 #include <vector>
 
 namespace osu {
-    class Sprite : public DrawableEvent {
+    class EvSprite : public DrawableEvent {
     public:
         Layer layer;
         Origin origin;
         std::string path;
         PointF pos;
 
-        explicit Sprite(std::vector<std::string> &data);
+        explicit EvSprite(std::vector<std::string> &data);
     };
 }
 
 
-#endif //OSU_LASER_CPP_SPRITE_H
+#endif //OSU_LASER_CPP_EVSPRITE_H
