@@ -27,10 +27,13 @@
 #include "alu.h"
 #include "defs.h"
 
+struct SSE4Tag;
+struct LerpTag;
+
 
 template<>
-const ALfloat *Resample_<LerpTag,SSE4Tag>(const InterpState*, const ALfloat *RESTRICT src,
-    ALuint frac, ALuint increment, const al::span<float> dst)
+const float *Resample_<LerpTag,SSE4Tag>(const InterpState*, const float *RESTRICT src, ALuint frac,
+    ALuint increment, const al::span<float> dst)
 {
     const __m128i increment4{_mm_set1_epi32(static_cast<int>(increment*4))};
     const __m128 fracOne4{_mm_set1_ps(1.0f/FRACTIONONE)};
@@ -44,8 +47,7 @@ const ALfloat *Resample_<LerpTag,SSE4Tag>(const InterpState*, const ALfloat *RES
         static_cast<int>(pos_[2]), static_cast<int>(pos_[3]))};
 
     auto dst_iter = dst.begin();
-    const auto aligned_end = (dst.size()&~3u) + dst_iter;
-    while(dst_iter != aligned_end)
+    for(size_t todo{dst.size()>>2};todo;--todo)
     {
         const int pos0{_mm_extract_epi32(pos4, 0)};
         const int pos1{_mm_extract_epi32(pos4, 1)};
@@ -67,7 +69,7 @@ const ALfloat *Resample_<LerpTag,SSE4Tag>(const InterpState*, const ALfloat *RES
         frac4 = _mm_and_si128(frac4, fracMask4);
     }
 
-    if(dst_iter != dst.end())
+    if(size_t todo{dst.size()&3})
     {
         /* NOTE: These four elements represent the position *after* the last
          * four samples, so the lowest element is the next position to
@@ -82,7 +84,7 @@ const ALfloat *Resample_<LerpTag,SSE4Tag>(const InterpState*, const ALfloat *RES
             frac += increment;
             src  += frac>>FRACTIONBITS;
             frac &= FRACTIONMASK;
-        } while(dst_iter != dst.end());
+        } while(--todo);
     }
-    return dst.begin();
+    return dst.data();
 }

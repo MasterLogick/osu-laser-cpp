@@ -11,8 +11,11 @@
 
 #include "albyte.h"
 #include "alu.h"
-#include "fpu_modes.h"
+#include "fpu_ctrl.h"
 #include "mixer/defs.h"
+
+struct CTag;
+struct CopyTag;
 
 
 namespace {
@@ -21,27 +24,27 @@ namespace {
  * chokes on that given the inline specializations.
  */
 template<DevFmtType T>
-inline ALfloat LoadSample(typename DevFmtTypeTraits<T>::Type val) noexcept;
+inline float LoadSample(typename DevFmtTypeTraits<T>::Type val) noexcept;
 
-template<> inline ALfloat LoadSample<DevFmtByte>(DevFmtTypeTraits<DevFmtByte>::Type val) noexcept
+template<> inline float LoadSample<DevFmtByte>(DevFmtTypeTraits<DevFmtByte>::Type val) noexcept
 { return val * (1.0f/128.0f); }
-template<> inline ALfloat LoadSample<DevFmtShort>(DevFmtTypeTraits<DevFmtShort>::Type val) noexcept
+template<> inline float LoadSample<DevFmtShort>(DevFmtTypeTraits<DevFmtShort>::Type val) noexcept
 { return val * (1.0f/32768.0f); }
-template<> inline ALfloat LoadSample<DevFmtInt>(DevFmtTypeTraits<DevFmtInt>::Type val) noexcept
+template<> inline float LoadSample<DevFmtInt>(DevFmtTypeTraits<DevFmtInt>::Type val) noexcept
 { return static_cast<float>(val) * (1.0f/2147483648.0f); }
-template<> inline ALfloat LoadSample<DevFmtFloat>(DevFmtTypeTraits<DevFmtFloat>::Type val) noexcept
+template<> inline float LoadSample<DevFmtFloat>(DevFmtTypeTraits<DevFmtFloat>::Type val) noexcept
 { return val; }
 
-template<> inline ALfloat LoadSample<DevFmtUByte>(DevFmtTypeTraits<DevFmtUByte>::Type val) noexcept
+template<> inline float LoadSample<DevFmtUByte>(DevFmtTypeTraits<DevFmtUByte>::Type val) noexcept
 { return LoadSample<DevFmtByte>(static_cast<ALbyte>(val - 128)); }
-template<> inline ALfloat LoadSample<DevFmtUShort>(DevFmtTypeTraits<DevFmtUShort>::Type val) noexcept
+template<> inline float LoadSample<DevFmtUShort>(DevFmtTypeTraits<DevFmtUShort>::Type val) noexcept
 { return LoadSample<DevFmtShort>(static_cast<ALshort>(val - 32768)); }
-template<> inline ALfloat LoadSample<DevFmtUInt>(DevFmtTypeTraits<DevFmtUInt>::Type val) noexcept
+template<> inline float LoadSample<DevFmtUInt>(DevFmtTypeTraits<DevFmtUInt>::Type val) noexcept
 { return LoadSample<DevFmtInt>(static_cast<ALint>(val - 2147483648u)); }
 
 
 template<DevFmtType T>
-inline void LoadSampleArray(ALfloat *RESTRICT dst, const void *src, const size_t srcstep,
+inline void LoadSampleArray(float *RESTRICT dst, const void *src, const size_t srcstep,
     const size_t samples) noexcept
 {
     using SampleType = typename DevFmtTypeTraits<T>::Type;
@@ -51,7 +54,7 @@ inline void LoadSampleArray(ALfloat *RESTRICT dst, const void *src, const size_t
         dst[i] = LoadSample<T>(ssrc[i*srcstep]);
 }
 
-void LoadSamples(ALfloat *dst, const ALvoid *src, const size_t srcstep, const DevFmtType srctype,
+void LoadSamples(float *dst, const void *src, const size_t srcstep, const DevFmtType srctype,
     const size_t samples) noexcept
 {
 #define HANDLE_FMT(T)                                                         \
@@ -71,27 +74,27 @@ void LoadSamples(ALfloat *dst, const ALvoid *src, const size_t srcstep, const De
 
 
 template<DevFmtType T>
-inline typename DevFmtTypeTraits<T>::Type StoreSample(ALfloat) noexcept;
+inline typename DevFmtTypeTraits<T>::Type StoreSample(float) noexcept;
 
-template<> inline ALfloat StoreSample<DevFmtFloat>(ALfloat val) noexcept
+template<> inline ALfloat StoreSample<DevFmtFloat>(float val) noexcept
 { return val; }
-template<> inline ALint StoreSample<DevFmtInt>(ALfloat val) noexcept
+template<> inline ALint StoreSample<DevFmtInt>(float val) noexcept
 { return fastf2i(clampf(val*2147483648.0f, -2147483648.0f, 2147483520.0f)); }
-template<> inline ALshort StoreSample<DevFmtShort>(ALfloat val) noexcept
+template<> inline ALshort StoreSample<DevFmtShort>(float val) noexcept
 { return static_cast<ALshort>(fastf2i(clampf(val*32768.0f, -32768.0f, 32767.0f))); }
-template<> inline ALbyte StoreSample<DevFmtByte>(ALfloat val) noexcept
+template<> inline ALbyte StoreSample<DevFmtByte>(float val) noexcept
 { return static_cast<ALbyte>(fastf2i(clampf(val*128.0f, -128.0f, 127.0f))); }
 
 /* Define unsigned output variations. */
-template<> inline ALuint StoreSample<DevFmtUInt>(ALfloat val) noexcept
+template<> inline ALuint StoreSample<DevFmtUInt>(float val) noexcept
 { return static_cast<ALuint>(StoreSample<DevFmtInt>(val)) + 2147483648u; }
-template<> inline ALushort StoreSample<DevFmtUShort>(ALfloat val) noexcept
+template<> inline ALushort StoreSample<DevFmtUShort>(float val) noexcept
 { return static_cast<ALushort>(StoreSample<DevFmtShort>(val) + 32768); }
-template<> inline ALubyte StoreSample<DevFmtUByte>(ALfloat val) noexcept
+template<> inline ALubyte StoreSample<DevFmtUByte>(float val) noexcept
 { return static_cast<ALubyte>(StoreSample<DevFmtByte>(val) + 128); }
 
 template<DevFmtType T>
-inline void StoreSampleArray(void *dst, const ALfloat *RESTRICT src, const size_t dststep,
+inline void StoreSampleArray(void *dst, const float *RESTRICT src, const size_t dststep,
     const size_t samples) noexcept
 {
     using SampleType = typename DevFmtTypeTraits<T>::Type;
@@ -102,7 +105,7 @@ inline void StoreSampleArray(void *dst, const ALfloat *RESTRICT src, const size_
 }
 
 
-void StoreSamples(ALvoid *dst, const ALfloat *src, const size_t dststep, const DevFmtType dsttype,
+void StoreSamples(void *dst, const float *src, const size_t dststep, const DevFmtType dsttype,
     const size_t samples) noexcept
 {
 #define HANDLE_FMT(T)                                                         \
@@ -122,7 +125,7 @@ void StoreSamples(ALvoid *dst, const ALfloat *src, const size_t dststep, const D
 
 
 template<DevFmtType T>
-void Mono2Stereo(ALfloat *RESTRICT dst, const void *src, const size_t frames) noexcept
+void Mono2Stereo(float *RESTRICT dst, const void *src, const size_t frames) noexcept
 {
     using SampleType = typename DevFmtTypeTraits<T>::Type;
 
@@ -132,14 +135,24 @@ void Mono2Stereo(ALfloat *RESTRICT dst, const void *src, const size_t frames) no
 }
 
 template<DevFmtType T>
-void Stereo2Mono(ALfloat *RESTRICT dst, const void *src, const size_t frames) noexcept
+void Multi2Mono(ALuint chanmask, const size_t step, const float scale, float *RESTRICT dst,
+    const void *src, const size_t frames) noexcept
 {
     using SampleType = typename DevFmtTypeTraits<T>::Type;
 
     const SampleType *ssrc = static_cast<const SampleType*>(src);
+    std::fill_n(dst, frames, 0.0f);
+    for(size_t c{0};chanmask;++c)
+    {
+        if LIKELY((chanmask&1))
+        {
+            for(size_t i{0u};i < frames;i++)
+                dst[i] += LoadSample<T>(ssrc[i*step + c]);
+        }
+        chanmask >>= 1;
+    }
     for(size_t i{0u};i < frames;i++)
-        dst[i] = (LoadSample<T>(ssrc[i*2 + 0])+LoadSample<T>(ssrc[i*2 + 1])) *
-                 0.707106781187f;
+        dst[i] *= scale;
 }
 
 } // namespace
@@ -150,7 +163,7 @@ SampleConverterPtr CreateSampleConverter(DevFmtType srcType, DevFmtType dstType,
     if(numchans < 1 || srcRate < 1 || dstRate < 1)
         return nullptr;
 
-    SampleConverterPtr converter{new (FamCount{numchans}) SampleConverter{numchans}};
+    SampleConverterPtr converter{new(FamCount(numchans)) SampleConverter{numchans}};
     converter->mSrcType = srcType;
     converter->mDstType = dstType;
     converter->mSrcTypeSize = BytesFromDevFmt(srcType);
@@ -175,7 +188,7 @@ SampleConverterPtr CreateSampleConverter(DevFmtType srcType, DevFmtType dstType,
 
 ALuint SampleConverter::availableOut(ALuint srcframes) const
 {
-    ALint prepcount{mSrcPrepCount};
+    int prepcount{mSrcPrepCount};
     if(prepcount < 0)
     {
         /* Negative prepcount means we need to skip that many input samples. */
@@ -208,7 +221,7 @@ ALuint SampleConverter::availableOut(ALuint srcframes) const
     return static_cast<ALuint>(clampu64((DataSize64 + mIncrement-1)/mIncrement, 1, BUFFERSIZE));
 }
 
-ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *dst, ALuint dstframes)
+ALuint SampleConverter::convert(const void **src, ALuint *srcframes, void *dst, ALuint dstframes)
 {
     const ALuint SrcFrameSize{static_cast<ALuint>(mChan.size()) * mSrcTypeSize};
     const ALuint DstFrameSize{static_cast<ALuint>(mChan.size()) * mDstTypeSize};
@@ -220,13 +233,13 @@ ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *d
     ALuint pos{0};
     while(pos < dstframes && NumSrcSamples > 0)
     {
-        ALint prepcount{mSrcPrepCount};
+        int prepcount{mSrcPrepCount};
         if(prepcount < 0)
         {
             /* Negative prepcount means we need to skip that many input samples. */
             if(static_cast<ALuint>(-prepcount) >= NumSrcSamples)
             {
-                mSrcPrepCount = static_cast<ALint>(NumSrcSamples) + prepcount;
+                mSrcPrepCount = static_cast<int>(NumSrcSamples) + prepcount;
                 NumSrcSamples = 0;
                 break;
             }
@@ -247,13 +260,13 @@ ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *d
                 LoadSamples(&mChan[chan].PrevSamples[prepcount], SamplesIn + mSrcTypeSize*chan,
                     mChan.size(), mSrcType, toread);
 
-            mSrcPrepCount = prepcount + static_cast<ALint>(toread);
+            mSrcPrepCount = prepcount + static_cast<int>(toread);
             NumSrcSamples = 0;
             break;
         }
 
-        ALfloat *RESTRICT SrcData{mSrcSamples};
-        ALfloat *RESTRICT DstData{mDstSamples};
+        float *RESTRICT SrcData{mSrcSamples};
+        float *RESTRICT DstData{mDstSamples};
         ALuint DataPosFrac{mFracOffset};
         auto DataSize64 = static_cast<uint64_t>(prepcount);
         DataSize64 += toread;
@@ -294,7 +307,7 @@ ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *d
             }
 
             /* Now resample, and store the result in the output buffer. */
-            const ALfloat *ResampledData{mResample(&mState, SrcData+(MAX_RESAMPLER_PADDING>>1),
+            const float *ResampledData{mResample(&mState, SrcData+(MAX_RESAMPLER_PADDING>>1),
                 DataPosFrac, increment, {DstData, DstSize})};
 
             StoreSamples(DstSamples, ResampledData, mChan.size(), mDstType, DstSize);
@@ -304,7 +317,7 @@ ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *d
          * fractional offset.
          */
         DataPosFrac += increment*DstSize;
-        mSrcPrepCount = mini(prepcount + static_cast<ALint>(toread - (DataPosFrac>>FRACTIONBITS)),
+        mSrcPrepCount = mini(prepcount + static_cast<int>(toread - (DataPosFrac>>FRACTIONBITS)),
             MAX_RESAMPLER_PADDING);
         mFracOffset = DataPosFrac & FRACTIONMASK;
 
@@ -323,13 +336,14 @@ ALuint SampleConverter::convert(const ALvoid **src, ALuint *srcframes, ALvoid *d
 }
 
 
-void ChannelConverter::convert(const ALvoid *src, ALfloat *dst, ALuint frames) const
+void ChannelConverter::convert(const void *src, float *dst, ALuint frames) const
 {
-    if(mSrcChans == DevFmtStereo && mDstChans == DevFmtMono)
+    if(mDstChans == DevFmtMono)
     {
+        const float scale{std::sqrt(1.0f / static_cast<float>(PopCount(mChanMask)))};
         switch(mSrcType)
         {
-#define HANDLE_FMT(T) case T: Stereo2Mono<T>(dst, src, frames); break
+#define HANDLE_FMT(T) case T: Multi2Mono<T>(mChanMask, mSrcStep, scale, dst, src, frames); break
         HANDLE_FMT(DevFmtByte);
         HANDLE_FMT(DevFmtUByte);
         HANDLE_FMT(DevFmtShort);
@@ -340,7 +354,7 @@ void ChannelConverter::convert(const ALvoid *src, ALfloat *dst, ALuint frames) c
 #undef HANDLE_FMT
         }
     }
-    else if(mSrcChans == DevFmtMono && mDstChans == DevFmtStereo)
+    else if(mChanMask == 0x1 && mDstChans == DevFmtStereo)
     {
         switch(mSrcType)
         {
@@ -355,6 +369,4 @@ void ChannelConverter::convert(const ALvoid *src, ALfloat *dst, ALuint frames) c
 #undef HANDLE_FMT
         }
     }
-    else
-        LoadSamples(dst, src, 1u, mSrcType, frames * ChannelsFromDevFmt(mSrcChans, 0));
 }

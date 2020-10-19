@@ -10,7 +10,7 @@ namespace osu {
     void Osu::initialise() {
         std::locale::global(std::locale("en_US.UTF-8"));
         Properties::initialise();
-        AudioSystem::initialise();
+//        AudioSystem::initialise();
         Graphics::initialise();
         Logic::initialise();
     }

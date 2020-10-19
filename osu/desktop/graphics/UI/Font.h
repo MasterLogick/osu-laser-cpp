@@ -93,6 +93,7 @@ namespace osu {
         Char *binSearch(wchar_t id);
 
         Kerning *getKerning(wchar_t i, wchar_t i1);
+
     public:
         static Font *Exo2_0_Black;
 #ifdef COMPILE_WITH_ALL_FONTS
@@ -119,6 +120,7 @@ namespace osu {
 
 #endif
 
+        ///debug draw switcher. see Callbacks
         static bool is;
 
         static void initialise();

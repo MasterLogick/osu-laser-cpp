@@ -53,6 +53,7 @@ namespace osu {
 
     bool InitAL(ALCdevice *device, ALCcontext *context, const char *name) {
         /* Open and initialize a device */
+        std::cout << alGetString(ALC_ALL_DEVICES_SPECIFIER) << std::endl;
         device = alcOpenDevice(name);
         if (!device) {
             fprintf(stderr, "Could not open a device!\n");

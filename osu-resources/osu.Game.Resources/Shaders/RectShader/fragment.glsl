@@ -3,8 +3,13 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D textureSampler;
+uniform float alpha;
 
 void main()
 {
-    FragColor = texture(textureSampler, vec2(TexCoords.s, TexCoords.t));
+    vec4 e = texture(textureSampler, vec2(TexCoords.s, TexCoords.t));
+    if (e.a>0) {
+        e.a = alpha;
+    }
+    FragColor = e;
 }

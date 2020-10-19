@@ -7,4 +7,5 @@
 #define CONFIG_PATH "@CONFIG_PATH@"
 #define RESOURCE_ROOT "@RESOURCES@"
 #define FONTS_PATH "@FONTS_PATH@"
+#define SKIN_PATH "@SKIN_PATH@"
 #endif
