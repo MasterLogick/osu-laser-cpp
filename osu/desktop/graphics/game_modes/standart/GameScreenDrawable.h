@@ -12,16 +12,25 @@
 namespace osu {
     class GameScreenDrawable {
         Beatmap *beatmap;
+
         std::vector<Circle *>::iterator left, right;
-        std::chrono::time_point<std::chrono::system_clock> lastDraw;
+        std::chrono::time_point<std::chrono::system_clock> lastPause;
         int beatmapTime = 0;
+        int passedBeforePause = 0;
         int fadeIn = 0;
         int preempt = 100;
         int postDraw = 10;
         bool drawing = false;
         bool firstFrame = true;
+        float xAxisMultiplier;
+        float yAxisMultiplier;
+        float diameterMultiplier;
+        float xHitOffset;
+        float yHitOffset;
 
         void drawCircle(Circle *c);
+
+        void drawSlider(Slider *s);
 
         void startDraw();
 

@@ -57,5 +57,6 @@ namespace osu {
 
     void GameDrawer::useGameScreenDrawable(GameScreenDrawable *screenDrawable) {
         drawable = screenDrawable;
+        drawable->initialise();
     }
 }

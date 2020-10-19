@@ -13,6 +13,7 @@ namespace osu {
 
     public:
         static GLuint CircleSprite;
+        static GLuint HitCircleOverlay;
 
         static void loadSprites();
     };

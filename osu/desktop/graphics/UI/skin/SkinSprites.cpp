@@ -9,6 +9,7 @@
 
 namespace osu {
     GLuint SkinSprites::CircleSprite = 0;
+    GLuint SkinSprites::HitCircleOverlay = 0;
 
     void SkinSprites::loadSprite(GLuint *var, char *name) {
         glCreateTextures(GL_TEXTURE_2D, 1, var);
@@ -26,5 +27,6 @@ namespace osu {
 
     void SkinSprites::loadSprites() {
         loadSprite(&CircleSprite, "hitcircle");
+        loadSprite(&HitCircleOverlay, "hitcircleoverlay");
     }
 }
