@@ -2,7 +2,9 @@
 // Created by MasterLogick on 2/5/20.
 //
 #include "ShaderLoader.h"
-namespace osu{
+#include <cstring>
+
+namespace osu {
 
     Shader *ShaderLoader::loadShader(char *name, char **uniforms, int count) {
         std::string vertexCode;
@@ -25,7 +27,7 @@ namespace osu{
             fragmentCode = fShaderStream.str();
         }
         catch (std::ifstream::failure e) {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            //todo catch io_exeption
         }
         const char *vShaderCode = vertexCode.c_str();
         const char *fShaderCode = fragmentCode.c_str();
@@ -35,6 +37,7 @@ namespace osu{
         if (vertex == 0 || fragment == 0) {
             glDeleteShader(vertex);
             glDeleteShader(fragment);
+            std::cerr << "Shader compilation error" << std::endl;
             return nullptr;
         }
         GLuint program;
@@ -43,20 +46,20 @@ namespace osu{
             glDeleteShader(vertex);
             glDeleteShader(fragment);
             glDeleteProgram(program);
+            std::cerr << "Shader compilation error" << std::endl;
             return nullptr;
         }
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-        return new Shader(program, getUniformsLocations(program, uniforms, count));
+        return new Shader(program, getUniformsLocations(program, uniforms, count), count);
     }
 
-    std::map<std::string, int> *ShaderLoader::getUniformsLocations(int program, char **uniforms, int count) {
-        auto *map = new std::map<std::string, int>();
+    std::pair<char *, int> *ShaderLoader::getUniformsLocations(int program, char **uniforms, int count) {
+        std::pair<char *, int> *pairs = new std::pair<char *, int>[count];
         for (int i = 0; i < count; ++i) {
-            int loc = glGetUniformLocation(program, uniforms[i]);
-            (*map)[uniforms[i]] = loc;
+            pairs[i] = std::pair(strdup(uniforms[i]), glGetUniformLocation(program, uniforms[i]));
         }
-        return map;
+        return pairs;
     }
 
     GLuint ShaderLoader::linkShaderProgram(GLint vertexShader, GLint fragmentShader, GLuint geometryShader) {

@@ -146,3 +146,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_PROJECT_NAME}_lib)
 if (BUILD_TESTING)
     add_subdirectory(osu/test)
 endif ()
+
+#increase stack size
+#todo crosscompiling
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,stack-size=10000000")

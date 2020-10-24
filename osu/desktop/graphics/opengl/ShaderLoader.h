@@ -21,7 +21,7 @@ namespace osu {
 
         static GLuint linkShaderProgram(GLint vertexShader, GLint fragmentShader, GLuint geometryShader = 0);
 
-        static std::map<std::string, int> *getUniformsLocations(int program, char **uniforms, int count);
+        static std::pair<char *, int> *getUniformsLocations(int program, char **uniforms, int count);
 
     public:
 

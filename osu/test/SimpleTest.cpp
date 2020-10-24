@@ -16,5 +16,9 @@ void f(std::vector<int>::iterator e) {
 }
 
 int main(int argc, const char **argv, const char **envp) {
-    ExecutionTimer _timer;
+    for (int i = 10837; i <= 13920; ++i) {
+        if ((i % 17 == 0) && (i % 7 != 0) && (i % 15 != 0) && (i % 18 != 0) && (i % 34 != 0)) {
+            std::cout << i << std::endl;
+        }
+    }
 }

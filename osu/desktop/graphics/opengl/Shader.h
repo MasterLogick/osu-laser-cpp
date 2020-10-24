@@ -8,13 +8,16 @@
 #include <string>
 #include <map>
 #include <glad/glad.h>
+#include <vector>
+#include <cstdlib>
 
 namespace osu {
 
     class Shader {
     private:
         GLuint program;
-        std::map<std::string, int> *uniforms;
+        std::pair<char *, int> *bindingPoints;
+        std::size_t pointsCount;
         int id;
 
         void bindUniform(int bindingPoint, char *name);
@@ -26,7 +29,7 @@ namespace osu {
         static Shader *spriteDrawingShader;
         static Shader *videoDrawingShader;
 
-        Shader(GLuint id, std::map<std::string, int> *uniforms);
+        Shader(GLuint id, std::pair<char *, int> *binding, std::size_t size);
 
         void bind();
 
@@ -38,9 +41,9 @@ namespace osu {
 
         static void initialise();
 
-        void uniform3(const char name[6], float *val);
+        void uniform3(const char *name, float *val);
 
-        void uniform4(const char name[6], float *val);
+        void uniform4(const char *name, float *val);
     };
 }
 

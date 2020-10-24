@@ -12,8 +12,8 @@
 #include "../Graphics.h"
 #include "../UI/UIManager.h"
 
+#define SCREEN_INFO_BINDING_POINT 0
 namespace osu {
-    const int SCREEN_INFO_BINDING_POINT = 0;
     const char *SCREEN_INFO_BINDING_POINT_NAME{"Screen"};
     Shader *Shader::triangleShader = nullptr;
     Shader *Shader::postProcessorShader = nullptr;
@@ -21,9 +21,10 @@ namespace osu {
     Shader *Shader::spriteDrawingShader = nullptr;
     Shader *Shader::videoDrawingShader = nullptr;
 
-    osu::Shader::Shader(GLuint id, std::map<std::string, int> *uniforms) {
+    Shader::Shader(GLuint id, std::pair<char *, int> *binding, std::size_t size) {
         program = id;
-        this->uniforms = uniforms;
+        this->bindingPoints = binding;
+        pointsCount = size;
     }
 
     void Shader::initialise() {
@@ -41,13 +42,13 @@ namespace osu {
                           sizeof(glm::mat4x4) + 2 * sizeof(float));
 
         char *TriangleBackgroundUniforms[] = {(char *) "x", (char *) "y"};
-        char *PostProcessorUniforms = (char *) "screenTexture";
+        char *PostProcessorUniforms[] = {(char *) "screenTexture"};
         char *FontUniforms[] = {(char *) "textureSampler", (char *) "Color"};
         char *SpriteDrawingUniforms[] = {(char *) "textureSampler", (char *) "layer", (char *) "alpha"};
         char *VideoUniforms[] = {(char *) "yPlaneSampler", (char *) "uPlaneSampler", (char *) "vPlaneSampler"};
 
         triangleShader = ShaderLoader::loadShader((char *) "TrianglesBackground", TriangleBackgroundUniforms, 2);
-        postProcessorShader = ShaderLoader::loadShader((char *) "PostProcessor", &PostProcessorUniforms, 1);
+        postProcessorShader = ShaderLoader::loadShader((char *) "PostProcessor", PostProcessorUniforms, 1);
         fontShader = ShaderLoader::loadShader((char *) "Font", FontUniforms, 2);
         spriteDrawingShader = ShaderLoader::loadShader((char *) "RectShader", SpriteDrawingUniforms, 3);
         videoDrawingShader = ShaderLoader::loadShader((char *) "VideoShader", VideoUniforms, 3);
@@ -72,18 +73,39 @@ namespace osu {
     }
 
     void Shader::uniform(const char *name, float val) {
-        glUniform1f(uniforms->find(name)->second, val);
+        for (int i = 0; i < pointsCount; ++i) {
+            if (strcmp(bindingPoints[i].first, name) == 0) {
+                glUniform1f(bindingPoints[i].second, val);
+                break;
+            }
+        }
+
     }
 
     void Shader::uniform(const char *name, int val) {
-        glUniform1i(uniforms->find(name)->second, val);
+        for (int i = 0; i < pointsCount; ++i) {
+            if (strcmp(bindingPoints[i].first, name) == 0) {
+                glUniform1i(bindingPoints[i].second, val);
+                break;
+            }
+        }
     }
 
     void Shader::uniform3(const char *name, float *val) {
-        glUniform3fv(uniforms->find(name)->second, 1, val);
+        for (int i = 0; i < pointsCount; ++i) {
+            if (strcmp(bindingPoints[i].first, name) == 0) {
+                glUniform3fv(bindingPoints[i].second, 1, val);
+                break;
+            }
+        }
     }
 
     void Shader::uniform4(const char *name, float *val) {
-        glUniform4fv(uniforms->find(name)->second, 1, val);
+        for (int i = 0; i < pointsCount; ++i) {
+            if (strcmp(bindingPoints[i].first, name) == 0) {
+                glUniform4fv(bindingPoints[i].second, 1, val);
+                break;
+            }
+        }
     }
 }

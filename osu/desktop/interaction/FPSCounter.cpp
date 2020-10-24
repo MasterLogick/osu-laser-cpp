@@ -3,6 +3,7 @@
 //
 #include <thread>
 #include "FPSCounter.h"
+#include <ratio>
 
 using namespace std::chrono;
 
@@ -13,7 +14,7 @@ namespace osu {
         now = 0;
         passed = 0;
         durations = new double[range];
-        start = future = past = high_resolution_clock::now();
+        start = future = past = system_clock::now();
     }
 
     FPSCounter::~FPSCounter() {
@@ -31,11 +32,11 @@ namespace osu {
         passed = 0;
         durations = new double[range];
         delete[] old;
-        start = future = past = high_resolution_clock::now();
+        start = future = past = system_clock::now();
     }
 
     void FPSCounter::countFPSAndSleep() {
-        auto length = (future = high_resolution_clock::now()) - past;
+        auto length = (future = system_clock::now()) - past;
         if (++now == _range) {
             now = 0;
             passed = 0;
@@ -46,14 +47,14 @@ namespace osu {
             start = future;
             now = 0;
             passed = 0;
-            std::this_thread::sleep_until(start + microseconds(1000000 / _range));
+            std::this_thread::sleep_until(start + microseconds(std::micro::den / _range));
         } else if (now == 0) {
             start += 1s;
             passed = 0;
             std::this_thread::sleep_until(start);
         } else {
             passed += durations[now];
-            std::this_thread::sleep_until(start + microseconds(1000000 / _range * (now)));
+            std::this_thread::sleep_until(start + microseconds(std::micro::den / _range * (now)));
         }
     }
 

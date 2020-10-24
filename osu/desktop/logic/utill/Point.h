@@ -10,7 +10,10 @@ namespace osu {
     public:
         int x;
         int y;
+
+        void interpolate(float t, Point &b);
     };
+
     struct PointF {
     public:
         float x;

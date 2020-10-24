@@ -33,6 +33,10 @@ namespace osu {
             preempt = 1200 - 750 * (beatmap->metadata->Difficulty.ApproachRate - 5) / 5;
             fadeIn = 800 - 500 * (beatmap->metadata->Difficulty.ApproachRate - 5) / 5;
         }
+        Point arr[] = {{100, 100},
+                       {200, 200},
+                       {300, 100}};
+        sp = SliderPath(arr, 3, 100 * M_PI, 0.1);
     }
 
     void GameScreenDrawable::initialise() {
@@ -40,7 +44,6 @@ namespace osu {
         yAxisMultiplier = (float) Graphics::mainScreen->getHeight() / OSU_SCREEN_HEIGHT;
         diameterMultiplier = (xAxisMultiplier + yAxisMultiplier) / 2.0f;
         std::cout << beatmap->hitObjects.front()->time << std::endl;
-
     }
 
     void GameScreenDrawable::draw() {
@@ -66,9 +69,10 @@ namespace osu {
                 drawCircle(c);
             }
         });
-
-//        std::cout << "draw tick " << std::distance(left, beatmap->hitObjects.begin()) << " "
-//                  << std::distance(right, beatmap->hitObjects.begin()) << std::endl;
+        std::for_each(sp.mainSpline.begin(), sp.mainSpline.end(), [](Point p) {
+            UtillDrawer::drawRectSprite(p.x, p.y, p.x + 20, p.y + 20, GAME_SCREEN_DRAWING_LAYER,
+                                        SkinSprites::HitCircleOverlay, 1);
+        });
     }
 
     void GameScreenDrawable::drawCircle(Circle *c) {

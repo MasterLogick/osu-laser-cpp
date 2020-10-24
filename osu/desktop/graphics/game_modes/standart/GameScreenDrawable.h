@@ -12,7 +12,7 @@
 namespace osu {
     class GameScreenDrawable {
         Beatmap *beatmap;
-
+        SliderPath sp;
         std::vector<Circle *>::iterator left, right;
         std::chrono::time_point<std::chrono::system_clock> lastPause;
         int beatmapTime = 0;

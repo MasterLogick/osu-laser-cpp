@@ -25,7 +25,6 @@ namespace osu {
 
     void GameDrawer::drawGame() {
         drawable->draw();
-        UtillDrawer::drawRectSprite(0, 0, 100, 100, -90, SkinSprites::CircleSprite);
     }
 
     void GameDrawer::postProcessing() {
