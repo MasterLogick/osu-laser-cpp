@@ -29,6 +29,8 @@ namespace osu {
         explicit BufferedReader(std::istream &inputStream);
 
         bool readLine(std::string &line);
+
+        ~BufferedReader();
     };
 }
 

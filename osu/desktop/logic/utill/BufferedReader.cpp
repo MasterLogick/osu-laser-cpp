@@ -119,4 +119,8 @@ namespace osu {
             nextChar = dst;
         }
     }
+
+    BufferedReader::~BufferedReader() {
+        delete[] cb;
+    }
 }

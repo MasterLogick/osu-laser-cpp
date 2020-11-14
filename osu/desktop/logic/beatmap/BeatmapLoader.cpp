@@ -152,10 +152,10 @@ namespace osu {
                   [](Circle *a, Circle *b) -> bool {
                       return a->time < b->time;
                   });
-        beatmap->hitObjects.insert(beatmap->hitObjects.cbegin(), hitObjects.begin(), hitObjects.end());
-        beatmap->metadata = metadata;
-        beatmap->colorSchema = colorSchema;
-        beatmap->timingPointSet = timingPointSet;
+        beatmap->hitObjects = std::move(hitObjects);
+        beatmap->metadata = std::move(metadata);
+        beatmap->colorSchema = std::move(colorSchema);
+        beatmap->timingPointSet = std::move(timingPointSet);
         beatmap->storyboard = storyboardBuilder->build();
         return beatmap;
     }

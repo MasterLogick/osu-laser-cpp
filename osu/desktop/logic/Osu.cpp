@@ -21,6 +21,7 @@ namespace osu {
 #ifndef NDEBUG
         std::cout << "Join to drawingThread" << std::endl;
 #endif
+
         Graphics::drawingThread->join();
     }
 }

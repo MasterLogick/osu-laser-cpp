@@ -9,7 +9,6 @@
 
 namespace osu {
     class Logic {
-        static Beatmap *CurrentBeatmap;
     public:
         static void initialise();
 

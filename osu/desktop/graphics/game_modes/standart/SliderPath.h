@@ -12,8 +12,6 @@
 
 namespace osu {
     class SliderPath {
-        static Point *BUFFER;
-        static std::mutex _t;
     public:
         std::vector<Point> mainSpline;
 
